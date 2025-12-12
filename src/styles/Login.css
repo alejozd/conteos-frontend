@@ -117,3 +117,20 @@
 .animate-fade-up {
   animation: fade-up 0.7s ease forwards;
 }
+
+/* --- Borde rojo cuando PrimeReact marca el input como inválido --- */
+.p-inputtext.p-invalid {
+  border-color: #ff4d4f !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 77, 79, 0.3) !important;
+}
+
+/* Ícono del ojo en el input de contraseña */
+.form-group .pi-eye,
+.form-group .pi-eye-slash {
+  transition: color 0.2s;
+}
+
+.form-group .pi-eye:hover,
+.form-group .pi-eye-slash:hover {
+  color: #ffffff;
+}

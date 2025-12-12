@@ -11,11 +11,14 @@ import '../styles/Login.css'; // <--- ¡Importamos nuestro CSS!
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const { login } = useAuth();
 
   const handleLogin = async () => {
+    setLoginError(false);
     if (!username.trim() || !password) {
       toast.current?.show({ severity: 'warn', summary: 'Faltan datos', detail: 'Ingresa usuario y contraseña' });
       return;
@@ -26,7 +29,13 @@ export default function Login() {
       toast.current?.show({ severity: 'success', summary: '¡Bienvenido!', detail: `Hola ${username}` });
       setTimeout(() => navigate("/post-login"), 500);
     } catch (err) {
-      toast.current?.show({ severity: 'error', summary: 'Error', detail: (err as Error).message });
+      setLoginError(true);
+      if (err instanceof Error && err.message === 'Request failed with status code 401') {
+        toast.current?.show({ severity: 'error', summary: 'Error de autenticación', detail: 'Usuario o contraseña incorrectos' });
+      } else {
+        console.error(err);
+        toast.current?.show({ severity: 'error', summary: 'Error', detail: (err as Error).message });
+      }      
     }
   };
 
@@ -58,18 +67,31 @@ export default function Login() {
                 />
               </div>
 
-              <div className="form-group">
-                <label className="login-label">
-                  Contraseña
-                </label>
-                <InputText
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-12 text-lg"
-                  placeholder="••••••••"
-                />
-              </div>
+              <div className="form-group" style={{ position: "relative" }}>
+  <label className="login-label">Contraseña</label>
+
+  <InputText
+    type={showPassword ? "text" : "password"}
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className={`w-full h-12 text-lg ${loginError ? "p-invalid" : ""}`}
+    placeholder="••••••••"
+  />
+
+  {/* Ojo para mostrar/ocultar */}
+  <i
+    className={`pi ${showPassword ? "pi-eye-slash" : "pi-eye"}`}
+    onClick={() => setShowPassword(!showPassword)}
+    style={{
+      position: "absolute",
+      right: "12px",
+      top: "42px",
+      cursor: "pointer",
+      color: "#bbb",
+      fontSize: "1.2rem",
+    }}
+  />
+</div>
 
               {/* Botón */}
               <Button
