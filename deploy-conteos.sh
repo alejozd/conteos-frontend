@@ -13,7 +13,7 @@ set -e
 # 1. Actualiza el código desde GitHub
 echo "📥 git pull..."
 # Ajusta la rama si es distinta a 'main'
-git pull origin main
+git pull origin master
 
 # 2. Instala dependencias (solo si package.json ha cambiado)
 echo "📦 npm install..."
