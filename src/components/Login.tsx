@@ -1,5 +1,6 @@
 // src/components/Login.tsx
 import { useState, useRef } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
@@ -10,6 +11,7 @@ import '../styles/Login.css'; // <--- ¡Importamos nuestro CSS!
 export default function Login() {
   const [username, setUsername] = useState('alejo');
   const [password, setPassword] = useState('Pascal2025*');
+  const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const { login } = useAuth();
 
@@ -22,6 +24,7 @@ export default function Login() {
     try {
       await login(username, password);
       toast.current?.show({ severity: 'success', summary: '¡Bienvenido!', detail: `Hola ${username}` });
+      setTimeout(() => navigate("/post-login"), 500);
     } catch (err) {
       toast.current?.show({ severity: 'error', summary: 'Error', detail: (err as Error).message });
     }

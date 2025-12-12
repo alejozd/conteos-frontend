@@ -1,33 +1,58 @@
 // src/App.tsx
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { useAuth } from './hooks/useAuth';
+import { useAuth } from "./hooks/useAuth";
+
 import Login from "./components/Login";
-// Temporalmente comentamos los que aún no existen
-// import ConteoOperario from "./components/ConteoOperario";
-// import DashboardAdmin from "./components/DashboardAdmin";
+import SeleccionarGrupo from "./components/SeleccionarGrupo";
+import ConteoOperario from "./components/ConteoOperario";
+import PostLogin from "./components/PostLogin";
 
-function Main() {
-  const { user} = useAuth();
-  // const isAdmin = user?.role === 'admin';
-
-  if (!user) return <Login />;
-  
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">
-        Bienvenido, {user.username} ({user.role === 'admin' ? ' (Admin)' : ' (Operario)' })
-      </h1>
-      <p>Login funcionando al 100%</p>
-    </div>
-  );
+// function PrivateRoute({ children }: { children: JSX.Element }) {
+  function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/" />;
 }
 
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-100">
-        <Main />
-      </div>
+      <BrowserRouter>
+        <Routes>
+
+          <Route path="/" element={<Login />} />
+<Route
+  path="/post-login"
+  element={
+    <PrivateRoute>
+      <PostLogin />
+    </PrivateRoute>
+  }
+/>
+
+          <Route
+            path="/seleccionar-grupo"
+            element={
+              <PrivateRoute>
+                <SeleccionarGrupo />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/captura"
+            element={
+              <PrivateRoute>
+                <ConteoOperario />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Si ponen cualquier ruta no válida */}
+          <Route path="*" element={<Navigate to="/" />} />
+
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
