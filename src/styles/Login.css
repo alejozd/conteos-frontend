@@ -1,24 +1,108 @@
-/* Fondo corporativo con degradado suave */
-.login-bg {
-  background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 40%, #ffffff 100%);
+/* src/components/Login.css */
+
+/* --- Contenedor Principal y Centrado --- */
+.login-container {
+  /* Fondo oscuro de tu captura (Puedes ajustarlo) */
+  background-color: #1a1a2e; /* Fondo oscuro sutil */
+  min-height: 100vh;
+  
+  /* Centrado vertical y horizontal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-/* Card central suave, limpio, corporativo */
+.login-wrapper {
+  width: 100%;
+  max-width: 450px; /* Ancho máximo para el formulario */
+}
+
+/* --- Estilo de la Tarjeta (Card) --- */
 .login-card {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  /* Fondo de la Card para el tema oscuro, con un padding generoso */
+  background-color: #27273d !important; 
+  color: #f0f0f0; /* Texto claro */
+  padding: 40px; /* Aumentamos el padding para más espacio interno */
 }
 
-/* Hover elegante como dashboard empresarial */
-.login-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+/* --- Estilos de Títulos y Subtítulos --- */
+.login-header {
+  text-align: center;
+  margin-bottom: 40px; /* Espacio debajo de la cabecera */
 }
 
-/* Animación suave de entrada */
+.login-header h1 {
+  color: #ffffff;
+}
+
+.login-header .pi-box {
+  color: #6366f1; /* Color azul/índigo para el ícono */
+}
+
+.login-subtitle {
+  color: #a0a0a0;
+  margin-top: 15px;
+}
+
+/* --- Espaciado del Formulario --- */
+/* Contenedor de campos y botón */
+.login-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* Espacio uniforme entre grupos de formulario (label + input) y el botón */
+}
+
+/* Espacio entre label y input */
+.form-group {
+  /* No necesita gap si usamos margin-bottom en el label */
+}
+
+.login-label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.875rem; /* 14px */
+  color: #c0c0c0;
+  margin-bottom: 10px; /* Espacio entre el label y el InputText */
+}
+
+
+/* --- Estilo de Componentes PrimeReact --- */
+/* Aplicar estilo oscuro a los inputs de PrimeReact */
+.login-form-fields .p-inputtext {
+  background-color: #383856; /* Fondo más oscuro para el input */
+  color: #ffffff;
+  border-color: #4a4a6e;
+  padding: 0.75rem 1rem;
+}
+
+.login-form-fields .p-inputtext:focus {
+  border-color: #6366f1; /* Color de foco */
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.2);
+}
+
+/* Estilo del botón */
+.login-form-fields .p-button {
+  margin-top: 5px; /* Pequeño ajuste adicional si lo necesitas */
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+.login-form-fields .p-button:hover {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+
+/* --- Footer (Copyright) --- */
+.login-footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #888888;
+  margin-top: 40px; /* ESTO ARREGLA LA SEPARACIÓN DEL BOTÓN */
+}
+
+/* Animación (Mantenemos la que definiste) */
 @keyframes fade-up {
   from {
     opacity: 0;

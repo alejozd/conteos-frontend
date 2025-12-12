@@ -5,7 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useAuth } from '../hooks/useAuth';
-// import '../styles/Login.css';
+import '../styles/Login.css'; // <--- ¡Importamos nuestro CSS!
 
 export default function Login() {
   const [username, setUsername] = useState('alejo');
@@ -31,18 +31,20 @@ export default function Login() {
     <>
       <Toast ref={toast} position="top-center" />
 
-      <div className="login-bg min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <Card className="login-card shadow-2xl p-10 rounded-2xl animate-fade-up">
-            <div className="text-center mb-12">
-              <i className="pi pi-box text-7xl text-indigo-500 mb-6" />
-              <h1 className="text-4xl font-bold text-gray-800">Conteo de Inventario</h1>
-              <p className="text-gray-600 mt-4 text-lg">Portal de acceso</p>
+      {/* Usamos 'login-container' para el centrado y el fondo */}
+      <div className="login-container">
+        <div className="login-wrapper">
+          {/* Usamos 'login-card' para el estilo y el padding/margin */}
+          <Card className="login-card shadow-2xl rounded-2xl animate-fade-up">
+            <div className="login-header">
+              <i className="pi pi-box text-7xl mb-6" />
+              <h1 className="text-4xl font-bold">Conteo de Inventario</h1>
+              <p className="login-subtitle text-lg">Portal de acceso</p>
             </div>
 
-            <div className="space-y-10">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+            <div className="login-form-fields">
+              <div className="form-group">
+                <label className="login-label">
                   Usuario
                 </label>
                 <InputText
@@ -53,8 +55,8 @@ export default function Login() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+              <div className="form-group">
+                <label className="login-label">
                   Contraseña
                 </label>
                 <InputText
@@ -66,15 +68,17 @@ export default function Login() {
                 />
               </div>
 
+              {/* Botón */}
               <Button
                 label="Iniciar sesión"
                 icon="pi pi-sign-in"
                 onClick={handleLogin}
-                className="w-full h-14 text-xl font-bold bg-indigo-600 hover:bg-indigo-700"
+                className="w-full h-14 text-xl font-bold"
               />
             </div>
 
-            <div className="text-center mt-14 text-sm text-gray-500">
+            {/* Texto de Copyright */}
+            <div className="login-footer">
               Metrocerámicas © 2025 • v1.0
             </div>
           </Card>
