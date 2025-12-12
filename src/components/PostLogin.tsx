@@ -1,3 +1,4 @@
+// src/components/PostLogin.tsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -11,15 +12,17 @@ export default function PostLogin() {
     if (!token || !user) return;
 
     const validarRol = async () => {
-      try {      
-        const role = user.role;
-        //console.log("Rol:", role);
+      try {
+        // console.log("Validando rol...");
 
-        // Llamamos al endpoint correcto
+        const role = user.role;
+        // console.log("Rol:", role);
+
+        // Llamada al endpoint correcto
         const response = await api.get("/api/conteos/grupos/activos");
 
-        const grupos = response.data || [];
-        //console.log("Grupos activos:", grupos);
+        const grupos = Array.isArray(response.data) ? response.data : [];
+        // console.log("Grupos activos:", grupos);
 
         // Si es admin
         if (role === "admin") {
@@ -34,7 +37,8 @@ export default function PostLogin() {
         }
 
         if (grupos.length === 1) {
-          setGrupoActivo(grupos[0].id); // lo guardamos en el contexto
+          // guardamos el objeto completo en el contexto
+          setGrupoActivo(grupos[0]);
           navigate(`/captura?grupo=${grupos[0].id}`);
           return;
         }
@@ -44,6 +48,7 @@ export default function PostLogin() {
 
       } catch (error) {
         console.error("Error al obtener grupos activos:", error);
+        // Si falla, volvemos a login para que el usuario lo intente
         navigate("/");
       }
     };
