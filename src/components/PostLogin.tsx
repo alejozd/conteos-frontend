@@ -59,8 +59,9 @@ export default function PostLogin() {
   }, [token, user, navigate, setGrupoActivo]);
 
   return (
-  <div className="overlay-mask">
-    Cargando...
+  <div className="overlay-mask-spinner">
+    <i className="pi pi-spin pi-spinner overlay-spinner"></i>
+    <p>Cargando...</p>
   </div>
 );
 }

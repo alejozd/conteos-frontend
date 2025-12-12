@@ -24,6 +24,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 
 import "../styles/ConteoOperario.css";
+import "../styles/overlay.css";
 
 // TIPOS ============================
 interface Producto {
@@ -52,11 +53,10 @@ export default function ConteoOperario() {
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
   const [resultadosProductos, setResultadosProductos] = useState<Producto[]>([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
-
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
-
   const [cantidad, setCantidad] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // 0. Recuperar grupoActivo si está en null al recargar ==================
 useEffect(() => {
@@ -133,6 +133,7 @@ useEffect(() => {
     }
 
     try {
+        setLoading(true);
       await api.post("/api/conteos/guardar", {
         codigo: productoSeleccionado.codigo,
         subcodigo: productoSeleccionado.subcodigo,
@@ -163,7 +164,9 @@ useEffect(() => {
         summary: "Error",
         detail: msg,
       });
-    }
+    } finally {
+    setLoading(false);
+  }
   };
 
   const handleLogout = () => {
@@ -173,6 +176,13 @@ useEffect(() => {
 
   return (
     <div className="conteo-container">
+{loading && (
+  <div className="overlay-mask-spinner">
+    <i className="pi pi-spin pi-spinner overlay-spinner"></i>
+    <p>Guardando...</p>
+  </div>
+)}
+
       <Toast ref={toast} />
 
       <Card className="conteo-card shadow-4 border-round-xl">
@@ -265,6 +275,7 @@ useEffect(() => {
           icon="pi pi-check"
           className="w-full mt-3"
           onClick={guardar}
+          loading={loading}
         />
       </Card>
     </div>
