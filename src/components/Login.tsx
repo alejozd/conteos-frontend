@@ -5,6 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useAuth } from '../hooks/useAuth';
+// import '../styles/Login.css';
 
 export default function Login() {
   const [username, setUsername] = useState('alejo');
@@ -29,18 +30,21 @@ export default function Login() {
   return (
     <>
       <Toast ref={toast} position="top-center" />
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md"> {/* ← Ancho máximo como móvil en PC */}
-          <Card className="shadow-xl">
-            <div className="text-center mb-10">
-              <i className="pi pi-box text-7xl text-indigo-600 mb-6" />
+
+      <div className="login-bg min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <Card className="login-card shadow-2xl p-10 rounded-2xl animate-fade-up">
+            <div className="text-center mb-12">
+              <i className="pi pi-box text-7xl text-indigo-500 mb-6" />
               <h1 className="text-4xl font-bold text-gray-800">Conteo de Inventario</h1>
-              <p className="text-gray-600 mt-3 text-lg">Inicia sesión para comenzar</p>
+              <p className="text-gray-600 mt-4 text-lg">Portal de acceso</p>
             </div>
 
-            <div className="space-y-8"> {/* ← Espacio perfecto entre campos */}
+            <div className="space-y-10">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Usuario
+                </label>
                 <InputText
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -50,7 +54,9 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Contraseña
+                </label>
                 <InputText
                   type="password"
                   value={password}
@@ -68,7 +74,7 @@ export default function Login() {
               />
             </div>
 
-            <div className="text-center mt-10 text-sm text-gray-500">
+            <div className="text-center mt-14 text-sm text-gray-500">
               Metrocerámicas © 2025 • v1.0
             </div>
           </Card>
