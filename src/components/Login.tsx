@@ -9,8 +9,8 @@ import { useAuth } from '../hooks/useAuth';
 import '../styles/Login.css'; // <--- ¡Importamos nuestro CSS!
 
 export default function Login() {
-  const [username, setUsername] = useState('alejo');
-  const [password, setPassword] = useState('Pascal2025*');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const { login } = useAuth();
