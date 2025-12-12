@@ -77,3 +77,10 @@
     font-size: 1.3rem;
   }
 }
+
+.logout-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -12px;
+  margin-top: -40px;
+}

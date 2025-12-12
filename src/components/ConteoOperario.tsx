@@ -7,7 +7,7 @@ import { useAuth } from "../hooks/useAuth";
 
 import { Card } from "primereact/card";
 import { InputNumber } from "primereact/inputnumber";
-
+import { useNavigate } from "react-router-dom";
 import {
   AutoComplete,
   type AutoCompleteChangeEvent,
@@ -40,12 +40,13 @@ interface Ubicacion {
 }
 
 export default function ConteoOperario() {
-  const { grupoActivo } = useAuth();
+  const { grupoActivo, setGrupoActivo, logout   } = useAuth();
   const toast = useRef<Toast>(null);
   const location = useLocation();
 
   const params = new URLSearchParams(location.search);
   const grupoId = params.get("grupo");
+  const navigate = useNavigate();
 
   // ESTADOS =========================
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
@@ -56,6 +57,35 @@ export default function ConteoOperario() {
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
 
   const [cantidad, setCantidad] = useState<number | null>(null);
+
+  // 0. Recuperar grupoActivo si está en null al recargar ==================
+useEffect(() => {
+  // si ya tenemos grupoActivo no necesitamos hacer nada
+  if (grupoActivo) return;
+
+  // si no viene el id en la URL tampoco podemos recuperar
+  if (!grupoId) return;
+
+  const fetchGrupoById = async () => {
+    try {
+      const res = await api.get("/api/conteos/grupos/activos");
+      const grupos = Array.isArray(res.data) ? res.data : [];
+
+      const g = grupos.find((x) => String(x.id) === String(grupoId));
+      if (g) {
+        setGrupoActivo(g); // recupera el grupo en memoria
+      } else {
+        console.warn("El grupo no está dentro de los grupos activos.");
+        // Aquí podrías redirigir a SeleccionarGrupo si quieres
+        // navigate("/seleccionar-grupo");
+      }
+    } catch (error) {
+      console.error("Error recuperando grupo por id:", error);
+    }
+  };
+
+  fetchGrupoById();
+}, [grupoId, grupoActivo, setGrupoActivo]);
 
   // 1. Cargar ubicaciones =========================
   useEffect(() => {
@@ -136,11 +166,25 @@ export default function ConteoOperario() {
     }
   };
 
+  const handleLogout = () => {
+  logout();
+  navigate("/login");
+};
+
   return (
     <div className="conteo-container">
       <Toast ref={toast} />
 
       <Card className="conteo-card shadow-4 border-round-xl">
+         <div className="logout-container">
+    <Button
+      label="Salir"
+      icon="pi pi-sign-out"
+      className="p-button-danger p-button-sm"
+      text
+      onClick={handleLogout}
+    />
+  </div>
         <h2 className="conteo-titulo">Conteo: {grupoActivo?.descripcion}</h2>
         <p className="conteo-fecha">
           Fecha: <strong>{grupoActivo?.fecha}</strong>

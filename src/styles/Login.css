@@ -97,8 +97,8 @@
 /* --- Footer (Copyright) --- */
 .login-footer {
   text-align: center;
-  font-size: 0.8rem;
-  color: #888888;
+  font-size: 0.8rem;  
+  color: #a0a0a0;
   margin-top: 40px; /* ESTO ARREGLA LA SEPARACIÓN DEL BOTÓN */
 }
 

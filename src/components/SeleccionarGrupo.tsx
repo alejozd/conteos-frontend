@@ -6,6 +6,7 @@ import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { ListBox } from "primereact/listbox";
 import { ProgressSpinner } from "primereact/progressspinner";
+import api from "../services/api";
 
 type Grupo = {
   id: number;
@@ -19,19 +20,15 @@ export default function SeleccionarGrupo() {
   const [selected, setSelected] = useState<Grupo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { setGrupoActivo, token } = useAuth();
+  const { setGrupoActivo } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     async function loadGrupos() {
       try {
-        const res = await fetch("https://conteosapi.zdevs.uk/api/conteos/grupos/activos", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const res = await api.get("/api/conteos/grupos/activos");
 
-        const data = await res.json() as Grupo[];
+        const data = res.data as Grupo[];
         setGrupos(data);
 
         if (data.length === 1) {

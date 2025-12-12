@@ -82,7 +82,7 @@ export default function Login() {
 
             {/* Texto de Copyright */}
             <div className="login-footer">
-              Metrocerámicas © 2025 • v1.0
+              alejodev © 2025 • v1.0
             </div>
           </Card>
         </div>
