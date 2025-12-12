@@ -1,111 +1,226 @@
 // src/components/ConteoOperario.tsx
-import { useState } from "react";
+
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import api from "../services/api";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+
 import { Card } from "primereact/card";
-import { InputText } from "primereact/inputtext";
+import { InputNumber } from "primereact/inputnumber";
+
+import {
+  AutoComplete,
+  type AutoCompleteChangeEvent,
+  type AutoCompleteSelectEvent,
+  type AutoCompleteCompleteEvent,
+} from "primereact/autocomplete";
+
+import {
+  Dropdown,
+  type DropdownChangeEvent,
+} from "primereact/dropdown";
+
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-import { useRef } from "react";
+
+import "../styles/ConteoOperario.css";
+
+// TIPOS ============================
+interface Producto {
+  codigo: string | number;
+  subcodigo: string | number;
+  nombre: string;
+  referencia: string;
+  saldo_sistema: string | number;
+}
+
+interface Ubicacion {
+  id: number;
+  nombre: string;
+}
 
 export default function ConteoOperario() {
-  const { grupoActivo, token } = useAuth();
-  const [codigo, setCodigo] = useState("");
-  const [cantidad, setCantidad] = useState("");
-
-  const navigate = useNavigate();
+  const { grupoActivo } = useAuth();
   const toast = useRef<Toast>(null);
+  const location = useLocation();
 
-  if (!grupoActivo) return null;
+  const params = new URLSearchParams(location.search);
+  const grupoId = params.get("grupo");
 
+  // ESTADOS =========================
+  const [textoBusqueda, setTextoBusqueda] = useState<string>("");
+  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>([]);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
+
+  const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
+
+  const [cantidad, setCantidad] = useState<number | null>(null);
+
+  // 1. Cargar ubicaciones =========================
+  useEffect(() => {
+    const fetchUbicaciones = async () => {
+      try {
+        const res = await api.get("/api/ubicaciones/listar");
+        setUbicaciones(res.data);
+      } catch {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "No se pudieron cargar las ubicaciones",
+        });
+      }
+    };
+
+    fetchUbicaciones();
+  }, []);
+
+  // 2. Buscar productos =========================
+  const buscarProductos = async (e: AutoCompleteCompleteEvent) => {
+    try {
+      const q = (e.query ?? "").trim();
+      if (q.length < 2) {
+        setResultadosProductos([]);
+        return;
+      }
+
+      const res = await api.get(`/api/productos/buscar?texto=${encodeURIComponent(q)}`);
+      setResultadosProductos(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 3. Guardar conteo =========================
   const guardar = async () => {
-    if (!codigo.trim() || !cantidad.trim()) {
+    if (!productoSeleccionado || !ubicacionSeleccionada || cantidad === null) {
       toast.current?.show({
         severity: "warn",
-        summary: "Datos incompletos",
-        detail: "Debes ingresar código y cantidad"
+        summary: "Faltan datos",
+        detail: "Completa todos los campos",
       });
       return;
     }
 
     try {
-      const res = await fetch("https://conteosapi.zdevs.uk/api/conteos/guardar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          grupo_id: grupoActivo.id,
-          codigo,
-          cantidad: Number(cantidad)
-        })
+      await api.post("/api/conteos/guardar", {
+        codigo: productoSeleccionado.codigo,
+        subcodigo: productoSeleccionado.subcodigo,
+        ubicacion_id: ubicacionSeleccionada.id,
+        cantidad,
+        conteo_grupo_id: Number(grupoId),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message);
 
       toast.current?.show({
         severity: "success",
         summary: "Guardado",
-        detail: "Registro almacenado"
+        detail: "Movimiento registrado correctamente",
       });
 
-      setCodigo("");
-      setCantidad("");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Error desconocido";
-      toast.current?.show({
+      setProductoSeleccionado(null);
+      setCantidad(null);
+      setUbicacionSeleccionada(null);
+      setTextoBusqueda("");
+      setResultadosProductos([]);
+
+    } catch (error) {      
+        let msg = "No se pudo guardar el conteo";
+        if (error instanceof Error) {
+            msg = error.message;
+        }
+      toast.current?.show({ 
         severity: "error",
         summary: "Error",
-        detail: message
+        detail: msg,
       });
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div className="conteo-container">
       <Toast ref={toast} />
 
-      <Card className="w-full max-w-lg p-8">
-        <h2 className="text-2xl font-bold mb-2">
-          Conteo: {grupoActivo.descripcion}
-        </h2>
-        <p className="text-sm mb-6 text-gray-600">
-          Fecha: {grupoActivo.fecha}
+      <Card className="conteo-card shadow-4 border-round-xl">
+        <h2 className="conteo-titulo">Conteo: {grupoActivo?.descripcion}</h2>
+        <p className="conteo-fecha">
+          Fecha: <strong>{grupoActivo?.fecha}</strong>
         </p>
 
-        <div className="mb-4">
-          <label>Código del producto</label>
-          <InputText
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
+        {/* BUSCADOR DE PRODUCTO */}
+        <div className="form-section">
+          <label className="label">Buscar producto</label>
+
+          <AutoComplete
+            value={textoBusqueda}
+            suggestions={resultadosProductos}
+            completeMethod={buscarProductos}
+            dropdown
+            field="nombre"
+            placeholder="Escribe referencia o nombre..."
             className="w-full"
+            onChange={(e: AutoCompleteChangeEvent<string | Producto>) => {
+              const v = e.value;
+
+              if (typeof v === "string") {
+                setTextoBusqueda(v);
+              } else if (v) {
+                const prod = v as Producto;
+                setTextoBusqueda(prod.nombre);
+                setProductoSeleccionado(prod);
+              }
+            }}
+            onSelect={(e: AutoCompleteSelectEvent) => {
+              const prod = e.value as Producto;
+              setProductoSeleccionado(prod);
+              setTextoBusqueda(prod.nombre);
+            }}
+            itemTemplate={(item: Producto) => (
+              <div className="item-producto">
+                <div className="nombre">{item.nombre}</div>
+                <div className="referencia">{item.referencia}</div>
+              </div>
+            )}
           />
         </div>
 
-        <div className="mb-6">
-          <label>Cantidad</label>
-          <InputText
+        {/* INFO DEL PRODUCTO */}
+        {productoSeleccionado && (
+            <Card title={productoSeleccionado.nombre} className="producto-info">
+                <p className="ref">Ref: {productoSeleccionado.referencia}</p>
+            </Card>
+        )}
+
+        {/* CANTIDAD */}
+        <div className="form-section">
+          <label className="label">Cantidad</label>
+          <InputNumber
             value={cantidad}
-            onChange={(e) => setCantidad(e.target.value)}
+            onValueChange={(e) => setCantidad(e.value ?? null)}
             className="w-full"
+            min={0}
+          />
+        </div>
+
+        {/* UBICACIÓN */}
+        <div className="form-section">
+          <label className="label">Ubicación</label>
+          <Dropdown
+            value={ubicacionSeleccionada}
+            options={ubicaciones}
+            optionLabel="nombre"
+            placeholder="Selecciona ubicación"
+            className="w-full"
+            onChange={(e: DropdownChangeEvent) =>
+              setUbicacionSeleccionada(e.value as Ubicacion)
+            }
           />
         </div>
 
         <Button
-          label="Guardar"
-          icon="pi pi-save"
-          className="w-full mb-4"
+          label="Guardar conteo"
+          icon="pi pi-check"
+          className="w-full mt-3"
           onClick={guardar}
-        />
-
-        <Button
-          label="Cambiar de conteo"
-          icon="pi pi-external-link"
-          className="w-full p-button-secondary"
-          onClick={() => navigate("/seleccionar-grupo")}
         />
       </Card>
     </div>
