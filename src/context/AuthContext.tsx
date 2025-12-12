@@ -1,5 +1,6 @@
 // src/context/AuthContext.tsx
 import { createContext, useState, type ReactNode } from 'react';
+import api from "../services/api";
 
 interface User {
   id: number;
@@ -34,17 +35,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [grupoActivo, setGrupoActivo] = useState<ConteoGrupo | null>(null);
 
   const login = async (username: string, password: string) => {    
-    const res = await fetch('https://conteosapi.zdevs.uk/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),      
+   const res = await api.post("/api/auth/login", {
+      username,
+      password,
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Error al iniciar sesión');
 
-    localStorage.setItem('token', data.token);
+    const data = res.data;
+
+    localStorage.setItem("token", data.token);
+
     setToken(data.token);
-    setUser(data.user);
+    setUser(data.user);  
   };
 
   const logout = () => {
