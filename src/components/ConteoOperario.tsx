@@ -124,14 +124,33 @@ useEffect(() => {
 
   // 3. Guardar conteo =========================
   const guardar = async () => {
-    if (!productoSeleccionado || !ubicacionSeleccionada || cantidad === null) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Faltan datos",
-        detail: "Completa todos los campos",
-      });
-      return;
-    }
+    // VALIDACIONES =====================
+  if (!productoSeleccionado) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Producto requerido",
+      detail: "Debes seleccionar un producto antes de continuar",
+    });
+    return;
+  }
+
+  if (cantidad === null || cantidad <= 0) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Cantidad inválida",
+      detail: "La cantidad debe ser mayor a 0",
+    });
+    return;
+  }
+
+  if (!ubicacionSeleccionada) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Ubicación requerida",
+      detail: "Selecciona una ubicación",
+    });
+    return;
+  }
 
     try {
         setLoading(true);
@@ -212,7 +231,7 @@ useEffect(() => {
             dropdown
             field="nombre"
             placeholder="Escribe referencia o nombre..."
-            className="w-full"
+            className={`w-full ${!productoSeleccionado ? "p-invalid" : ""}`}
             onChange={(e: AutoCompleteChangeEvent<string | Producto>) => {
               const v = e.value;
 
@@ -251,8 +270,10 @@ useEffect(() => {
           <InputNumber
             value={cantidad}
             onValueChange={(e) => setCantidad(e.value ?? null)}
-            className="w-full"
+            className={`w-full ${cantidad !== null && cantidad <= 0 ? "p-invalid" : ""}`}
             min={0}
+            minFractionDigits={2} 
+            maxFractionDigits={5}
           />
         </div>
 
@@ -264,7 +285,7 @@ useEffect(() => {
             options={ubicaciones}
             optionLabel="nombre"
             placeholder="Selecciona ubicación"
-            className="w-full"
+            className={`w-full ${!ubicacionSeleccionada ? "p-invalid" : ""}`}
             onChange={(e: DropdownChangeEvent) =>
               setUbicacionSeleccionada(e.value as Ubicacion)
             }
