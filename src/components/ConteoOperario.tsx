@@ -22,6 +22,7 @@ import {
 
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 import "../styles/ConteoOperario.css";
 import "../styles/overlay.css";
@@ -177,8 +178,8 @@ useEffect(() => {
   return (
     <div className="conteo-container">
 {loading && (
-  <div className="overlay-mask-spinner">
-    <i className="pi pi-spin pi-spinner overlay-spinner"></i>
+  <div className="overlay-mask-spinner">    
+    <ProgressSpinner style={{ width: '80px', height: '80px' }} strokeWidth="6" />
     <p>Guardando...</p>
   </div>
 )}

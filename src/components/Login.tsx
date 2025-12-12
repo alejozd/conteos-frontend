@@ -46,12 +46,7 @@ export default function Login() {
 
   return (
     <>
-      <Toast ref={toast} position="top-center" />
-      {loading && (
-  <div className="login-overlay">
-    <i className="pi pi-spin pi-spinner login-overlay-spinner"></i>
-  </div>
-)}
+      <Toast ref={toast} position="top-center" />      
 
       {/* Usamos 'login-container' para el centrado y el fondo */}
       <div className="login-container">

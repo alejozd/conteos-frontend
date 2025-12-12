@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { ProgressSpinner } from "primereact/progressspinner";
 import api from "../services/api";
 import "../styles/overlay.css";
 
@@ -60,7 +61,7 @@ export default function PostLogin() {
 
   return (
   <div className="overlay-mask-spinner">
-    <i className="pi pi-spin pi-spinner overlay-spinner"></i>
+    <ProgressSpinner style={{ width: '80px', height: '80px' }} strokeWidth="6" />
     <p>Cargando...</p>
   </div>
 );
