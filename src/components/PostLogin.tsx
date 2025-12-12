@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../services/api";
+import "../styles/overlay.css";
+
 
 export default function PostLogin() {
   const { user, token, setGrupoActivo } = useAuth();
@@ -56,5 +58,9 @@ export default function PostLogin() {
     validarRol();
   }, [token, user, navigate, setGrupoActivo]);
 
-  return <div>Cargando...</div>;
+  return (
+  <div className="overlay-mask">
+    Cargando...
+  </div>
+);
 }

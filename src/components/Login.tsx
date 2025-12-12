@@ -6,21 +6,24 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useAuth } from '../hooks/useAuth';
-import '../styles/Login.css'; // <--- ¡Importamos nuestro CSS!
+import '../styles/Login.css'; 
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const { login } = useAuth();
 
   const handleLogin = async () => {
     setLoginError(false);
+    setLoading(true);
     if (!username.trim() || !password) {
       toast.current?.show({ severity: 'warn', summary: 'Faltan datos', detail: 'Ingresa usuario y contraseña' });
+      setLoading(false);
       return;
     }
 
@@ -35,13 +38,20 @@ export default function Login() {
       } else {
         console.error(err);
         toast.current?.show({ severity: 'error', summary: 'Error', detail: (err as Error).message });
-      }      
-    }
+      }          
+    } finally {
+    setLoading(false);
+  }
   };
 
   return (
     <>
       <Toast ref={toast} position="top-center" />
+      {loading && (
+  <div className="login-overlay">
+    <i className="pi pi-spin pi-spinner login-overlay-spinner"></i>
+  </div>
+)}
 
       {/* Usamos 'login-container' para el centrado y el fondo */}
       <div className="login-container">
@@ -76,6 +86,7 @@ export default function Login() {
     onChange={(e) => setPassword(e.target.value)}
     className={`w-full h-12 text-lg ${loginError ? "p-invalid" : ""}`}
     placeholder="••••••••"
+    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
   />
 
   {/* Ojo para mostrar/ocultar */}
@@ -99,6 +110,8 @@ export default function Login() {
                 icon="pi pi-sign-in"
                 onClick={handleLogin}
                 className="w-full h-14 text-xl font-bold"
+                disabled={loading}
+  loading={loading}
               />
             </div>
 
