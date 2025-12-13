@@ -166,7 +166,51 @@ useEffect(() => {
   };
 
   // 3. Guardar conteo =========================
+const esFormularioValido = (): boolean => {
+  if (!productoSeleccionado) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Producto requerido",
+      detail: "Debes seleccionar un producto antes de continuar",
+    });
+    return false;
+  }
+
+  if (!bodegaSeleccionada) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Bodega requerida",
+      detail: "Selecciona una bodega",
+    });
+    return false;
+  }
+
+  if (!ubicacionSeleccionada) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Ubicación requerida",
+      detail: "Selecciona una ubicación",
+    });
+    return false;
+  }
+
+  if (cantidad === null || cantidad <= 0) {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Cantidad inválida",
+      detail: "La cantidad debe ser mayor a 0",
+    });
+    return false;
+  }
+
+  return true;
+};
+
 const confirmarGuardado = () => {
+ if (!esFormularioValido()) {
+    return; // 🚫 NO se abre el ConfirmDialog
+  }
+
   confirmDialog({
     header: "Confirmar conteo",
     message: (
