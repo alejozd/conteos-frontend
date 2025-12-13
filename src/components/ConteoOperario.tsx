@@ -170,14 +170,34 @@ const confirmarGuardado = () => {
   confirmDialog({
     header: "Confirmar conteo",
     message: (
-      <div>
-        <p><strong>Producto:</strong> {productoSeleccionado?.nombre}</p>
-        <p><strong>Referencia:</strong> {productoSeleccionado?.referencia}</p>
-        <p><strong>Bodega:</strong> {bodegaSeleccionada?.nombre}</p>
-        <p><strong>Ubicación:</strong> {ubicacionSeleccionada?.nombre}</p>
-        <p><strong>Cantidad:</strong> {cantidad}</p>
-      </div>
-    ),
+  <div className="confirm-conteo">
+    <div className="fila">
+      <span className="label">Producto:</span>
+      <span className="valor wrap">{productoSeleccionado?.nombre}</span>
+    </div>
+
+    <div className="fila">
+      <span className="label">Referencia:</span>
+      <span className="valor">{productoSeleccionado?.referencia}</span>
+    </div>
+
+    <div className="fila">
+      <span className="label">Bodega:</span>
+      <span className="valor">{bodegaSeleccionada?.nombre}</span>
+    </div>
+
+    <div className="fila">
+      <span className="label">Ubicación:</span>
+      <span className="valor">{ubicacionSeleccionada?.nombre}</span>
+    </div>
+
+    <div className="fila">
+      <span className="label">Cantidad:</span>
+      <span className="valor">{cantidad}</span>
+    </div>
+  </div>
+),
+
     icon: "pi pi-exclamation-triangle",
     acceptLabel: "Sí, guardar",
     rejectLabel: "Cancelar",

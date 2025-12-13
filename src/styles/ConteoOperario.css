@@ -95,3 +95,38 @@
   color: #f59e0b;       /* amarillo tipo warning */
   margin-right: 1rem;
 }
+
+.confirm-conteo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.confirm-conteo .fila {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.confirm-conteo .label {
+  font-weight: 600;
+  min-width: 90px;
+}
+
+.confirm-conteo .valor {
+  flex: 1;
+}
+
+/* Permite que nombres largos bajen de línea */
+.confirm-conteo .wrap {
+  word-break: break-word;
+  white-space: normal;
+}
+
+.confirm-conteo .fila:first-child .valor {
+  font-weight: 600;
+}
+
+.confirm-conteo .fila:first-child {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
