@@ -88,3 +88,10 @@
 .p-invalid {
   border: 1px solid #dc3545 !important;
 }
+
+/* Agrandar icono del ConfirmDialog */
+.p-confirm-dialog .p-confirm-dialog-icon {
+  font-size: 3rem;      /* antes ~1.5rem */
+  color: #f59e0b;       /* amarillo tipo warning */
+  margin-right: 1rem;
+}

@@ -23,6 +23,8 @@ import {
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { confirmDialog } from "primereact/confirmdialog";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 import "../styles/ConteoOperario.css";
 import "../styles/overlay.css";
@@ -37,6 +39,11 @@ interface Producto {
 }
 
 interface Ubicacion {
+  id: number;
+  nombre: string;
+}
+
+interface Bodega {
   id: number;
   nombre: string;
 }
@@ -58,6 +65,9 @@ export default function ConteoOperario() {
   const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
   const [cantidad, setCantidad] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [bodegas, setBodegas] = useState<Bodega[]>([]);
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
+
 
   // 0. Recuperar grupoActivo si está en null al recargar ==================
 useEffect(() => {
@@ -90,21 +100,54 @@ useEffect(() => {
 
   // 1. Cargar ubicaciones =========================
   useEffect(() => {
-    const fetchUbicaciones = async () => {
-      try {
-        const res = await api.get("/api/ubicaciones/listar");
-        setUbicaciones(res.data);
-      } catch {
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: "No se pudieron cargar las ubicaciones",
-        });
-      }
-    };
+  const fetchBodegas = async () => {
+    try {
+      const res = await api.get("/api/bodegas/listar");
+      setBodegas(res.data);
+    } catch {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "No se pudieron cargar las bodegas",
+      });
+    }
+  };
 
-    fetchUbicaciones();
-  }, []);
+  fetchBodegas();
+}, []);
+
+  useEffect(() => {
+  if (!bodegaSeleccionada) {
+    setUbicaciones([]);
+    setUbicacionSeleccionada(null);
+    return;
+  }
+
+  const fetchUbicaciones = async () => {
+    try {
+      const res = await api.get(
+        `/api/ubicaciones/listar?bodegaId=${bodegaSeleccionada.id}`
+      );
+      const data: Ubicacion[] = res.data || [];
+      setUbicaciones(data);
+
+      if (data.length > 0) {
+        setUbicacionSeleccionada(data[0]);
+      } else {
+        setUbicacionSeleccionada(null);
+      }
+    } catch {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "No se pudieron cargar las ubicaciones",
+      });
+    }
+  };
+
+  fetchUbicaciones();
+}, [bodegaSeleccionada]);
+
 
   // 2. Buscar productos =========================
   const buscarProductos = async (e: AutoCompleteCompleteEvent) => {
@@ -123,6 +166,28 @@ useEffect(() => {
   };
 
   // 3. Guardar conteo =========================
+const confirmarGuardado = () => {
+  confirmDialog({
+    header: "Confirmar conteo",
+    message: (
+      <div>
+        <p><strong>Producto:</strong> {productoSeleccionado?.nombre}</p>
+        <p><strong>Referencia:</strong> {productoSeleccionado?.referencia}</p>
+        <p><strong>Bodega:</strong> {bodegaSeleccionada?.nombre}</p>
+        <p><strong>Ubicación:</strong> {ubicacionSeleccionada?.nombre}</p>
+        <p><strong>Cantidad:</strong> {cantidad}</p>
+      </div>
+    ),
+    icon: "pi pi-exclamation-triangle",
+    acceptLabel: "Sí, guardar",
+    rejectLabel: "Cancelar",
+    acceptClassName: "p-button-success",
+    rejectClassName: "p-button-danger p-button-text",
+    defaultFocus: "accept",
+    accept: guardar,
+  });
+};
+
   const guardar = async () => {
     // VALIDACIONES =====================
   if (!productoSeleccionado) {
@@ -142,6 +207,15 @@ useEffect(() => {
     });
     return;
   }
+
+  if (!bodegaSeleccionada) {
+  toast.current?.show({
+    severity: "warn",
+    summary: "Bodega requerida",
+    detail: "Selecciona una bodega",
+  });
+  return;
+}
 
   if (!ubicacionSeleccionada) {
     toast.current?.show({
@@ -196,6 +270,7 @@ useEffect(() => {
 
   return (
     <div className="conteo-container">
+      <ConfirmDialog />
 {loading && (
   <div className="overlay-mask-spinner">    
     <ProgressSpinner style={{ width: '80px', height: '80px' }} strokeWidth="6" />
@@ -264,6 +339,42 @@ useEffect(() => {
             </Card>
         )}
 
+{/* BODEGA */}
+<div className="form-section">
+  <label className="label">Bodega</label>
+  <Dropdown
+    value={bodegaSeleccionada}
+    options={bodegas}
+    optionLabel="nombre"
+    placeholder="Selecciona bodega"
+    className={`w-full ${!bodegaSeleccionada ? "p-invalid" : ""}`}
+    onChange={(e: DropdownChangeEvent) => {
+      setBodegaSeleccionada(e.value as Bodega);
+      setUbicacionSeleccionada(null);
+    }}
+  />
+</div>
+
+        {/* UBICACIÓN */}
+        <div className="form-section">
+  <label className="label">Ubicación</label>
+  <Dropdown
+    value={ubicacionSeleccionada}
+    options={ubicaciones}
+    optionLabel="nombre"
+    placeholder={
+      bodegaSeleccionada
+        ? "Selecciona ubicación"
+        : "Primero selecciona una bodega"
+    }
+    disabled={!bodegaSeleccionada}
+    className={`w-full ${!ubicacionSeleccionada ? "p-invalid" : ""}`}
+    onChange={(e: DropdownChangeEvent) =>
+      setUbicacionSeleccionada(e.value as Ubicacion)
+    }
+  />
+</div>
+
         {/* CANTIDAD */}
         <div className="form-section">
           <label className="label">Cantidad</label>
@@ -277,26 +388,11 @@ useEffect(() => {
           />
         </div>
 
-        {/* UBICACIÓN */}
-        <div className="form-section">
-          <label className="label">Ubicación</label>
-          <Dropdown
-            value={ubicacionSeleccionada}
-            options={ubicaciones}
-            optionLabel="nombre"
-            placeholder="Selecciona ubicación"
-            className={`w-full ${!ubicacionSeleccionada ? "p-invalid" : ""}`}
-            onChange={(e: DropdownChangeEvent) =>
-              setUbicacionSeleccionada(e.value as Ubicacion)
-            }
-          />
-        </div>
-
         <Button
           label="Guardar conteo"
           icon="pi pi-check"
           className="w-full mt-3"
-          onClick={guardar}
+          onClick={confirmarGuardado}
           loading={loading}
         />
       </Card>
