@@ -1,0 +1,41 @@
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-title {
+  margin: 0;
+}
+
+/* Buscador */
+.dashboard-search {
+  position: relative;
+}
+
+.dashboard-search .p-inputtext {
+  padding-left: 1.8rem; /* espacio real para la lupa */
+  margin-left: -0.5rem; /* espacio visual para la lupa */
+}
+
+/* Diferencias */
+.diff-neutral {
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.diff-positive {
+  font-weight: 600;
+  color: #198754;
+}
+
+.diff-negative {
+  font-weight: 600;
+  color: #dc3545;
+}
+
+/* Alineación numérica */
+.text-right {
+  text-align: right;
+}

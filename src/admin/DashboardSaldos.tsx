@@ -4,6 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import api from "../services/api";
+import "../styles/DashboardSaldos.css";
 
 interface SaldoRow {
   codigo: number;
@@ -39,32 +40,30 @@ useEffect(() => {
 
 
   const diferenciaTemplate = (row: SaldoRow) => {
-    const valor = Number(row.diferencia);
+  const valor = Number(row.diferencia);
 
-    let color = "#6c757d"; // gris
-    if (valor > 0) color = "#198754"; // verde
-    if (valor < 0) color = "#dc3545"; // rojo
+  let className = "diff-neutral";
+  if (valor > 0) className = "diff-positive";
+  if (valor < 0) className = "diff-negative";
 
-    return (
-      <span style={{ fontWeight: 600, color }}>
-        {valor.toFixed(2)}
-      </span>
-    );
-  };
+  return <span className={className}>{valor.toFixed(2)}</span>;
+};
 
   const header = (
-    <div className="flex justify-content-between align-items-center">
-      <h3 style={{ margin: 0 }}>Saldos vs Conteos</h3>
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          placeholder="Buscar producto o referencia"
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-        />
-      </span>
-    </div>
-  );
+  <div className="dashboard-header">
+    <h3 className="dashboard-title">Saldos vs Conteos</h3>
+
+    <span className="p-input-icon-left dashboard-search">
+      <i className="pi pi-search" />
+      <InputText
+        placeholder="Buscar producto o referencia"
+        value={globalFilter}
+        onChange={(e) => setGlobalFilter(e.target.value)}
+      />
+    </span>
+  </div>
+);
+
 
   return (
     <div className="card">
