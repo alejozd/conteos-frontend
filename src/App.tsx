@@ -8,6 +8,10 @@ import SeleccionarGrupo from "./components/SeleccionarGrupo";
 import ConteoOperario from "./components/ConteoOperario";
 import PostLogin from "./components/PostLogin";
 
+import AdminLayout from "./admin/AdminLayout";
+import DashboardSaldos from "./admin/DashboardSaldos";
+import ImportarSaldos from "./admin/ImportarSaldos";
+
 // function PrivateRoute({ children }: { children: JSX.Element }) {
   function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -30,6 +34,7 @@ function App() {
   }
 />
 
+          {/* Flujo operario */}
           <Route
             path="/seleccionar-grupo"
             element={
@@ -47,6 +52,22 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          {/* ================== ADMIN ================== */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminLayout />
+              </PrivateRoute>
+            }
+          >
+            {/* Ruta por defecto /admin */}
+            <Route index element={<DashboardSaldos />} />
+
+            <Route path="saldos" element={<DashboardSaldos />} />
+            <Route path="importar" element={<ImportarSaldos />} />
+          </Route>
 
           {/* Si ponen cualquier ruta no válida */}
           <Route path="*" element={<Navigate to="/" />} />
