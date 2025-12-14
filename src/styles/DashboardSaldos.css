@@ -27,12 +27,14 @@
 
 .diff-positive {
   font-weight: 600;
-  color: #198754;
+  /* color: #198754; */
+  color: #dc3545;
 }
 
 .diff-negative {
   font-weight: 600;
-  color: #dc3545;
+  color: #198754;
+  /* color: #dc3545; */
 }
 
 /* Alineación numérica */
