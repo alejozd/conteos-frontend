@@ -28,7 +28,10 @@ export default function DashboardSaldos() {
 
 
 useEffect(() => {
-  const cargarDatos = async () => {
+  cargarDatos();
+}, []);
+
+const cargarDatos = async (): Promise<void> => {
     setLoading(true);
     try {
       const res = await api.get("/api/admin/saldos-resumen");
@@ -39,9 +42,6 @@ useEffect(() => {
       setLoading(false);
     }
   };
-
-  cargarDatos();
-}, []);
 
 
   const diferenciaTemplate = (row: SaldoRow) => {
@@ -128,6 +128,7 @@ useEffect(() => {
     codigo={productoSeleccionado.codigo}
     subcodigo={productoSeleccionado.subcodigo}
     nombre={productoSeleccionado.nombre}
+    onConteoAnulado={cargarDatos}
   />
 )}
 

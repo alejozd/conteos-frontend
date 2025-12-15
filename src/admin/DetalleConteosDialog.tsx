@@ -22,6 +22,7 @@ interface Props {
   codigo: number;
   subcodigo: number;
   nombre: string;
+  onConteoAnulado: () => Promise<void>;
 }
 
 export default function DetalleConteosDialog({
@@ -30,6 +31,7 @@ export default function DetalleConteosDialog({
   codigo,
   subcodigo,
   nombre,
+  onConteoAnulado,
 }: Props) {
   const toast = useRef<Toast>(null);  
   const [data, setData] = useState<ConteoDetalle[]>([]);
@@ -99,6 +101,7 @@ export default function DetalleConteosDialog({
     });
 
     cargarDetalle();
+    onConteoAnulado();
     setAnularVisible(false);
 setConteoId(null);
   } catch (error) {
