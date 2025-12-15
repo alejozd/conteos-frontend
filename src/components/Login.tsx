@@ -35,10 +35,13 @@ export default function Login() {
       setLoginError(true);
       if (err instanceof Error && err.message === 'Request failed with status code 401') {
         toast.current?.show({ severity: 'error', summary: 'Error de autenticación', detail: 'Usuario o contraseña incorrectos' });
-      } else {
+      } else if (err instanceof Error && err.message === 'Request failed with status code 403') {
+        toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Usuario inactivo. Contacte al administrador.' });
+      }    
+      else {
         console.error(err);
         toast.current?.show({ severity: 'error', summary: 'Error', detail: (err as Error).message });
-      }          
+      } 
     } finally {
     setLoading(false);
   }
