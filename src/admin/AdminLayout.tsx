@@ -23,6 +23,11 @@ export default function AdminLayout() {
       command: () => navigate("/admin/importar"),
     },
     {
+  label: "Usuarios",
+  icon: "pi pi-users",
+  command: () => navigate("/admin/usuarios"),
+},
+    {
       label: "Salir",
       icon: "pi pi-sign-out",
       command: () => {

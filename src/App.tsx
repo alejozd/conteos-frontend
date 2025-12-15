@@ -12,6 +12,7 @@ import AdminLayout from "./admin/AdminLayout";
 import DashboardSaldos from "./admin/DashboardSaldos";
 import ConteosAnulados from "./admin/ConteosAnulados";
 import ImportarSaldos from "./admin/ImportarSaldos";
+import UsuariosAdmin  from "./admin/UsuariosAdmin";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
   function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,7 @@ function App() {
             <Route path="saldos" element={<DashboardSaldos />} />
             <Route path="conteos-anulados" element={<ConteosAnulados />} />
             <Route path="importar" element={<ImportarSaldos />} />
+            <Route path="usuarios" element={<UsuariosAdmin />} />
           </Route>
 
           {/* Si ponen cualquier ruta no válida */}
