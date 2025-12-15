@@ -113,16 +113,32 @@ export default function UsuarioDialog({
   };
 
   return (
-    <Dialog
-      header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
-      visible={visible}
-      style={{ width: "30vw" }}
-      modal
-      onHide={onHide}
-    >
-      <Toast ref={toast} />
+  <Dialog
+    header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
+    visible={visible}
+    modal
+    style={{ width: "40vw", maxWidth: "600px" }}
+    breakpoints={{ "960px": "75vw", "640px": "95vw" }}
+    onHide={onHide}
+    footer={
+      <div className="flex justify-content-end gap-2">
+        <Button
+          label="Cancelar"
+          className="p-button-text"
+          onClick={onHide}
+        />
+        <Button
+          label="Guardar"
+          loading={guardando}
+          onClick={guardar}
+        />
+      </div>
+    }
+  >
+    <Toast ref={toast} />
 
-      <div className="flex flex-column gap-3">
+    <div className="grid p-fluid mt-2">
+      <div className="col-12">
         <span className="p-float-label">
           <InputText
             value={username}
@@ -131,19 +147,25 @@ export default function UsuarioDialog({
           />
           <label>Usuario</label>
         </span>
+      </div>
 
+      <div className="col-12">
         <span className="p-float-label">
           <InputText
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={esEdicion ? "Dejar vacío para no cambiar" : ""}
+            placeholder={
+              esEdicion ? "Dejar vacío para no cambiar" : ""
+            }
           />
           <label>
             {esEdicion ? "Nueva contraseña" : "Contraseña"}
           </label>
         </span>
+      </div>
 
+      <div className="col-12 md:col-6">
         <span className="p-float-label">
           <Dropdown
             value={role}
@@ -151,24 +173,23 @@ export default function UsuarioDialog({
               { label: "Administrador", value: "admin" },
               { label: "Usuario", value: "user" },
             ]}
-            onChange={(e) => setRole(e.value)}
           />
           <label>Rol</label>
         </span>
-
-        <div className="flex justify-content-end gap-2 mt-3">
-          <Button
-            label="Cancelar"
-            className="p-button-text"
-            onClick={onHide}
-          />
-          <Button
-            label="Guardar"
-            loading={guardando}
-            onClick={guardar}
-          />
-        </div>
       </div>
-    </Dialog>
-  );
+
+      <div className="col-12 md:col-6">
+        <span className="p-float-label">
+          <Dropdown
+            value={empresaId}
+            options={[]}
+            placeholder="Seleccione empresa"
+            disabled
+          />
+          <label>Empresa</label>
+        </span>
+      </div>
+    </div>
+  </Dialog>
+);
 }
