@@ -58,6 +58,17 @@ export default function DetalleConteosDialog({
     }
   }, [visible]);  
 
+  const formatearFecha = (value: string) => {
+  return new Date(value).toLocaleString("es-CO", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  };
+
+
   const abrirAnulacion = (id: number) => {
   setConteoId(id);
   setMotivoAnulacion("");
@@ -122,6 +133,7 @@ setConteoId(null);
         emptyMessage="No hay conteos para este producto"
       >
         <Column field="usuario" header="Usuario" />
+        <Column field="bodega" header="Bodega" />
         <Column field="ubicacion" header="Ubicación" />
         <Column
           field="cantidad"
@@ -129,7 +141,12 @@ setConteoId(null);
           body={(row) => Number(row.cantidad).toFixed(2)}
           style={{ textAlign: "right" }}
         />
-        <Column field="timestamp" header="Fecha" />
+        <Column
+  field="timestamp"
+  header="Fecha"
+  body={(row) => formatearFecha(row.timestamp)}
+/>
+
         <Column field="estado" header="Estado" />
 
         <Column
