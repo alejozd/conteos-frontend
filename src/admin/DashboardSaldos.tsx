@@ -1,10 +1,13 @@
 // src/admin/DashboardSaldos.tsx
+// src/admin/DashboardSaldos.tsx
 import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import DetalleConteosDialog from "./DetalleConteosDialog";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import api from "../services/api";
 import "../styles/DashboardSaldos.css";
 
@@ -24,8 +27,7 @@ export default function DashboardSaldos() {
   const [loading, setLoading] = useState(true);
   const [detalleVisible, setDetalleVisible] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState<SaldoRow | null>(null);
-
-
+  const [soloConDiferencia, setSoloConDiferencia] = useState(false);
 
 useEffect(() => {
   cargarDatos();
@@ -43,6 +45,9 @@ const cargarDatos = async (): Promise<void> => {
     }
   };
 
+const dataFiltrada = soloConDiferencia
+  ? data.filter((r) => Number(r.diferencia) !== 0)
+  : data;
 
   const diferenciaTemplate = (row: SaldoRow) => {
   const valor = Number(row.diferencia);
@@ -54,26 +59,76 @@ const cargarDatos = async (): Promise<void> => {
   return <span className={className}>{valor.toFixed(2)}</span>;
 };
 
+const toggleSoloConDiferencia = () => {
+  setLoading(true);
+
+  setTimeout(() => {
+    setSoloConDiferencia((prev) => !prev);
+    setLoading(false);
+  }, 200);
+};
+
+const exportarExcel = () => {
+  const rows = dataFiltrada.map((r) => ({
+    Producto: r.nombre,
+    Referencia: r.referencia,
+    "Saldo sistema": Number(r.saldo_sistema),
+    Conteo: Number(r.conteo_total),
+    Diferencia: Number(r.diferencia),
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Saldos");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const blob = new Blob([excelBuffer], {
+    type:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(blob, `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+};
+
   const header = (
   <div className="dashboard-header">
     <h3 className="dashboard-title">Saldos vs Conteos</h3>
 
-    <span className="p-input-icon-left dashboard-search">
-      <i className="pi pi-search" />
-      <InputText
-        placeholder="Buscar producto o referencia"
-        value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
+    <div className="dashboard-actions">
+      <Button
+        label={soloConDiferencia ? "Mostrar todos" : "Solo con diferencia"}
+        icon="pi pi-filter"
+        className="p-button-sm p-button-outlined"
+        onClick={toggleSoloConDiferencia}
       />
-    </span>
+      <Button
+  label="Exportar Excel"
+  icon="pi pi-file-excel"
+  className="p-button-sm p-button-success"
+  onClick={exportarExcel}
+/>
+
+
+      <span className="p-input-icon-left dashboard-search">
+        <i className="pi pi-search" />
+        <InputText
+          placeholder="Buscar producto o referencia"
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
+      </span>
+    </div>
   </div>
 );
-
 
   return (
     <div className="card">
       <DataTable
-        value={data}
+        value={dataFiltrada}
         loading={loading}
         paginator
         rows={15}
