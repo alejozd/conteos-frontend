@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
+import DetalleConteosDialog from "./DetalleConteosDialog";
 import api from "../services/api";
 import "../styles/DashboardSaldos.css";
 
@@ -20,6 +22,9 @@ export default function DashboardSaldos() {
   const [data, setData] = useState<SaldoRow[]>([]);
   const [globalFilter, setGlobalFilter] = useState(""); 
   const [loading, setLoading] = useState(true);
+  const [detalleVisible, setDetalleVisible] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<SaldoRow | null>(null);
+
 
 
 useEffect(() => {
@@ -101,7 +106,31 @@ useEffect(() => {
           sortable
           style={{ textAlign: "right" }}
         />
+        <Column
+  header="Detalle"
+  body={(row) => (
+    <Button
+      icon="pi pi-eye"
+      className="p-button-text p-button-sm"
+      onClick={() => {
+        setProductoSeleccionado(row);
+        setDetalleVisible(true);
+      }}
+    />
+  )}
+/>
+
       </DataTable>
+      {productoSeleccionado && (
+  <DetalleConteosDialog
+    visible={detalleVisible}
+    onHide={() => setDetalleVisible(false)}
+    codigo={productoSeleccionado.codigo}
+    subcodigo={productoSeleccionado.subcodigo}
+    nombre={productoSeleccionado.nombre}
+  />
+)}
+
     </div>
   );
 }
