@@ -14,6 +14,9 @@ interface ConteoDetalle {
   cantidad: number;
   timestamp: string;
   estado: "VIGENTE" | "ANULADO";
+  motivo_anulacion?: string;
+  usuario_anula?: string;
+  fecha_anulacion?: string;
 }
 
 interface Props {
@@ -39,6 +42,8 @@ export default function DetalleConteosDialog({
   const [conteoId, setConteoId] = useState<number | null>(null);
   const [anularVisible, setAnularVisible] = useState(false);  
   const [motivoAnulacion, setMotivoAnulacion] = useState("");
+  const [infoVisible, setInfoVisible] = useState(false);
+  const [conteoInfo, setConteoInfo] = useState<ConteoDetalle | null>(null);
 
   const cargarDetalle = async () => {
     setLoading(true);
@@ -162,7 +167,14 @@ setConteoId(null);
   onClick={() => abrirAnulacion(row.id)}
 />
     ) : (
-      "-"
+      <Button
+        icon="pi pi-info-circle"
+        className="p-button-text p-button-secondary p-button-sm"
+        onClick={() => {
+          setConteoInfo(row);
+          setInfoVisible(true);
+        }}
+      />
     )
   }
 />
@@ -200,6 +212,31 @@ setConteoId(null);
     </div>
   </div>
 </Dialog>
+<Dialog
+  header="Información de anulación"
+  visible={infoVisible}
+  style={{ width: "25vw" }}
+  modal
+  onHide={() => setInfoVisible(false)}
+>
+  {conteoInfo && (
+    <div className="flex flex-column gap-2">
+      <strong>Usuario que anuló:</strong>
+      <span>{conteoInfo.usuario_anula || "N/A"}</span>
+
+      <strong>Fecha:</strong>
+      <span>
+        {conteoInfo.fecha_anulacion
+          ? formatearFecha(conteoInfo.fecha_anulacion)
+          : "N/A"}
+      </span>
+
+      <strong>Motivo:</strong>
+      <span>{conteoInfo.motivo_anulacion || "N/A"}</span>
+    </div>
+  )}
+</Dialog>
+
 
     </Dialog>
   );
