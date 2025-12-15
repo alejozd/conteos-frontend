@@ -10,6 +10,7 @@ import PostLogin from "./components/PostLogin";
 
 import AdminLayout from "./admin/AdminLayout";
 import DashboardSaldos from "./admin/DashboardSaldos";
+import ConteosAnulados from "./admin/ConteosAnulados";
 import ImportarSaldos from "./admin/ImportarSaldos";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
@@ -66,6 +67,7 @@ function App() {
             <Route index element={<DashboardSaldos />} />
 
             <Route path="saldos" element={<DashboardSaldos />} />
+            <Route path="conteos-anulados" element={<ConteosAnulados />} />
             <Route path="importar" element={<ImportarSaldos />} />
           </Route>
 

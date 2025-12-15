@@ -13,6 +13,11 @@ export default function AdminLayout() {
       command: () => navigate("/admin"),
     },
     {
+    label: "Conteos anulados",
+    icon: "pi pi-ban",
+    command: () => navigate("/admin/conteos-anulados"),
+    },
+    {
       label: "Importar",
       icon: "pi pi-upload",
       command: () => navigate("/admin/importar"),
