@@ -41,3 +41,20 @@
 .text-right {
   text-align: right;
 }
+
+/* Fila anulada */
+.row-anulado {
+  opacity: 0.55;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Texto tachado */
+.row-anulado td {
+  text-decoration: line-through;
+}
+
+/* Badge de estado */
+.estado-anulado {
+  color: #f87171; /* rojo suave */
+  font-weight: 600;
+}

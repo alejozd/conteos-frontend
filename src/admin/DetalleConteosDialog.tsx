@@ -139,6 +139,8 @@ setConteoId(null);
         rows={10}
         stripedRows
         emptyMessage="No hay conteos para este producto"
+        rowClassName={(row: ConteoDetalle) =>
+        row.estado === "ANULADO" ? "row-anulado" : ""}
       >
         <Column field="usuario" header="Usuario" />
         <Column field="bodega" header="Bodega" />
@@ -155,7 +157,18 @@ setConteoId(null);
   body={(row) => formatearFecha(row.timestamp)}
 />
 
-        <Column field="estado" header="Estado" />
+        <Column
+  field="estado"
+  header="Estado"
+  body={(row: ConteoDetalle) =>
+    row.estado === "ANULADO" ? (
+      <span className="estado-anulado">ANULADO</span>
+    ) : (
+      "VIGENTE"
+    )
+  }
+/>
+
 
         <Column
   header="Acción"

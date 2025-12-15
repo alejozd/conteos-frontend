@@ -82,7 +82,7 @@ const cargarDatos = async (): Promise<void> => {
         header={header}
         emptyMessage="No hay datos para mostrar"
         stripedRows
-        showGridlines
+        showGridlines        
       >
         <Column field="nombre" header="Producto" sortable />
         <Column field="referencia" header="Referencia" sortable />
