@@ -1,16 +1,16 @@
 // src/components/Login.tsx
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from 'primereact/card';
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
-import { Toast } from 'primereact/toast';
-import { useAuth } from '../hooks/useAuth';
-import '../styles/Login.css'; 
+import { Card } from "primereact/card";
+import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
+import { Toast } from "primereact/toast";
+import { useAuth } from "../hooks/useAuth";
+import "../styles/Login.css";
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,34 +22,59 @@ export default function Login() {
     setLoginError(false);
     setLoading(true);
     if (!username.trim() || !password) {
-      toast.current?.show({ severity: 'warn', summary: 'Faltan datos', detail: 'Ingresa usuario y contraseña' });
+      toast.current?.show({
+        severity: "warn",
+        summary: "Faltan datos",
+        detail: "Ingresa usuario y contraseña",
+      });
       setLoading(false);
       return;
     }
 
     try {
       await login(username, password);
-      toast.current?.show({ severity: 'success', summary: '¡Bienvenido!', detail: `Hola ${username}` });
+      toast.current?.show({
+        severity: "success",
+        summary: "¡Bienvenido!",
+        detail: `Hola ${username}`,
+      });
       setTimeout(() => navigate("/post-login"), 500);
     } catch (err) {
       setLoginError(true);
-      if (err instanceof Error && err.message === 'Request failed with status code 401') {
-        toast.current?.show({ severity: 'error', summary: 'Error de autenticación', detail: 'Usuario o contraseña incorrectos' });
-      } else if (err instanceof Error && err.message === 'Request failed with status code 403') {
-        toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Usuario inactivo. Contacte al administrador.' });
-      }    
-      else {
+      if (
+        err instanceof Error &&
+        err.message === "Request failed with status code 401"
+      ) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error de autenticación",
+          detail: "Usuario o contraseña incorrectos",
+        });
+      } else if (
+        err instanceof Error &&
+        err.message === "Request failed with status code 403"
+      ) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Usuario inactivo. Contacte al administrador.",
+        });
+      } else {
         console.error(err);
-        toast.current?.show({ severity: 'error', summary: 'Error', detail: (err as Error).message });
-      } 
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: (err as Error).message,
+        });
+      }
     } finally {
-    setLoading(false);
-  }
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <Toast ref={toast} position="top-center" />      
+      <Toast ref={toast} position="top-center" />
 
       {/* Usamos 'login-container' para el centrado y el fondo */}
       <div className="login-container">
@@ -64,9 +89,7 @@ export default function Login() {
 
             <div className="login-form-fields">
               <div className="form-group">
-                <label className="login-label">
-                  Usuario
-                </label>
+                <label className="login-label">Usuario</label>
                 <InputText
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -76,31 +99,33 @@ export default function Login() {
               </div>
 
               <div className="form-group" style={{ position: "relative" }}>
-  <label className="login-label">Contraseña</label>
+                <label className="login-label">Contraseña</label>
 
-  <InputText
-    type={showPassword ? "text" : "password"}
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className={`w-full h-12 text-lg ${loginError ? "p-invalid" : ""}`}
-    placeholder="••••••••"
-    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-  />
+                <InputText
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`w-full h-12 text-lg ${
+                    loginError ? "p-invalid" : ""
+                  }`}
+                  placeholder="••••••••"
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                />
 
-  {/* Ojo para mostrar/ocultar */}
-  <i
-    className={`pi ${showPassword ? "pi-eye-slash" : "pi-eye"}`}
-    onClick={() => setShowPassword(!showPassword)}
-    style={{
-      position: "absolute",
-      right: "12px",
-      top: "42px",
-      cursor: "pointer",
-      color: "#bbb",
-      fontSize: "1.2rem",
-    }}
-  />
-</div>
+                {/* Ojo para mostrar/ocultar */}
+                <i
+                  className={`pi ${showPassword ? "pi-eye-slash" : "pi-eye"}`}
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "12px",
+                    top: "42px",
+                    cursor: "pointer",
+                    color: "#bbb",
+                    fontSize: "1.2rem",
+                  }}
+                />
+              </div>
 
               {/* Botón */}
               <Button
@@ -109,14 +134,12 @@ export default function Login() {
                 onClick={handleLogin}
                 className="w-full h-14 text-xl font-bold"
                 disabled={loading}
-  loading={loading}
+                loading={loading}
               />
             </div>
 
             {/* Texto de Copyright */}
-            <div className="login-footer">
-              alejodev © 2025 • v1.0
-            </div>
+            <div className="login-footer">alejodev © 2025 • v1.0</div>
           </Card>
         </div>
       </div>

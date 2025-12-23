@@ -23,7 +23,9 @@ export default function UsuariosAdmin() {
   const [loading, setLoading] = useState(true);
   const [procesandoId, setProcesandoId] = useState<number | null>(null);
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [usuarioEditando, setUsuarioEditando] = useState<UsuarioRow | null>(null);
+  const [usuarioEditando, setUsuarioEditando] = useState<UsuarioRow | null>(
+    null
+  );
   const toast = useRef<Toast>(null);
 
   useEffect(() => {
@@ -50,61 +52,60 @@ export default function UsuariosAdmin() {
   );
 
   const cambiarEstado = (row: UsuarioRow, nuevoEstado: boolean) => {
-  confirmDialog({
-    message: `¿Seguro que desea ${
-      nuevoEstado ? "activar" : "desactivar"
-    } al usuario ${row.username}?`,
-    header: "Confirmación",
-    icon: "pi pi-exclamation-triangle",
-    accept: async () => {
-      try {
-        setProcesandoId(row.id);
-        await api.patch(`/api/admin/usuarios/${row.id}/estado`, {
-          activo: nuevoEstado,
-        });
+    confirmDialog({
+      message: `¿Seguro que desea ${
+        nuevoEstado ? "activar" : "desactivar"
+      } al usuario ${row.username}?`,
+      header: "Confirmación",
+      icon: "pi pi-exclamation-triangle",
+      accept: async () => {
+        try {
+          setProcesandoId(row.id);
+          await api.patch(`/api/admin/usuarios/${row.id}/estado`, {
+            activo: nuevoEstado,
+          });
 
-        toast.current?.show({
-          severity: "success",
-          summary: "Actualizado",
-          detail: "Estado del usuario actualizado",
-          life: 3000,
-        });
+          toast.current?.show({
+            severity: "success",
+            summary: "Actualizado",
+            detail: "Estado del usuario actualizado",
+            life: 3000,
+          });
 
-        cargarUsuarios();
-      } catch (error) {
-        let msg = "No se pudo cambiar el estado";
-        if (error instanceof Error) {
+          cargarUsuarios();
+        } catch (error) {
+          let msg = "No se pudo cambiar el estado";
+          if (error instanceof Error) {
             msg = error.message;
+          }
+          toast.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: msg,
+          });
+        } finally {
+          setProcesandoId(null);
         }
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: msg,
-        });
-      }finally {
-        setProcesandoId(null);
-      }
-    },
-  });
-};
-
+      },
+    });
+  };
 
   return (
     <div className="card">
-        <Toast ref={toast} />
-<ConfirmDialog />
-<div className="flex justify-content-between align-items-center mb-3">
-      <h3>Administración de usuarios</h3>
-      <Button
-    label="Nuevo usuario"
-    icon="pi pi-plus"
-    className="p-button-sm"
-    onClick={() => {
-      setUsuarioEditando(null);   // crear
-      setDialogVisible(true);
-    }}
-  />
-  </div>
+      <Toast ref={toast} />
+      <ConfirmDialog />
+      <div className="flex justify-content-between align-items-center mb-3">
+        <h3>Administración de usuarios</h3>
+        <Button
+          label="Nuevo usuario"
+          icon="pi pi-plus"
+          className="p-button-sm"
+          onClick={() => {
+            setUsuarioEditando(null); // crear
+            setDialogVisible(true);
+          }}
+        />
+      </div>
 
       <DataTable
         value={data}
@@ -119,39 +120,38 @@ export default function UsuariosAdmin() {
         <Column field="empresa" header="Empresa" sortable />
         <Column header="Rol" body={rolTemplate} sortable />
         <Column
-  header="Activo"
-  body={(row: UsuarioRow) => (
-    <InputSwitch
-      checked={!!row.activo}
-      disabled={row.username === "alejo" || procesandoId === row.id}
-      onChange={(e) => cambiarEstado(row, e.value)}
-    />    
-  )}
-/>
-<Column
-  header="Acciones"
-  body={(row: UsuarioRow) => (
-    <Button
-      icon="pi pi-pencil"
-      className="p-button-text p-button-sm"
-      disabled={row.username === "alejo"}
-      onClick={() => {
-        setUsuarioEditando(row);   // editar
-        setDialogVisible(true);
-      }}
-    />
-  )}
-/>
+          header="Activo"
+          body={(row: UsuarioRow) => (
+            <InputSwitch
+              checked={!!row.activo}
+              disabled={row.username === "alejo" || procesandoId === row.id}
+              onChange={(e) => cambiarEstado(row, e.value)}
+            />
+          )}
+        />
+        <Column
+          header="Acciones"
+          body={(row: UsuarioRow) => (
+            <Button
+              icon="pi pi-pencil"
+              className="p-button-text p-button-sm"
+              disabled={row.username === "alejo"}
+              onClick={() => {
+                setUsuarioEditando(row); // editar
+                setDialogVisible(true);
+              }}
+            />
+          )}
+        />
       </DataTable>
       {dialogVisible && (
-  <UsuarioDialog
-    visible={dialogVisible}
-    usuario={usuarioEditando}
-    onHide={() => setDialogVisible(false)}
-    onSuccess={cargarUsuarios}
-  />
-)}
-
+        <UsuarioDialog
+          visible={dialogVisible}
+          usuario={usuarioEditando}
+          onHide={() => setDialogVisible(false)}
+          onSuccess={cargarUsuarios}
+        />
+      )}
     </div>
   );
 }
