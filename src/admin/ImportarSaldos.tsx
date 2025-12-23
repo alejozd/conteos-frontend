@@ -60,11 +60,7 @@ export default function ImportarSaldos() {
       toast.current?.show({
         severity: "success",
         summary: "Importación finalizada",
-        detail: `
-        Insertados: ${response.data.insertados}
-        Actualizados: ${response.data.actualizados}
-        Total procesados: ${response.data.total}
-        `,
+        detail: `Total procesados: ${response.data.total}`,
         life: 6000,
       });
 
