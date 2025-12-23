@@ -191,16 +191,29 @@ export default function DashboardSaldos() {
         />
         <Column
           header="Detalle"
-          body={(row) => (
-            <Button
-              icon="pi pi-eye"
-              className="p-button-text p-button-sm"
-              onClick={() => {
-                setProductoSeleccionado(row);
-                setDetalleVisible(true);
-              }}
-            />
-          )}
+          body={(row: SaldoRow) => {
+            const tieneDetalle = Number(row.conteo_total) > 0;
+
+            return (
+              <Button
+                icon="pi pi-eye"
+                className="p-button-text p-button-sm"
+                disabled={!tieneDetalle}
+                tooltip={
+                  tieneDetalle
+                    ? "Ver detalle de conteos"
+                    : "Este producto no tiene conteos registrados"
+                }
+                tooltipOptions={{ position: "top" }}
+                onClick={() => {
+                  if (!tieneDetalle) return;
+
+                  setProductoSeleccionado(row);
+                  setDetalleVisible(true);
+                }}
+              />
+            );
+          }}
         />
       </DataTable>
       {productoSeleccionado && (
