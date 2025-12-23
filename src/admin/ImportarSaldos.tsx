@@ -59,8 +59,13 @@ export default function ImportarSaldos() {
 
       toast.current?.show({
         severity: "success",
-        summary: "Importación exitosa",
-        detail: `Registros importados: ${response.data.total}`,
+        summary: "Importación finalizada",
+        detail: `
+        Insertados: ${response.data.insertados}
+        Actualizados: ${response.data.actualizados}
+        Total procesados: ${response.data.total}
+        `,
+        life: 6000,
       });
 
       event.options.clear(); // cambia a Completed
@@ -128,7 +133,7 @@ export default function ImportarSaldos() {
             cancelLabel="Cancelar"
             customUpload
             uploadHandler={subirArchivo}
-            disabled={!tipo || loading}            
+            disabled={!tipo || loading}
             emptyTemplate={
               <div className="flex flex-column align-items-center">
                 <i className="pi pi-cloud-upload text-3xl mb-3" />
