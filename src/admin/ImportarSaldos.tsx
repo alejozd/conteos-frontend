@@ -5,7 +5,7 @@ import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { FileUpload, type FileUploadSelectEvent } from "primereact/fileupload";
+import { FileUpload } from "primereact/fileupload";
 import { isAxiosError } from "axios";
 
 interface ErrorImportacion {
@@ -23,25 +23,27 @@ const TIPOS_IMPORTACION: { label: string; value: TipoImportacion }[] = [
 
 export default function ImportarSaldos() {
   const toast = useRef<Toast>(null);
-
-  const [tipo, setTipo] = useState<TipoImportacion | null>(null);
-  const [archivo, setArchivo] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [errores, setErrores] = useState<ErrorImportacion[]>([]);
   const fileUploadRef = useRef<FileUpload>(null);
 
-  const handleImportar = async () => {
-    if (!tipo || !archivo) {
+  const [tipo, setTipo] = useState<TipoImportacion | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errores, setErrores] = useState<ErrorImportacion[]>([]);
+
+  const subirArchivo = async (event: any) => {
+    if (!tipo) {
       toast.current?.show({
         severity: "warn",
         summary: "Validación",
-        detail: "Debe seleccionar el tipo y el archivo Excel",
+        detail: "Debe seleccionar el tipo de importación",
       });
+      event.options.clear();
       return;
     }
 
+    const file: File = event.files[0];
+
     const formData = new FormData();
-    formData.append("file", archivo);
+    formData.append("file", file);
 
     const url =
       tipo === "productos"
@@ -53,9 +55,7 @@ export default function ImportarSaldos() {
       setErrores([]);
 
       const response = await api.post(url, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.current?.show({
@@ -64,29 +64,28 @@ export default function ImportarSaldos() {
         detail: `Registros importados: ${response.data.total}`,
       });
 
-      setArchivo(null);
-setTipo(null);
-fileUploadRef.current?.clear();
+      event.options.clear(); // cambia a Completed
+      setTipo(null);
     } catch (error: unknown) {
-  if (isAxiosError(error)) {
-    const data = error.response?.data;
+      if (isAxiosError(error)) {
+        const data = error.response?.data;
 
-    if (data?.errores) {
-      setErrores(data.errores);
-    }
+        if (data?.errores) {
+          setErrores(data.errores);
+        }
 
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: data?.message || "Error al importar el archivo",
-    });
-  } else {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Error inesperado al importar",
-    });
-  }
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: data?.message || "Error al importar el archivo",
+        });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Error inesperado al importar",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -99,6 +98,7 @@ fileUploadRef.current?.clear();
       <h2 className="mb-4">Importar información</h2>
 
       <div className="card p-3">
+        {/* Tipo de importación */}
         <div className="field mb-3">
           <label htmlFor="tipoImportacion" className="block mb-2">
             Tipo de importación
@@ -113,48 +113,39 @@ fileUploadRef.current?.clear();
           />
         </div>
 
+        {/* Archivo */}
         <div className="field mb-4">
-  <label htmlFor="archivoExcel" className="block mb-2">
-    Archivo Excel
-  </label>
+          <label className="block mb-2">Archivo Excel</label>
 
-  <FileUpload 
-    ref={fileUploadRef} 
-    id="archivoExcel" 
-    mode="advanced" 
-    name="file" 
-    accept=".xlsx,.xls" 
-    maxFileSize={5_000_000}
-    multiple={false}
-    auto={true} 
-    onSelect={(e: FileUploadSelectEvent) => setArchivo(e.files[0] ?? null) } 
-    onClear={() => setArchivo(null)}
-    className="w-full" 
-    emptyTemplate={ <div className="flex flex-column align-items-center"> 
-    <i className="pi pi-cloud-upload text-3xl mb-3" /> 
-    <p className="m-0 text-center"> Arrastre el archivo Excel aquí 
-      <br /> o haga clic para seleccionarlo </p> 
-    </div> }
-  /> 
-  </div>
-        <Button
-  label="Importar"
-  icon="pi pi-upload"
-  onClick={handleImportar}
-  loading={loading}
-  disabled={!tipo || !archivo}
-  className="w-full"
-/>
+          <FileUpload
+            ref={fileUploadRef}
+            name="file"
+            mode="advanced"
+            accept=".xlsx,.xls"
+            maxFileSize={5_000_000}
+            multiple={false}
+            customUpload
+            uploadHandler={subirArchivo}
+            disabled={!tipo || loading}
+            emptyTemplate={
+              <div className="flex flex-column align-items-center">
+                <i className="pi pi-cloud-upload text-3xl mb-3" />
+                <p className="m-0 text-center">
+                  Arrastre el archivo Excel aquí
+                  <br />o haga clic para seleccionarlo
+                </p>
+              </div>
+            }
+            className="w-full"
+          />
+        </div>
       </div>
 
+      {/* Tabla de errores */}
       {errores.length > 0 && (
         <div className="mt-5">
           <h3>Errores encontrados</h3>
-          <DataTable
-            value={errores}
-            paginator
-            rows={10}            
-          >
+          <DataTable value={errores} paginator rows={10}>
             <Column field="fila" header="Fila" />
             <Column field="campo" header="Campo" />
             <Column field="mensaje" header="Descripción" />
