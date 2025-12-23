@@ -98,6 +98,21 @@ export default function ImportarSaldos() {
       <h2 className="mb-4">Importar información</h2>
 
       <div className="card p-3">
+        <div className="flex align-items-center gap-2 mb-2">
+          <span className="p-tag p-tag-rounded">1</span>
+          <span>Seleccione el tipo de importación</span>
+        </div>
+        <div className="flex align-items-center gap-2 mb-2">
+          <span className="p-tag p-tag-rounded">2</span>
+          <span>Seleccione o arrastre el archivo Excel</span>
+        </div>
+        <div className="flex align-items-center gap-2">
+          <span className="p-tag p-tag-rounded">3</span>
+          <span>Presione Importar y espere el resultado</span>
+        </div>
+      </div>
+
+      <div className="card p-3">
         {/* Tipo de importación */}
         <div className="field mb-3">
           <label htmlFor="tipoImportacion" className="block mb-2">
