@@ -35,7 +35,15 @@ export default function DashboardSaldos() {
 
   useEffect(() => {
     cargarDatos();
-  }, []);
+
+    const interval = setInterval(() => {
+      if (!detalleVisible) {
+        cargarDatos();
+      }
+    }, 60_000);
+
+    return () => clearInterval(interval);
+  }, [detalleVisible]);
 
   const cargarDatos = async (): Promise<void> => {
     setLoading(true);
