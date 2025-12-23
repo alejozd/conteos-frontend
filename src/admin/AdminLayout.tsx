@@ -13,9 +13,9 @@ export default function AdminLayout() {
       command: () => navigate("/admin"),
     },
     {
-    label: "Conteos anulados",
-    icon: "pi pi-ban",
-    command: () => navigate("/admin/conteos-anulados"),
+      label: "Conteos anulados",
+      icon: "pi pi-ban",
+      command: () => navigate("/admin/conteos-anulados"),
     },
     {
       label: "Importar",
@@ -23,10 +23,15 @@ export default function AdminLayout() {
       command: () => navigate("/admin/importar"),
     },
     {
-  label: "Usuarios",
-  icon: "pi pi-users",
-  command: () => navigate("/admin/usuarios"),
-},
+      label: "Productos",
+      icon: "pi pi-box",
+      command: () => navigate("/admin/productos"),
+    },
+    {
+      label: "Usuarios",
+      icon: "pi pi-users",
+      command: () => navigate("/admin/usuarios"),
+    },
     {
       label: "Salir",
       icon: "pi pi-sign-out",

@@ -5,6 +5,8 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
 import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -23,17 +25,18 @@ interface SaldoRow {
 
 export default function DashboardSaldos() {
   const [data, setData] = useState<SaldoRow[]>([]);
-  const [globalFilter, setGlobalFilter] = useState(""); 
+  const [globalFilter, setGlobalFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [detalleVisible, setDetalleVisible] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<SaldoRow | null>(null);
+  const [productoSeleccionado, setProductoSeleccionado] =
+    useState<SaldoRow | null>(null);
   const [soloConDiferencia, setSoloConDiferencia] = useState(false);
 
-useEffect(() => {
-  cargarDatos();
-}, []);
+  useEffect(() => {
+    cargarDatos();
+  }, []);
 
-const cargarDatos = async (): Promise<void> => {
+  const cargarDatos = async (): Promise<void> => {
     setLoading(true);
     try {
       const res = await api.get("/api/admin/saldos-resumen");
@@ -45,85 +48,91 @@ const cargarDatos = async (): Promise<void> => {
     }
   };
 
-const dataFiltrada = soloConDiferencia
-  ? data.filter((r) => Number(r.diferencia) !== 0)
-  : data;
+  const dataFiltrada = soloConDiferencia
+    ? data.filter((r) => Number(r.diferencia) !== 0)
+    : data;
 
   const diferenciaTemplate = (row: SaldoRow) => {
-  const valor = Number(row.diferencia);
+    const valor = Number(row.diferencia);
 
-  let className = "diff-neutral";
-  if (valor > 0) className = "diff-positive";
-  if (valor < 0) className = "diff-negative";
+    let className = "diff-neutral";
+    if (valor > 0) className = "diff-positive";
+    if (valor < 0) className = "diff-negative";
 
-  return <span className={className}>{valor.toFixed(2)}</span>;
-};
+    return <span className={className}>{valor.toFixed(2)}</span>;
+  };
 
-const toggleSoloConDiferencia = () => {
-  setLoading(true);
+  const toggleSoloConDiferencia = () => {
+    setLoading(true);
 
-  setTimeout(() => {
-    setSoloConDiferencia((prev) => !prev);
-    setLoading(false);
-  }, 200);
-};
+    setTimeout(() => {
+      setSoloConDiferencia((prev) => !prev);
+      setLoading(false);
+    }, 200);
+  };
 
-const exportarExcel = () => {
-  const rows = dataFiltrada.map((r) => ({
-    Producto: r.nombre,
-    Referencia: r.referencia,
-    "Saldo sistema": Number(r.saldo_sistema),
-    Conteo: Number(r.conteo_total),
-    Diferencia: Number(r.diferencia),
-  }));
+  const exportarExcel = () => {
+    const rows = dataFiltrada.map((r) => ({
+      Producto: r.nombre,
+      Referencia: r.referencia,
+      "Saldo sistema": Number(r.saldo_sistema),
+      Conteo: Number(r.conteo_total),
+      Diferencia: Number(r.diferencia),
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Saldos");
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Saldos");
 
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: "xlsx",
-    type: "array",
-  });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
 
-  const blob = new Blob([excelBuffer], {
-    type:
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
-  saveAs(blob, `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`);
-};
+    saveAs(
+      blob,
+      `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`
+    );
+  };
 
   const header = (
-  <div className="dashboard-header">
-    <h3 className="dashboard-title">Saldos vs Conteos</h3>
+    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+      <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
 
-    <div className="dashboard-actions">
-      <Button
-        label={soloConDiferencia ? "Mostrar todos" : "Solo con diferencia"}
-        icon="pi pi-filter"
-        className="p-button-sm p-button-outlined"
-        onClick={toggleSoloConDiferencia}
-      />
-      <Button
-  label="Exportar Excel"
-  icon="pi pi-file-excel"
-  className="p-button-sm p-button-success"
-  onClick={exportarExcel}
-/>
-
-
-      <span className="p-input-icon-left dashboard-search">
-        <i className="pi pi-search" />
-        <InputText
-          placeholder="Buscar producto o referencia"
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
+      <div className="flex flex-wrap gap-2 align-items-center">
+        <Button
+          label={soloConDiferencia ? "Mostrar todos" : "Solo con diferencia"}
+          icon={soloConDiferencia ? "pi pi-filter-slash" : "pi pi-filter"}
+          className={`p-button-sm ${
+            soloConDiferencia ? "p-button-info" : "p-button-outlined"
+          }`}
+          onClick={toggleSoloConDiferencia}
         />
-      </span>
+
+        <Button
+          label="Exportar Excel"
+          icon="pi pi-file-excel"
+          className="p-button-sm p-button-success"
+          onClick={exportarExcel}
+        />
+
+        {/* BUSCADOR MEJORADO */}
+        <IconField iconPosition="left">
+          <InputIcon className="pi pi-search" />
+          <InputText
+            placeholder="Buscar producto o referencia..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="p-inputtext-sm w-full md:w-15rem"
+          />
+        </IconField>
+      </div>
     </div>
-  </div>
-);
+  );
 
   return (
     <div className="card">
@@ -132,12 +141,11 @@ const exportarExcel = () => {
         loading={loading}
         paginator
         rows={15}
-        responsiveLayout="scroll"
         globalFilter={globalFilter}
         header={header}
         emptyMessage="No hay datos para mostrar"
         stripedRows
-        showGridlines        
+        showGridlines
       >
         <Column field="nombre" header="Producto" sortable />
         <Column field="referencia" header="Referencia" sortable />
@@ -162,31 +170,29 @@ const exportarExcel = () => {
           style={{ textAlign: "right" }}
         />
         <Column
-  header="Detalle"
-  body={(row) => (
-    <Button
-      icon="pi pi-eye"
-      className="p-button-text p-button-sm"
-      onClick={() => {
-        setProductoSeleccionado(row);
-        setDetalleVisible(true);
-      }}
-    />
-  )}
-/>
-
+          header="Detalle"
+          body={(row) => (
+            <Button
+              icon="pi pi-eye"
+              className="p-button-text p-button-sm"
+              onClick={() => {
+                setProductoSeleccionado(row);
+                setDetalleVisible(true);
+              }}
+            />
+          )}
+        />
       </DataTable>
       {productoSeleccionado && (
-  <DetalleConteosDialog
-    visible={detalleVisible}
-    onHide={() => setDetalleVisible(false)}
-    codigo={productoSeleccionado.codigo}
-    subcodigo={productoSeleccionado.subcodigo}
-    nombre={productoSeleccionado.nombre}
-    onConteoAnulado={cargarDatos}
-  />
-)}
-
+        <DetalleConteosDialog
+          visible={detalleVisible}
+          onHide={() => setDetalleVisible(false)}
+          codigo={productoSeleccionado.codigo}
+          subcodigo={productoSeleccionado.subcodigo}
+          nombre={productoSeleccionado.nombre}
+          onConteoAnulado={cargarDatos}
+        />
+      )}
     </div>
   );
 }

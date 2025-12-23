@@ -12,10 +12,11 @@ import AdminLayout from "./admin/AdminLayout";
 import DashboardSaldos from "./admin/DashboardSaldos";
 import ConteosAnulados from "./admin/ConteosAnulados";
 import ImportarSaldos from "./admin/ImportarSaldos";
-import UsuariosAdmin  from "./admin/UsuariosAdmin";
+import UsuariosAdmin from "./admin/UsuariosAdmin";
+import ProductosListado from "./admin/ProductosListado";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
-  function PrivateRoute({ children }: { children: React.ReactNode }) {
+function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/" />;
 }
@@ -25,16 +26,15 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-
           <Route path="/" element={<Login />} />
-<Route
-  path="/post-login"
-  element={
-    <PrivateRoute>
-      <PostLogin />
-    </PrivateRoute>
-  }
-/>
+          <Route
+            path="/post-login"
+            element={
+              <PrivateRoute>
+                <PostLogin />
+              </PrivateRoute>
+            }
+          />
 
           {/* Flujo operario */}
           <Route
@@ -70,12 +70,12 @@ function App() {
             <Route path="saldos" element={<DashboardSaldos />} />
             <Route path="conteos-anulados" element={<ConteosAnulados />} />
             <Route path="importar" element={<ImportarSaldos />} />
+            <Route path="productos" element={<ProductosListado />} />
             <Route path="usuarios" element={<UsuariosAdmin />} />
           </Route>
 
           {/* Si ponen cualquier ruta no válida */}
           <Route path="*" element={<Navigate to="/" />} />
-
         </Routes>
       </BrowserRouter>
     </AuthProvider>
