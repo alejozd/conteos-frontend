@@ -33,20 +33,20 @@ export default function UsuarioDialog({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
-  const [empresaId, setEmpresaId] = useState<number | null>(null);
+  const [empresaId, setEmpresaId] = useState<number>(1);
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     if (usuario) {
       setUsername(usuario.username);
       setRole(usuario.role);
-      setEmpresaId(usuario.empresa_id ?? null);
+      setEmpresaId(usuario.empresa_id ?? 1);
       setPassword("");
     } else {
       setUsername("");
       setPassword("");
       setRole("user");
-      setEmpresaId(null);
+      setEmpresaId(1);
     }
   }, [usuario]);
 
@@ -113,83 +113,83 @@ export default function UsuarioDialog({
   };
 
   return (
-  <Dialog
-    header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
-    visible={visible}
-    modal
-    style={{ width: "40vw", maxWidth: "600px" }}
-    breakpoints={{ "960px": "75vw", "640px": "95vw" }}
-    onHide={onHide}
-    footer={
-      <div className="flex justify-content-end gap-2">
-        <Button
-          label="Cancelar"
-          className="p-button-text"
-          onClick={onHide}
-        />
-        <Button
-          label="Guardar"
-          loading={guardando}
-          onClick={guardar}
-        />
-      </div>
-    }
-  >
-    <Toast ref={toast} />
-
-    <div className="grid p-fluid mt-2">
-      <div className="col-12">
-        <span className="p-float-label">
-          <InputText
-            value={username}
-            disabled={esEdicion}
-            onChange={(e) => setUsername(e.target.value)}
+    <Dialog
+      header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
+      visible={visible}
+      modal
+      style={{ width: "40vw", maxWidth: "600px" }}
+      breakpoints={{ "960px": "75vw", "640px": "95vw" }}
+      onHide={onHide}
+      footer={
+        <div className="flex justify-content-end gap-2">
+          <Button
+            label="Cancelar"
+            className="p-button-text"
+            onClick={onHide}
           />
-          <label>Usuario</label>
-        </span>
-      </div>
-
-      <div className="col-12">
-        <span className="p-float-label">
-          <InputText
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={
-              esEdicion ? "Dejar vacío para no cambiar" : ""
-            }
+          <Button
+            label="Guardar"
+            loading={guardando}
+            onClick={guardar}
           />
-          <label>
-            {esEdicion ? "Nueva contraseña" : "Contraseña"}
-          </label>
-        </span>
-      </div>
+        </div>
+      }
+    >
+      <Toast ref={toast} />
 
-      <div className="col-12 md:col-6">
-        <span className="p-float-label">
-          <Dropdown
-            value={role}
-            options={[
-              { label: "Administrador", value: "admin" },
-              { label: "Usuario", value: "user" },
-            ]}
-          />
-          <label>Rol</label>
-        </span>
-      </div>
+      {/* Añadimos mt-4 para dar espacio al primer label flotante */}
+      <div className="grid p-fluid mt-4">
+        
+        {/* Usamos mb-5 para dar aire entre filas para que el label no choque */}
+        <div className="col-12 mb-5">
+          <span className="p-float-label">
+            <InputText
+              id="username"
+              value={username}
+              disabled={esEdicion}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <label htmlFor="username">Usuario</label>
+          </span>
+        </div>
 
-      <div className="col-12 md:col-6">
-        <span className="p-float-label">
-          <Dropdown
-            value={empresaId}
-            options={[]}
-            placeholder="Seleccione empresa"
-            disabled
-          />
-          <label>Empresa</label>
-        </span>
+        <div className="col-12 mb-5">
+          <span className="p-float-label">
+            <InputText
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={esEdicion ? "Dejar vacío para no cambiar" : ""}
+            />
+            <label htmlFor="password">
+              {esEdicion ? "Nueva contraseña" : "Contraseña"}
+            </label>
+          </span>
+        </div>
+
+        <div className="col-12 md:col-6 mb-5">
+          <span className="p-float-label">
+            <Dropdown
+              id="role"
+              value={role}
+              options={[
+                { label: "Administrador", value: "admin" },
+                { label: "Usuario", value: "user" },
+              ]}
+              onChange={(e) => setRole(e.value)} // <--- Faltaba esto
+            />
+            <label htmlFor="role">Rol</label>
+          </span>
+        </div>
+
+        <div className="col-12 md:col-6 mb-5">
+          <span className="p-float-label">
+            <InputText id="empresa" value="Empresa principal" disabled />
+            <label htmlFor="empresa">Empresa</label>
+          </span>
+        </div>
       </div>
-    </div>
-  </Dialog>
-);
+    </Dialog>
+  );
 }

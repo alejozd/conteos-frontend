@@ -303,7 +303,7 @@ const confirmarGuardado = () => {
       toast.current?.show({
         severity: "success",
         summary: "Guardado",
-        detail: "Movimiento registrado correctamente",
+        detail: "Conteo registrado correctamente",
       });
 
       setProductoSeleccionado(null);
