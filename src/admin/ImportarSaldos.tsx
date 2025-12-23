@@ -1,11 +1,10 @@
 import { useRef, useState } from "react";
 import api from "../services/api";
-import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { FileUpload } from "primereact/fileupload";
+import { FileUpload, type FileUploadHandlerEvent } from "primereact/fileupload";
 import { isAxiosError } from "axios";
 
 interface ErrorImportacion {
@@ -29,7 +28,7 @@ export default function ImportarSaldos() {
   const [loading, setLoading] = useState(false);
   const [errores, setErrores] = useState<ErrorImportacion[]>([]);
 
-  const subirArchivo = async (event: any) => {
+  const subirArchivo = async (event: FileUploadHandlerEvent) => {
     if (!tipo) {
       toast.current?.show({
         severity: "warn",
@@ -124,9 +123,12 @@ export default function ImportarSaldos() {
             accept=".xlsx,.xls"
             maxFileSize={5_000_000}
             multiple={false}
+            chooseLabel={loading ? "Procesando..." : "Seleccionar archivo"}
+            uploadLabel={loading ? "Importando..." : "Importar"}
+            cancelLabel="Cancelar"
             customUpload
             uploadHandler={subirArchivo}
-            disabled={!tipo || loading}
+            disabled={!tipo || loading}            
             emptyTemplate={
               <div className="flex flex-column align-items-center">
                 <i className="pi pi-cloud-upload text-3xl mb-3" />
