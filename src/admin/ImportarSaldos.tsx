@@ -118,31 +118,25 @@ fileUploadRef.current?.clear();
     Archivo Excel
   </label>
 
-  <FileUpload
-    ref={fileUploadRef}
-    id="archivoExcel"
-    mode="advanced"
-    name="file"
-    accept=".xlsx,.xls"
+  <FileUpload 
+    ref={fileUploadRef} 
+    id="archivoExcel" 
+    mode="advanced" 
+    name="file" 
+    accept=".xlsx,.xls" 
     maxFileSize={5_000_000}
-    chooseLabel="Seleccionar archivo"
-    uploadLabel="Subir"
-    cancelLabel="Cancelar"
-    customUpload
-    auto={false}    
-    onSelect={(e: FileUploadSelectEvent) =>
-      setArchivo(e.files[0] ?? null)
-    }
-    className="w-full"
-    emptyTemplate={
-      <p className="m-0 text-center">
-        Arrastre el archivo aquí o haga clic para seleccionarlo
-      </p>
-    }
-  />
-</div>
-
-
+    multiple={false}
+    auto={true} 
+    onSelect={(e: FileUploadSelectEvent) => setArchivo(e.files[0] ?? null) } 
+    onClear={() => setArchivo(null)}
+    className="w-full" 
+    emptyTemplate={ <div className="flex flex-column align-items-center"> 
+    <i className="pi pi-cloud-upload text-3xl mb-3" /> 
+    <p className="m-0 text-center"> Arrastre el archivo Excel aquí 
+      <br /> o haga clic para seleccionarlo </p> 
+    </div> }
+  /> 
+  </div>
         <Button
   label="Importar"
   icon="pi pi-upload"
@@ -159,8 +153,7 @@ fileUploadRef.current?.clear();
           <DataTable
             value={errores}
             paginator
-            rows={10}
-            responsiveLayout="scroll"
+            rows={10}            
           >
             <Column field="fila" header="Fila" />
             <Column field="campo" header="Campo" />
