@@ -7,6 +7,7 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import { Badge } from "primereact/badge";
 import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -99,35 +100,54 @@ export default function DashboardSaldos() {
     );
   };
 
+  // Calculamos la cantidad de productos con diferencia para el Badge
+  const totalDiferencias = data.filter(
+    (r) => Number(r.diferencia) !== 0
+  ).length;
+
   const header = (
     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-      <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
+      {/* Título con Badge de estado */}
+      <div className="flex align-items-center gap-2">
+        <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
+        {totalDiferencias > 0 && (
+          <Badge
+            value={totalDiferencias}
+            severity="danger"
+            title="Productos con discrepancias"
+          />
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-2 align-items-center">
-        <Button
-          label={soloConDiferencia ? "Mostrar todos" : "Solo con diferencia"}
-          icon={soloConDiferencia ? "pi pi-filter-slash" : "pi pi-filter"}
-          className={`p-button-sm ${
-            soloConDiferencia ? "p-button-info" : "p-button-outlined"
-          }`}
-          onClick={toggleSoloConDiferencia}
-        />
+        {/* Grupo de Filtro y Exportación */}
+        <div className="flex gap-2">
+          <Button
+            label={soloConDiferencia ? "Mostrar todos" : "Solo diferencias"}
+            icon={soloConDiferencia ? "pi pi-filter-slash" : "pi pi-filter"}
+            className={`p-button-sm ${
+              soloConDiferencia ? "p-button-info" : "p-button-outlined"
+            }`}
+            onClick={toggleSoloConDiferencia}
+          />
 
-        <Button
-          label="Exportar Excel"
-          icon="pi pi-file-excel"
-          className="p-button-sm p-button-success"
-          onClick={exportarExcel}
-        />
+          <Button
+            label="Excel"
+            icon="pi pi-file-excel"
+            className="p-button-sm p-button-success p-button-outlined"
+            onClick={exportarExcel}
+            tooltip="Exportar datos actuales"
+          />
+        </div>
 
-        {/* BUSCADOR MEJORADO */}
+        {/* Buscador con ancho controlado */}
         <IconField iconPosition="left">
           <InputIcon className="pi pi-search" />
           <InputText
-            placeholder="Buscar producto o referencia..."
+            placeholder="Buscar..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="p-inputtext-sm w-full md:w-15rem"
+            className="p-inputtext-sm w-full md:w-14rem"
           />
         </IconField>
       </div>

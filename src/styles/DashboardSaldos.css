@@ -1,19 +1,34 @@
 /* Diferencias */
 .diff-neutral {
-  font-weight: 600;
-  color: #6c757d;
+  font-weight: 700;
+  color: #94a3b8; /* Gris azulado */
 }
 
 .diff-positive {
-  font-weight: 600;
-  /* color: #198754; */
-  color: #dc3545;
+  font-weight: 700;
+  color: #ef4444; /* Rojo (Falta mercancía) */
+  background: rgba(239, 68, 68, 0.1);
+  padding: 2px 8px;
+  border-round: 4px;
 }
 
 .diff-negative {
+  font-weight: 700;
+  color: #22c55e; /* Verde (Sobra mercancía) */
+  background: rgba(34, 197, 94, 0.1);
+  padding: 2px 8px;
+  border-round: 4px;
+}
+
+/* Mejora visual general del header */
+.dashboard-title {
+  color: #f8fafc;
   font-weight: 600;
-  color: #198754;
-  /* color: #dc3545; */
+}
+
+/* Animación sutil para cuando se filtra */
+.p-datatable-tbody > tr {
+  transition: background-color 0.2s;
 }
 
 /* Alineación numérica */
