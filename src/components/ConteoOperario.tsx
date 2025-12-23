@@ -15,10 +15,7 @@ import {
   type AutoCompleteCompleteEvent,
 } from "primereact/autocomplete";
 
-import {
-  Dropdown,
-  type DropdownChangeEvent,
-} from "primereact/dropdown";
+import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
 
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
@@ -49,7 +46,7 @@ interface Bodega {
 }
 
 export default function ConteoOperario() {
-  const { grupoActivo, setGrupoActivo, logout   } = useAuth();
+  const { grupoActivo, setGrupoActivo, logout } = useAuth();
   const toast = useRef<Toast>(null);
   const location = useLocation();
 
@@ -59,95 +56,99 @@ export default function ConteoOperario() {
 
   // ESTADOS =========================
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
-  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>([]);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
+  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>(
+    []
+  );
+  const [productoSeleccionado, setProductoSeleccionado] =
+    useState<Producto | null>(null);
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] =
+    useState<Ubicacion | null>(null);
   const [cantidad, setCantidad] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
-  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
-
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(
+    null
+  );
 
   // 0. Recuperar grupoActivo si está en null al recargar ==================
-useEffect(() => {
-  // si ya tenemos grupoActivo no necesitamos hacer nada
-  if (grupoActivo) return;
+  useEffect(() => {
+    // si ya tenemos grupoActivo no necesitamos hacer nada
+    if (grupoActivo) return;
 
-  // si no viene el id en la URL tampoco podemos recuperar
-  if (!grupoId) return;
+    // si no viene el id en la URL tampoco podemos recuperar
+    if (!grupoId) return;
 
-  const fetchGrupoById = async () => {
-    try {
-      const res = await api.get("/api/conteos/grupos/activos");
-      const grupos = Array.isArray(res.data) ? res.data : [];
+    const fetchGrupoById = async () => {
+      try {
+        const res = await api.get("/api/conteos/grupos/activos");
+        const grupos = Array.isArray(res.data) ? res.data : [];
 
-      const g = grupos.find((x) => String(x.id) === String(grupoId));
-      if (g) {
-        setGrupoActivo(g); // recupera el grupo en memoria
-      } else {
-        console.warn("El grupo no está dentro de los grupos activos.");
-        // Aquí podrías redirigir a SeleccionarGrupo si quieres
-        // navigate("/seleccionar-grupo");
+        const g = grupos.find((x) => String(x.id) === String(grupoId));
+        if (g) {
+          setGrupoActivo(g); // recupera el grupo en memoria
+        } else {
+          console.warn("El grupo no está dentro de los grupos activos.");
+          // Aquí podrías redirigir a SeleccionarGrupo si quieres
+          // navigate("/seleccionar-grupo");
+        }
+      } catch (error) {
+        console.error("Error recuperando grupo por id:", error);
       }
-    } catch (error) {
-      console.error("Error recuperando grupo por id:", error);
-    }
-  };
+    };
 
-  fetchGrupoById();
-}, [grupoId, grupoActivo, setGrupoActivo]);
+    fetchGrupoById();
+  }, [grupoId, grupoActivo, setGrupoActivo]);
 
   // 1. Cargar ubicaciones =========================
   useEffect(() => {
-  const fetchBodegas = async () => {
-    try {
-      const res = await api.get("/api/bodegas/listar");
-      setBodegas(res.data);
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudieron cargar las bodegas",
-      });
-    }
-  };
+    const fetchBodegas = async () => {
+      try {
+        const res = await api.get("/api/bodegas/listar");
+        setBodegas(res.data);
+      } catch {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "No se pudieron cargar las bodegas",
+        });
+      }
+    };
 
-  fetchBodegas();
-}, []);
+    fetchBodegas();
+  }, []);
 
   useEffect(() => {
-  if (!bodegaSeleccionada) {
-    setUbicaciones([]);
-    setUbicacionSeleccionada(null);
-    return;
-  }
-
-  const fetchUbicaciones = async () => {
-    try {
-      const res = await api.get(
-        `/api/ubicaciones/listar?bodegaId=${bodegaSeleccionada.id}`
-      );
-      const data: Ubicacion[] = res.data || [];
-      setUbicaciones(data);
-
-      if (data.length > 0) {
-        setUbicacionSeleccionada(data[0]);
-      } else {
-        setUbicacionSeleccionada(null);
-      }
-    } catch {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudieron cargar las ubicaciones",
-      });
+    if (!bodegaSeleccionada) {
+      setUbicaciones([]);
+      setUbicacionSeleccionada(null);
+      return;
     }
-  };
 
-  fetchUbicaciones();
-}, [bodegaSeleccionada]);
+    const fetchUbicaciones = async () => {
+      try {
+        const res = await api.get(
+          `/api/ubicaciones/listar?bodegaId=${bodegaSeleccionada.id}`
+        );
+        const data: Ubicacion[] = res.data || [];
+        setUbicaciones(data);
 
+        if (data.length > 0) {
+          setUbicacionSeleccionada(data[0]);
+        } else {
+          setUbicacionSeleccionada(null);
+        }
+      } catch {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "No se pudieron cargar las ubicaciones",
+        });
+      }
+    };
+
+    fetchUbicaciones();
+  }, [bodegaSeleccionada]);
 
   // 2. Buscar productos =========================
   const buscarProductos = async (e: AutoCompleteCompleteEvent) => {
@@ -158,7 +159,9 @@ useEffect(() => {
         return;
       }
 
-      const res = await api.get(`/api/productos/buscar?texto=${encodeURIComponent(q)}`);
+      const res = await api.get(
+        `/api/productos/buscar?texto=${encodeURIComponent(q)}`
+      );
       setResultadosProductos(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
@@ -166,132 +169,132 @@ useEffect(() => {
   };
 
   // 3. Guardar conteo =========================
-const esFormularioValido = (): boolean => {
-  if (!productoSeleccionado) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Producto requerido",
-      detail: "Debes seleccionar un producto antes de continuar",
+  const esFormularioValido = (): boolean => {
+    if (!productoSeleccionado) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Producto requerido",
+        detail: "Debes seleccionar un producto antes de continuar",
+      });
+      return false;
+    }
+
+    if (!bodegaSeleccionada) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Bodega requerida",
+        detail: "Selecciona una bodega",
+      });
+      return false;
+    }
+
+    if (!ubicacionSeleccionada) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Ubicación requerida",
+        detail: "Selecciona una ubicación",
+      });
+      return false;
+    }
+
+    if (cantidad === null || cantidad <= 0) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Cantidad inválida",
+        detail: "La cantidad debe ser mayor a 0",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const confirmarGuardado = () => {
+    if (!esFormularioValido()) {
+      return; // 🚫 NO se abre el ConfirmDialog
+    }
+
+    confirmDialog({
+      header: "Confirmar conteo",
+      message: (
+        <div className="confirm-conteo">
+          <div className="fila">
+            <span className="label">Producto:</span>
+            <span className="valor wrap">{productoSeleccionado?.nombre}</span>
+          </div>
+
+          <div className="fila">
+            <span className="label">Referencia:</span>
+            <span className="valor">{productoSeleccionado?.referencia}</span>
+          </div>
+
+          <div className="fila">
+            <span className="label">Bodega:</span>
+            <span className="valor">{bodegaSeleccionada?.nombre}</span>
+          </div>
+
+          <div className="fila">
+            <span className="label">Ubicación:</span>
+            <span className="valor">{ubicacionSeleccionada?.nombre}</span>
+          </div>
+
+          <div className="fila">
+            <span className="label">Cantidad:</span>
+            <span className="valor">{cantidad}</span>
+          </div>
+        </div>
+      ),
+
+      icon: "pi pi-exclamation-triangle",
+      acceptLabel: "Sí, guardar",
+      rejectLabel: "Cancelar",
+      acceptClassName: "p-button-success",
+      rejectClassName: "p-button-danger p-button-text",
+      defaultFocus: "accept",
+      accept: guardar,
     });
-    return false;
-  }
-
-  if (!bodegaSeleccionada) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Bodega requerida",
-      detail: "Selecciona una bodega",
-    });
-    return false;
-  }
-
-  if (!ubicacionSeleccionada) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Ubicación requerida",
-      detail: "Selecciona una ubicación",
-    });
-    return false;
-  }
-
-  if (cantidad === null || cantidad <= 0) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Cantidad inválida",
-      detail: "La cantidad debe ser mayor a 0",
-    });
-    return false;
-  }
-
-  return true;
-};
-
-const confirmarGuardado = () => {
- if (!esFormularioValido()) {
-    return; // 🚫 NO se abre el ConfirmDialog
-  }
-
-  confirmDialog({
-    header: "Confirmar conteo",
-    message: (
-  <div className="confirm-conteo">
-    <div className="fila">
-      <span className="label">Producto:</span>
-      <span className="valor wrap">{productoSeleccionado?.nombre}</span>
-    </div>
-
-    <div className="fila">
-      <span className="label">Referencia:</span>
-      <span className="valor">{productoSeleccionado?.referencia}</span>
-    </div>
-
-    <div className="fila">
-      <span className="label">Bodega:</span>
-      <span className="valor">{bodegaSeleccionada?.nombre}</span>
-    </div>
-
-    <div className="fila">
-      <span className="label">Ubicación:</span>
-      <span className="valor">{ubicacionSeleccionada?.nombre}</span>
-    </div>
-
-    <div className="fila">
-      <span className="label">Cantidad:</span>
-      <span className="valor">{cantidad}</span>
-    </div>
-  </div>
-),
-
-    icon: "pi pi-exclamation-triangle",
-    acceptLabel: "Sí, guardar",
-    rejectLabel: "Cancelar",
-    acceptClassName: "p-button-success",
-    rejectClassName: "p-button-danger p-button-text",
-    defaultFocus: "accept",
-    accept: guardar,
-  });
-};
+  };
 
   const guardar = async () => {
     // VALIDACIONES =====================
-  if (!productoSeleccionado) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Producto requerido",
-      detail: "Debes seleccionar un producto antes de continuar",
-    });
-    return;
-  }
+    if (!productoSeleccionado) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Producto requerido",
+        detail: "Debes seleccionar un producto antes de continuar",
+      });
+      return;
+    }
 
-  if (cantidad === null || cantidad <= 0) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Cantidad inválida",
-      detail: "La cantidad debe ser mayor a 0",
-    });
-    return;
-  }
+    if (cantidad === null || cantidad <= 0) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Cantidad inválida",
+        detail: "La cantidad debe ser mayor a 0",
+      });
+      return;
+    }
 
-  if (!bodegaSeleccionada) {
-  toast.current?.show({
-    severity: "warn",
-    summary: "Bodega requerida",
-    detail: "Selecciona una bodega",
-  });
-  return;
-}
+    if (!bodegaSeleccionada) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Bodega requerida",
+        detail: "Selecciona una bodega",
+      });
+      return;
+    }
 
-  if (!ubicacionSeleccionada) {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Ubicación requerida",
-      detail: "Selecciona una ubicación",
-    });
-    return;
-  }
+    if (!ubicacionSeleccionada) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Ubicación requerida",
+        detail: "Selecciona una ubicación",
+      });
+      return;
+    }
 
     try {
-        setLoading(true);
+      setLoading(true);
       await api.post("/api/conteos/guardar", {
         codigo: productoSeleccionado.codigo,
         subcodigo: productoSeleccionado.subcodigo,
@@ -311,49 +314,51 @@ const confirmarGuardado = () => {
       setUbicacionSeleccionada(null);
       setTextoBusqueda("");
       setResultadosProductos([]);
-
-    } catch (error) {      
-        let msg = "No se pudo guardar el conteo";
-        if (error instanceof Error) {
-            msg = error.message;
-        }
-      toast.current?.show({ 
+    } catch (error) {
+      let msg = "No se pudo guardar el conteo";
+      if (error instanceof Error) {
+        msg = error.message;
+      }
+      toast.current?.show({
         severity: "error",
         summary: "Error",
         detail: msg,
       });
     } finally {
-    setLoading(false);
-  }
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
-  logout();
-  navigate("/login");
-};
+    logout();
+    navigate("/login");
+  };
 
   return (
     <div className="conteo-container">
       <ConfirmDialog />
-{loading && (
-  <div className="overlay-mask-spinner">    
-    <ProgressSpinner style={{ width: '80px', height: '80px' }} strokeWidth="6" />
-    <p>Guardando...</p>
-  </div>
-)}
+      {loading && (
+        <div className="overlay-mask-spinner">
+          <ProgressSpinner
+            style={{ width: "80px", height: "80px" }}
+            strokeWidth="6"
+          />
+          <p>Guardando...</p>
+        </div>
+      )}
 
       <Toast ref={toast} />
 
       <Card className="conteo-card shadow-4 border-round-xl">
-         <div className="logout-container">
-    <Button
-      label="Salir"
-      icon="pi pi-sign-out"
-      className="p-button-danger p-button-sm"
-      text
-      onClick={handleLogout}
-    />
-  </div>
+        <div className="logout-container">
+          <Button
+            label="Salir"
+            icon="pi pi-sign-out"
+            className="p-button-danger p-button-sm"
+            text
+            onClick={handleLogout}
+          />
+        </div>
         <h2 className="conteo-titulo">Conteo: {grupoActivo?.descripcion}</h2>
         <p className="conteo-fecha">
           Fecha: <strong>{grupoActivo?.fecha}</strong>
@@ -398,46 +403,46 @@ const confirmarGuardado = () => {
 
         {/* INFO DEL PRODUCTO */}
         {productoSeleccionado && (
-            <Card title={productoSeleccionado.nombre} className="producto-info">
-                <p className="ref">Ref: {productoSeleccionado.referencia}</p>
-            </Card>
+          <Card title={productoSeleccionado.nombre} className="producto-info">
+            <p className="ref">Ref: {productoSeleccionado.referencia}</p>
+          </Card>
         )}
 
-{/* BODEGA */}
-<div className="form-section">
-  <label className="label">Bodega</label>
-  <Dropdown
-    value={bodegaSeleccionada}
-    options={bodegas}
-    optionLabel="nombre"
-    placeholder="Selecciona bodega"
-    className={`w-full ${!bodegaSeleccionada ? "p-invalid" : ""}`}
-    onChange={(e: DropdownChangeEvent) => {
-      setBodegaSeleccionada(e.value as Bodega);
-      setUbicacionSeleccionada(null);
-    }}
-  />
-</div>
+        {/* BODEGA */}
+        <div className="form-section">
+          <label className="label">Bodega</label>
+          <Dropdown
+            value={bodegaSeleccionada}
+            options={bodegas}
+            optionLabel="nombre"
+            placeholder="Selecciona bodega"
+            className={`w-full ${!bodegaSeleccionada ? "p-invalid" : ""}`}
+            onChange={(e: DropdownChangeEvent) => {
+              setBodegaSeleccionada(e.value as Bodega);
+              setUbicacionSeleccionada(null);
+            }}
+          />
+        </div>
 
         {/* UBICACIÓN */}
         <div className="form-section">
-  <label className="label">Ubicación</label>
-  <Dropdown
-    value={ubicacionSeleccionada}
-    options={ubicaciones}
-    optionLabel="nombre"
-    placeholder={
-      bodegaSeleccionada
-        ? "Selecciona ubicación"
-        : "Primero selecciona una bodega"
-    }
-    disabled={!bodegaSeleccionada}
-    className={`w-full ${!ubicacionSeleccionada ? "p-invalid" : ""}`}
-    onChange={(e: DropdownChangeEvent) =>
-      setUbicacionSeleccionada(e.value as Ubicacion)
-    }
-  />
-</div>
+          <label className="label">Ubicación</label>
+          <Dropdown
+            value={ubicacionSeleccionada}
+            options={ubicaciones}
+            optionLabel="nombre"
+            placeholder={
+              bodegaSeleccionada
+                ? "Selecciona ubicación"
+                : "Primero selecciona una bodega"
+            }
+            disabled={!bodegaSeleccionada}
+            className={`w-full ${!ubicacionSeleccionada ? "p-invalid" : ""}`}
+            onChange={(e: DropdownChangeEvent) =>
+              setUbicacionSeleccionada(e.value as Ubicacion)
+            }
+          />
+        </div>
 
         {/* CANTIDAD */}
         <div className="form-section">
@@ -445,9 +450,11 @@ const confirmarGuardado = () => {
           <InputNumber
             value={cantidad}
             onValueChange={(e) => setCantidad(e.value ?? null)}
-            className={`w-full ${cantidad !== null && cantidad <= 0 ? "p-invalid" : ""}`}
+            className={`w-full ${
+              cantidad !== null && cantidad <= 0 ? "p-invalid" : ""
+            }`}
             min={0}
-            minFractionDigits={2} 
+            minFractionDigits={2}
             maxFractionDigits={5}
           />
         </div>
