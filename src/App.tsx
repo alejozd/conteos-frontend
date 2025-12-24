@@ -14,6 +14,8 @@ import ConteosAnulados from "./admin/ConteosAnulados";
 import ImportarSaldos from "./admin/ImportarSaldos";
 import UsuariosAdmin from "./admin/UsuariosAdmin";
 import ProductosListado from "./admin/ProductosListado";
+import BodegasPage from "./admin/BodegasPage";
+import UbicacionesPage from "./admin/UbicacionesPage";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -72,6 +74,8 @@ function App() {
             <Route path="importar" element={<ImportarSaldos />} />
             <Route path="productos" element={<ProductosListado />} />
             <Route path="usuarios" element={<UsuariosAdmin />} />
+            <Route path="bodegas" element={<BodegasPage />} />
+            <Route path="ubicaciones" element={<UbicacionesPage />} />
           </Route>
 
           {/* Si ponen cualquier ruta no válida */}

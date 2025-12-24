@@ -33,6 +33,17 @@ export default function AdminLayout() {
       command: () => navigate("/admin/usuarios"),
     },
     {
+      label: "Bodegas",
+      icon: "pi pi-warehouse",
+      command: () => navigate("/admin/bodegas"),
+    },
+    {
+      label: "Ubicaciones",
+      icon: "pi pi-map-marker",
+      command: () => navigate("/admin/ubicaciones"),
+    },
+
+    {
       label: "Salir",
       icon: "pi pi-sign-out",
       command: () => {
