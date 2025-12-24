@@ -82,7 +82,7 @@ export default function Login() {
           {/* Usamos 'login-card' para el estilo y el padding/margin */}
           <Card className="login-card shadow-2xl rounded-2xl animate-fade-up">
             <div className="login-header">
-              <i className="pi pi-box text-7xl mb-6" />
+              <i className="pi pi-box text-7xl mb-3" />
               <h1 className="text-4xl font-bold">Conteo de Inventario</h1>
               <p className="login-subtitle text-lg">Portal de acceso</p>
             </div>
