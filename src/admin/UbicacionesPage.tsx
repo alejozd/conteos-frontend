@@ -7,6 +7,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import axios from "axios";
 import api from "../services/api";
 
 interface Bodega {
@@ -17,6 +18,10 @@ interface Bodega {
 interface Ubicacion {
   id: number;
   nombre: string;
+}
+
+interface ApiError {
+  message: string;
 }
 
 export default function UbicacionesPage() {
@@ -124,18 +129,29 @@ export default function UbicacionesPage() {
   const eliminar = async (row: Ubicacion) => {
     try {
       await api.delete(`/api/admin/ubicaciones/${row.id}`);
+
       toast.current?.show({
         severity: "success",
         summary: "Eliminado",
         detail: "Ubicación eliminada correctamente",
       });
+
       cargarUbicaciones();
     } catch (error) {
       console.error(error);
+
+      let mensaje = "No se pudo eliminar la ubicación";
+
+      if (axios.isAxiosError<ApiError>(error)) {
+        mensaje =
+          error.response?.data?.message ??
+          "No se puede eliminar la ubicación porque tiene conteos asociados";
+      }
+
       toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo eliminar la ubicación",
+        severity: "warn",
+        summary: "Operación no permitida",
+        detail: mensaje,
       });
     }
   };
