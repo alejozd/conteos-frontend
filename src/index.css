@@ -14,3 +14,15 @@ body {
   background-color: #161616;
   min-height: 100vh;
 }
+
+.p-datatable-header {
+  padding: 1.25rem !important;
+  background-color: #1e293b !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.p-column-title {
+  font-weight: 600;
+  color: #94a3b8;
+}

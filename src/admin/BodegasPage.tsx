@@ -126,64 +126,100 @@ export default function BodegasPage() {
     setVisible(true);
   };
 
+  const header = (
+    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+      <h3 className="m-0 text-xl font-semibold">Gestión de Bodegas</h3>
+      <Button label="Nueva Bodega" icon="pi pi-plus" onClick={nuevaBodega} />
+    </div>
+  );
+
   const accionesTemplate = (row: Bodega) => (
-    <>
+    <div className="flex gap-2">
       <Button
         icon="pi pi-pencil"
-        className="p-button-text p-button-sm"
+        rounded
+        text
+        severity="info"
         onClick={() => {
           setBodegaEdit(row);
           setNombre(row.nombre);
           setVisible(true);
         }}
+        tooltip="Editar"
       />
       <Button
         icon="pi pi-trash"
-        className="p-button-text p-button-sm p-button-danger"
+        rounded
+        text
+        severity="danger"
         onClick={() => confirmarEliminar(row)}
+        tooltip="Eliminar"
       />
-    </>
+    </div>
   );
 
   return (
-    <div className="card">
+    <div className="card shadow-2 border-round">
       <Toast ref={toast} />
       <ConfirmDialog />
 
-      <div className="flex justify-content-between mb-3">
-        <h3>Bodegas</h3>
-        <Button label="Nueva bodega" icon="pi pi-plus" onClick={nuevaBodega} />
-      </div>
-
-      <DataTable value={bodegas} loading={loading} stripedRows>
-        <Column field="nombre" header="Nombre" />
-        <Column body={accionesTemplate} header="Acciones" />
+      <DataTable
+        value={bodegas}
+        loading={loading}
+        stripedRows
+        header={header} // Usamos el header de la DataTable
+        className="mt-2"
+        showGridlines
+      >
+        <Column
+          field="nombre"
+          header="Nombre de la Bodega"
+          sortable
+          style={{ minWidth: "12rem" }}
+        />
+        <Column
+          body={accionesTemplate}
+          header="Acciones"
+          style={{ width: "8rem", textAlign: "center" }}
+        />
       </DataTable>
 
       <Dialog
-        header={bodegaEdit ? "Editar bodega" : "Nueva bodega"}
+        header={bodegaEdit ? "Editar Bodega" : "Registrar Nueva Bodega"}
         visible={visible}
         onHide={() => setVisible(false)}
-        style={{ width: "30rem" }}
+        style={{ width: "90vw", maxWidth: "400px" }} // Responsive width
+        draggable={false}
+        resizable={false}
       >
-        <div className="field">
-          <label htmlFor="nombre">Nombre</label>
+        <div className="flex flex-column gap-2 mt-2">
+          <label htmlFor="nombre" className="font-medium text-900">
+            Nombre
+          </label>
           <InputText
             id="nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             className="w-full"
+            placeholder="Ej: Bodega Central"
             autoFocus
+            onKeyDown={(e) => e.key === "Enter" && nombre.trim() && guardar()}
           />
         </div>
 
-        <div className="flex justify-content-end gap-2 mt-3">
+        <div className="flex justify-content-end gap-2 mt-4">
           <Button
             label="Cancelar"
-            className="p-button-text"
+            text
+            severity="secondary"
             onClick={() => setVisible(false)}
           />
-          <Button label="Guardar" onClick={guardar} disabled={!nombre.trim()} />
+          <Button
+            label="Guardar Bodega"
+            icon="pi pi-check"
+            onClick={guardar}
+            disabled={!nombre.trim()}
+          />
         </div>
       </Dialog>
     </div>
