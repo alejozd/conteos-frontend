@@ -6,11 +6,16 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import axios from "axios";
 import api from "../services/api";
 
 interface Bodega {
   id: number;
   nombre: string;
+}
+
+interface ApiError {
+  message: string;
 }
 
 export default function BodegasPage() {
@@ -75,18 +80,30 @@ export default function BodegasPage() {
   const eliminar = async (row: Bodega) => {
     try {
       await api.delete(`/api/admin/bodegas/${row.id}`);
+
       toast.current?.show({
         severity: "success",
         summary: "Eliminado",
         detail: "Bodega eliminada correctamente",
       });
+
       cargarBodegas();
     } catch (error) {
       console.error(error);
+
+      let mensaje = "No se pudo eliminar la bodega";
+
+      if (axios.isAxiosError<ApiError>(error)) {
+        mensaje =
+          error.response?.data?.message ??
+          "No se puede eliminar la bodega porque tiene ubicaciones asociadas";
+      }
+
       toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo eliminar la bodega",
+        severity: "warn",
+        summary: "No se puede eliminar",
+        detail: mensaje,
+        life: 5000,
       });
     }
   };

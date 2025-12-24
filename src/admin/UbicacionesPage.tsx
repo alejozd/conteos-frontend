@@ -161,6 +161,8 @@ export default function UbicacionesPage() {
       message: `¿Eliminar la ubicación "${row.nombre}"?`,
       header: "Confirmar eliminación",
       icon: "pi pi-exclamation-triangle",
+      acceptLabel: "Sí, eliminar",
+      rejectLabel: "Cancelar",
       acceptClassName: "p-button-danger",
       accept: () => eliminar(row),
     });
