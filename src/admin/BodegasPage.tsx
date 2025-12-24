@@ -6,6 +6,8 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
 import axios from "axios";
 import api from "../services/api";
 
@@ -24,6 +26,9 @@ export default function BodegasPage() {
   const [visible, setVisible] = useState(false);
   const [nombre, setNombre] = useState("");
   const [bodegaEdit, setBodegaEdit] = useState<Bodega | null>(null);
+
+  // Filtro simplificado: Solo necesitamos el string
+  const [globalFilter, setGlobalFilter] = useState<string>("");
 
   const toast = useRef<Toast>(null);
 
@@ -80,25 +85,20 @@ export default function BodegasPage() {
   const eliminar = async (row: Bodega) => {
     try {
       await api.delete(`/api/admin/bodegas/${row.id}`);
-
       toast.current?.show({
         severity: "success",
         summary: "Eliminado",
         detail: "Bodega eliminada correctamente",
       });
-
       cargarBodegas();
     } catch (error) {
       console.error(error);
-
       let mensaje = "No se pudo eliminar la bodega";
-
       if (axios.isAxiosError<ApiError>(error)) {
         mensaje =
           error.response?.data?.message ??
           "No se puede eliminar la bodega porque tiene ubicaciones asociadas";
       }
-
       toast.current?.show({
         severity: "warn",
         summary: "No se puede eliminar",
@@ -126,15 +126,8 @@ export default function BodegasPage() {
     setVisible(true);
   };
 
-  const header = (
-    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-      <h3 className="m-0 text-xl font-semibold">Gestión de Bodegas</h3>
-      <Button label="Nueva Bodega" icon="pi pi-plus" onClick={nuevaBodega} />
-    </div>
-  );
-
   const accionesTemplate = (row: Bodega) => (
-    <div className="flex gap-2">
+    <div className="flex gap-2 justify-content-center">
       <Button
         icon="pi pi-pencil"
         rounded
@@ -158,6 +151,34 @@ export default function BodegasPage() {
     </div>
   );
 
+  const header = (
+    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+      <div className="flex align-items-center gap-2">
+        <i className="pi pi-building text-primary text-2xl" />
+        <h3 className="m-0 text-xl font-semibold">Gestión de Bodegas</h3>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <IconField iconPosition="left">
+          <InputIcon className="pi pi-search" />
+          <InputText
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Buscar bodega..."
+            className="p-inputtext-sm w-full md:w-14rem"
+          />
+        </IconField>
+
+        <Button
+          label="Nueva Bodega"
+          icon="pi pi-plus"
+          className="p-button-sm shadow-1"
+          onClick={nuevaBodega}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="card shadow-2 border-round">
       <Toast ref={toast} />
@@ -167,9 +188,16 @@ export default function BodegasPage() {
         value={bodegas}
         loading={loading}
         stripedRows
-        header={header} // Usamos el header de la DataTable
+        header={header}
         className="mt-2"
         showGridlines
+        // Filtro simplificado aplicado aquí:
+        globalFilter={globalFilter}
+        globalFilterFields={["nombre"]}
+        paginator
+        rows={10}
+        rowsPerPageOptions={[5, 10, 25]}
+        emptyMessage="No se encontraron bodegas."
       >
         <Column
           field="nombre"
@@ -188,7 +216,7 @@ export default function BodegasPage() {
         header={bodegaEdit ? "Editar Bodega" : "Registrar Nueva Bodega"}
         visible={visible}
         onHide={() => setVisible(false)}
-        style={{ width: "90vw", maxWidth: "400px" }} // Responsive width
+        style={{ width: "90vw", maxWidth: "400px" }}
         draggable={false}
         resizable={false}
       >
