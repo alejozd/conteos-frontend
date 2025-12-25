@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { Toolbar } from "primereact/toolbar";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { Tag } from "primereact/tag";
