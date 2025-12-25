@@ -66,6 +66,7 @@ export default function ImportarSaldos() {
 
       event.options.clear(); // cambia a Completed
       setTipo(null);
+      setErrores([]);
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         const data = error.response?.data;

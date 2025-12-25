@@ -8,8 +8,16 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import { FileUpload, type FileUploadHandlerEvent } from "primereact/fileupload";
+import { isAxiosError } from "axios";
 import axios from "axios";
 import api from "../services/api";
+
+interface ErrorImportacion {
+  fila: number;
+  campo: string;
+  mensaje: string;
+}
 
 interface Bodega {
   id: number;
@@ -26,6 +34,12 @@ export default function BodegasPage() {
   const [visible, setVisible] = useState(false);
   const [nombre, setNombre] = useState("");
   const [bodegaEdit, setBodegaEdit] = useState<Bodega | null>(null);
+  const [visibleImportar, setVisibleImportar] = useState(false);
+  const [loadingImportar, setLoadingImportar] = useState(false);
+  const [erroresImportar, setErroresImportar] = useState<ErrorImportacion[]>(
+    []
+  );
+  const fileUploadRef = useRef<FileUpload>(null);
 
   // Filtro simplificado: Solo necesitamos el string
   const [globalFilter, setGlobalFilter] = useState<string>("");
@@ -126,6 +140,59 @@ export default function BodegasPage() {
     setVisible(true);
   };
 
+  const subirArchivoBodegas = async (event: FileUploadHandlerEvent) => {
+    if (loadingImportar) {
+      return;
+    }
+    const file: File = event.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoadingImportar(true);
+      setErroresImportar([]);
+
+      const response = await api.post("/api/admin/bodegas/importar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Importación finalizada",
+        detail: `Total procesados: ${response.data.total}`,
+        life: 6000,
+      });
+
+      event.options.clear();
+      setVisibleImportar(false);
+      cargarBodegas(); // refresca la tabla
+      setErroresImportar([]);
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        const data = error.response?.data;
+
+        if (data?.errores) {
+          setErroresImportar(data.errores);
+        }
+
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: data?.message || "Error al importar bodegas",
+        });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Error inesperado al importar",
+        });
+      }
+    } finally {
+      setLoadingImportar(false);
+    }
+  };
+
   const accionesTemplate = (row: Bodega) => (
     <div className="flex gap-2 justify-content-center">
       <Button
@@ -176,6 +243,12 @@ export default function BodegasPage() {
           className="p-button-sm shadow-1"
           onClick={nuevaBodega}
         />
+        <Button
+          label="Importar Bodegas"
+          icon="pi pi-upload"
+          className="p-button-sm p-button-secondary"
+          onClick={() => setVisibleImportar(true)}
+        />
       </div>
     </div>
   );
@@ -216,7 +289,10 @@ export default function BodegasPage() {
       <Dialog
         header={bodegaEdit ? "Editar Bodega" : "Registrar Nueva Bodega"}
         visible={visible}
-        onHide={() => setVisible(false)}
+        onHide={() => {
+          setVisible(false);
+          setErroresImportar([]);
+        }}
         style={{ width: "90vw", maxWidth: "400px" }}
         draggable={false}
         resizable={false}
@@ -251,6 +327,55 @@ export default function BodegasPage() {
             disabled={!nombre.trim()}
           />
         </div>
+      </Dialog>
+      <Dialog
+        header="Importar Bodegas desde Excel"
+        visible={visibleImportar}
+        onHide={() => setVisibleImportar(false)}
+        draggable={false}
+        resizable={false}
+      >
+        <div className="field mb-3">
+          <label className="block mb-2">Archivo Excel</label>
+
+          <FileUpload
+            ref={fileUploadRef}
+            name="file"
+            mode="advanced"
+            accept=".xlsx,.xls"
+            maxFileSize={5_000_000}
+            multiple={false}
+            chooseLabel={
+              loadingImportar ? "Procesando..." : "Seleccionar archivo"
+            }
+            uploadLabel={loadingImportar ? "Importando..." : "Importar"}
+            cancelLabel="Cancelar"
+            customUpload
+            uploadHandler={subirArchivoBodegas}
+            disabled={loadingImportar}
+            emptyTemplate={
+              <div className="flex flex-column align-items-center">
+                <i className="pi pi-cloud-upload text-3xl mb-3" />
+                <p className="m-0 text-center">
+                  Arrastre el archivo Excel aquí
+                  <br />o haga clic para seleccionarlo
+                </p>
+              </div>
+            }
+            className="w-full"
+          />
+        </div>
+
+        {erroresImportar.length > 0 && (
+          <div className="mt-4">
+            <h4>Errores encontrados</h4>
+            <DataTable value={erroresImportar} paginator rows={5}>
+              <Column field="fila" header="Fila" />
+              <Column field="campo" header="Campo" />
+              <Column field="mensaje" header="Descripción" />
+            </DataTable>
+          </div>
+        )}
       </Dialog>
     </div>
   );
