@@ -54,18 +54,34 @@ export default function ProductosListado() {
   };
 
   const header = (
-    <div className="flex justify-content-between align-items-center">
-      <h2 className="m-0 text-2xl md:text-3xl font-bold text-900 line-height-2">
-        Productos Importados
-      </h2>
+    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+      {/* Título y Badge alineados */}
+      <div className="flex align-items-center gap-3">
+        <h2 className="m-0 text-3xl font-bold text-900 tracking-tight">
+          Productos Importados
+        </h2>
+        <Tag
+          value={data.length}
+          severity="info"
+          className="text-lg px-3 py-1 shadow-1"
+          style={{
+            borderRadius: "20px",
+            fontSize: "1.1rem",
+            background: "linear-gradient(45deg, #22c55e, #16a34a)", // Degradado verde esmeralda
+          }}
+          icon="pi pi-box"
+        />
+      </div>
 
+      {/* Buscador y Botón Limpiar */}
       <div className="flex gap-2">
         <IconField iconPosition="left">
           <InputIcon className="pi pi-search" />
           <InputText
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Buscar..."
+            placeholder="Buscar producto..."
+            className="p-inputtext-sm w-full md:w-18rem"
           />
         </IconField>
         {globalFilter && (
@@ -74,6 +90,8 @@ export default function ProductosListado() {
             icon="pi pi-filter-slash"
             label="Limpiar"
             outlined
+            severity="secondary"
+            className="p-button-sm"
             onClick={() => setGlobalFilter("")}
           />
         )}
@@ -81,15 +99,11 @@ export default function ProductosListado() {
     </div>
   );
 
-  const leftToolbarTemplate = () => (
-    <Tag value={`Total: ${data.length}`} severity="info" icon="pi pi-box" />
-  );
-
   return (
     <div className="card">
       <Toast ref={toast} />
 
-      <Toolbar className="mb-3" left={leftToolbarTemplate} />
+      {/* <Toolbar className="mb-3" left={leftToolbarTemplate} /> */}
 
       <DataTable
         value={data}
