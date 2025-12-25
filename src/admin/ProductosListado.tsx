@@ -55,7 +55,9 @@ export default function ProductosListado() {
 
   const header = (
     <div className="flex justify-content-between align-items-center">
-      <h3 className="m-0">Productos importados</h3>
+      <h2 className="m-0 text-2xl md:text-3xl font-bold text-900 line-height-2">
+        Productos Importados
+      </h2>
 
       <div className="flex gap-2">
         <IconField iconPosition="left">

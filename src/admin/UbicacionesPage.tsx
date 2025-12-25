@@ -184,6 +184,7 @@ export default function UbicacionesPage() {
         severity="danger"
         onClick={() => confirmarEliminar(row)}
         tooltip="Eliminar"
+        tooltipOptions={{ position: "bottom" }}
       />
     </div>
   );
@@ -315,13 +316,14 @@ export default function UbicacionesPage() {
           <Button
             label="Cancelar"
             text
-            severity="secondary"
+            severity="danger"
             onClick={() => setVisible(false)}
           />
           <Button
             label="Guardar Ubicación"
             icon="pi pi-check"
             onClick={guardar}
+            severity="success"
             disabled={!nombre.trim()}
           />
         </div>

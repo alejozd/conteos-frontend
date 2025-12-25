@@ -147,6 +147,7 @@ export default function BodegasPage() {
         severity="danger"
         onClick={() => confirmarEliminar(row)}
         tooltip="Eliminar"
+        tooltipOptions={{ position: "bottom" }}
       />
     </div>
   );
@@ -154,7 +155,7 @@ export default function BodegasPage() {
   const header = (
     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
       <div className="flex align-items-center gap-2">
-        <i className="pi pi-building text-primary text-2xl" />
+        <i className="pi pi-warehouse text-primary text-2xl" />
         <h3 className="m-0 text-xl font-semibold">Gestión de Bodegas</h3>
       </div>
 
@@ -239,13 +240,14 @@ export default function BodegasPage() {
           <Button
             label="Cancelar"
             text
-            severity="secondary"
+            severity="danger"
             onClick={() => setVisible(false)}
           />
           <Button
             label="Guardar Bodega"
             icon="pi pi-check"
             onClick={guardar}
+            severity="success"
             disabled={!nombre.trim()}
           />
         </div>

@@ -98,10 +98,10 @@ export default function UsuarioDialog({
       onSuccess();
       onHide();
     } catch (error) {
-        let msg = "No se pudo guardar el usuario";
-        if (error instanceof Error) {
-            msg = error.message;
-        }
+      let msg = "No se pudo guardar el usuario";
+      if (error instanceof Error) {
+        msg = error.message;
+      }
       toast.current?.show({
         severity: "error",
         summary: "Error",
@@ -126,11 +126,13 @@ export default function UsuarioDialog({
             label="Cancelar"
             className="p-button-text"
             onClick={onHide}
+            severity="danger"
           />
           <Button
             label="Guardar"
             loading={guardando}
             onClick={guardar}
+            severity="success"
           />
         </div>
       }
@@ -139,7 +141,6 @@ export default function UsuarioDialog({
 
       {/* Añadimos mt-4 para dar espacio al primer label flotante */}
       <div className="grid p-fluid mt-4">
-        
         {/* Usamos mb-5 para dar aire entre filas para que el label no choque */}
         <div className="col-12 mb-5">
           <span className="p-float-label">
@@ -149,7 +150,9 @@ export default function UsuarioDialog({
               disabled={esEdicion}
               onChange={(e) => setUsername(e.target.value)}
             />
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username" className="font-semibold text-700">
+              Usuario
+            </label>
           </span>
         </div>
 
@@ -162,7 +165,7 @@ export default function UsuarioDialog({
               onChange={(e) => setPassword(e.target.value)}
               placeholder={esEdicion ? "Dejar vacío para no cambiar" : ""}
             />
-            <label htmlFor="password">
+            <label htmlFor="password" className="font-semibold text-700">
               {esEdicion ? "Nueva contraseña" : "Contraseña"}
             </label>
           </span>
@@ -179,14 +182,18 @@ export default function UsuarioDialog({
               ]}
               onChange={(e) => setRole(e.value)} // <--- Faltaba esto
             />
-            <label htmlFor="role">Rol</label>
+            <label htmlFor="role" className="font-semibold text-700">
+              Rol
+            </label>
           </span>
         </div>
 
         <div className="col-12 md:col-6 mb-5">
           <span className="p-float-label">
             <InputText id="empresa" value="Empresa principal" disabled />
-            <label htmlFor="empresa">Empresa</label>
+            <label htmlFor="empresa" className="font-semibold text-700">
+              Empresa
+            </label>
           </span>
         </div>
       </div>
