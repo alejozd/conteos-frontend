@@ -252,48 +252,57 @@ export default function UbicacionesPage() {
 
   const header = (
     <div className="flex flex-column gap-3">
+      {/* FILA SUPERIOR: Título y Botones de Acción */}
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
         <div className="flex align-items-center gap-2">
           <i className="pi pi-map-marker text-primary text-2xl" />
           <h3 className="m-0 text-xl font-semibold">Ubicaciones por Bodega</h3>
         </div>
-        <Button
-          label="Nueva Ubicación"
-          icon="pi pi-plus"
-          disabled={!bodegaSel}
-          className="p-button-sm shadow-1"
-          onClick={nuevaUbicacion}
-        />
-        <Button
-          label="Importar Ubicaciones"
-          icon="pi pi-upload"
-          className="p-button-sm p-button-secondary"
-          disabled={!bodegaSel}
-          onClick={() => {
-            setErroresImportar([]);
-            setVisibleImportar(true);
-          }}
-        />
+
+        {/* Agrupamos los botones en un div para que estén juntos a la derecha */}
+        <div className="flex gap-2">
+          <Button
+            label="Importar"
+            icon="pi pi-upload"
+            severity="secondary" // Color gris para diferenciarlo de la acción principal
+            outlined // Estilo delineado para que no compita visualmente
+            className="p-button-sm"
+            disabled={!bodegaSel}
+            onClick={() => {
+              setErroresImportar([]);
+              setVisibleImportar(true);
+            }}
+          />
+          <Button
+            label="Nueva Ubicación"
+            icon="pi pi-plus"
+            severity="success" // Verde para resaltar la creación
+            disabled={!bodegaSel}
+            className="p-button-sm shadow-1"
+            onClick={nuevaUbicacion}
+          />
+        </div>
       </div>
 
-      <div className="flex flex-column md:flex-row md:align-items-center gap-3 bg-gray-900 p-3 border-round">
+      {/* FILA INFERIOR: Selectores y Filtros */}
+      <div className="flex flex-column md:flex-row md:align-items-center gap-3 bg-gray-900 p-3 border-round border-1 border-gray-800">
         <div className="flex flex-column gap-1 flex-1">
-          <label className="text-sm font-semibold text-gray-400">
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
             Seleccionar Bodega
           </label>
           <Dropdown
             value={bodegaSel}
             options={bodegas}
             optionLabel="nombre"
-            placeholder="Seleccione una bodega para ver sus ubicaciones"
+            placeholder="Seleccione una bodega"
             onChange={(e) => setBodegaSel(e.value)}
-            className="w-full md:w-25rem"
+            className="w-full md:w-20rem" // Reducido un poco para dar aire
             showClear
           />
         </div>
 
         <div className="flex flex-column gap-1">
-          <label className="text-sm font-semibold text-gray-400">
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
             Búsqueda rápida
           </label>
           <IconField iconPosition="left">

@@ -220,35 +220,68 @@ export default function BodegasPage() {
   );
 
   const header = (
-    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-      <div className="flex align-items-center gap-2">
-        <i className="pi pi-warehouse text-primary text-2xl" />
-        <h3 className="m-0 text-xl font-semibold">Gestión de Bodegas</h3>
+    <div className="flex flex-column gap-3">
+      {/* FILA SUPERIOR: Título principal con ícono */}
+      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+        <div className="flex align-items-center gap-3">
+          <i className="pi pi-warehouse text-primary text-3xl" />
+          <h2 className="m-0 text-3xl font-bold text-900 tracking-tight">
+            Gestión de Bodegas
+          </h2>
+        </div>
+
+        {/* GRUPO DE ACCIONES: Los botones se mantienen juntos a la derecha */}
+        <div className="flex gap-2">
+          <Button
+            label="Importar"
+            icon="pi pi-upload"
+            severity="secondary"
+            outlined
+            className="p-button-sm"
+            onClick={() => {
+              setErroresImportar([]);
+              setVisibleImportar(true);
+            }}
+          />
+          <Button
+            label="Nueva Bodega"
+            icon="pi pi-plus"
+            severity="success"
+            className="p-button-sm shadow-2"
+            onClick={nuevaBodega}
+          />
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <IconField iconPosition="left">
-          <InputIcon className="pi pi-search" />
-          <InputText
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Buscar bodega..."
-            className="p-inputtext-sm w-full md:w-14rem"
-          />
-        </IconField>
+      {/* FILA INFERIOR: Barra de búsqueda estilizada */}
+      <div className="flex align-items-center bg-gray-900 p-3 border-round border-1 border-gray-800">
+        <div className="flex flex-column md:flex-row md:align-items-center gap-3 w-full">
+          <div className="flex-1">
+            <IconField iconPosition="left">
+              <InputIcon className="pi pi-search text-gray-400" />
+              <InputText
+                value={globalFilter}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                placeholder="Buscar bodega por nombre..."
+              />
+            </IconField>
+          </div>
 
-        <Button
-          label="Nueva Bodega"
-          icon="pi pi-plus"
-          className="p-button-sm shadow-1"
-          onClick={nuevaBodega}
-        />
-        <Button
-          label="Importar Bodegas"
-          icon="pi pi-upload"
-          className="p-button-sm p-button-secondary"
-          onClick={() => setVisibleImportar(true)}
-        />
+          {/* Contador resaltado con estilo moderno */}
+          <div className="hidden md:flex align-items-center gap-2 bg-gray-800 px-3 py-2 border-round-xl border-1 border-gray-700">
+            <span className="text-sm text-gray-400 font-medium">Mostrando</span>
+            <span
+              className="text-lg font-bold text-green-400"
+              style={{ textShadow: "0 0 8px rgba(33, 231, 27, 0.3)" }}
+            >
+              {bodegas.length}
+            </span>
+            <span className="text-sm text-gray-400 font-medium text-green-100">
+              bodegas activas
+            </span>
+            <i className="pi pi-check-circle text-green-500 text-sm" />
+          </div>
+        </div>
       </div>
     </div>
   );
