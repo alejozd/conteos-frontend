@@ -9,6 +9,7 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import { FileUpload, type FileUploadHandlerEvent } from "primereact/fileupload";
 import axios from "axios";
 import api from "../services/api";
 
@@ -26,18 +27,29 @@ interface ApiError {
   message: string;
 }
 
+interface ErrorImportacion {
+  fila: number;
+  campo: string;
+  mensaje: string;
+}
+
 export default function UbicacionesPage() {
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [bodegaSel, setBodegaSel] = useState<Bodega | null>(null);
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
   const [loading, setLoading] = useState(false);
   const [globalFilter, setGlobalFilter] = useState<string>("");
-
   const [visible, setVisible] = useState(false);
   const [nombre, setNombre] = useState("");
   const [ubicacionEdit, setUbicacionEdit] = useState<Ubicacion | null>(null);
-
   const toast = useRef<Toast>(null);
+
+  const [visibleImportar, setVisibleImportar] = useState(false);
+  const [loadingImportar, setLoadingImportar] = useState(false);
+  const [erroresImportar, setErroresImportar] = useState<ErrorImportacion[]>(
+    []
+  );
+  const fileUploadRef = useRef<FileUpload>(null);
 
   const cargarBodegas = useCallback(async () => {
     try {
@@ -163,6 +175,55 @@ export default function UbicacionesPage() {
     setVisible(true);
   };
 
+  const subirArchivoUbicaciones = async (event: FileUploadHandlerEvent) => {
+    if (loadingImportar) return;
+
+    const file: File = event.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoadingImportar(true);
+      setErroresImportar([]);
+
+      const response = await api.post(
+        "/api/admin/ubicaciones/importar",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Importación finalizada",
+        detail: `Total procesados: ${response.data.total}`,
+        life: 6000,
+      });
+
+      event.options.clear();
+      setVisibleImportar(false);
+      cargarUbicaciones();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data;
+
+        if (data?.errores) {
+          setErroresImportar(data.errores);
+        }
+
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: data?.message || "Error al importar ubicaciones",
+        });
+      }
+    } finally {
+      setLoadingImportar(false);
+    }
+  };
+
   const accionesTemplate = (row: Ubicacion) => (
     <div className="flex gap-2 justify-content-center">
       <Button
@@ -202,6 +263,16 @@ export default function UbicacionesPage() {
           disabled={!bodegaSel}
           className="p-button-sm shadow-1"
           onClick={nuevaUbicacion}
+        />
+        <Button
+          label="Importar Ubicaciones"
+          icon="pi pi-upload"
+          className="p-button-sm p-button-secondary"
+          disabled={!bodegaSel}
+          onClick={() => {
+            setErroresImportar([]);
+            setVisibleImportar(true);
+          }}
         />
       </div>
 
@@ -327,6 +398,58 @@ export default function UbicacionesPage() {
             disabled={!nombre.trim()}
           />
         </div>
+      </Dialog>
+      <Dialog
+        header="Importar Ubicaciones desde Excel"
+        visible={visibleImportar}
+        onHide={() => {
+          setVisibleImportar(false);
+          setErroresImportar([]);
+        }}
+        draggable={false}
+        resizable={false}
+      >
+        <div className="field mb-3">
+          <label className="block mb-2">Archivo Excel</label>
+
+          <FileUpload
+            ref={fileUploadRef}
+            name="file"
+            mode="advanced"
+            accept=".xlsx,.xls"
+            maxFileSize={5_000_000}
+            multiple={false}
+            chooseLabel={
+              loadingImportar ? "Procesando..." : "Seleccionar archivo"
+            }
+            uploadLabel={loadingImportar ? "Importando..." : "Importar"}
+            cancelLabel="Cancelar"
+            customUpload
+            uploadHandler={subirArchivoUbicaciones}
+            disabled={loadingImportar}
+            emptyTemplate={
+              <div className="flex flex-column align-items-center">
+                <i className="pi pi-cloud-upload text-3xl mb-3" />
+                <p className="m-0 text-center">
+                  Arrastre el archivo Excel aquí
+                  <br />o haga clic para seleccionarlo
+                </p>
+              </div>
+            }
+            className="w-full"
+          />
+        </div>
+
+        {erroresImportar.length > 0 && (
+          <div className="mt-4">
+            <h4>Errores encontrados</h4>
+            <DataTable value={erroresImportar} paginator rows={5}>
+              <Column field="fila" header="Fila" />
+              <Column field="campo" header="Campo" />
+              <Column field="mensaje" header="Descripción" />
+            </DataTable>
+          </div>
+        )}
       </Dialog>
     </div>
   );
