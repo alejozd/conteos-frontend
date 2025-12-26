@@ -413,7 +413,17 @@ export default function UbicacionesPage() {
         onHide={() => setVisibleImportar(false)}
         draggable={false}
         resizable={false}
+        style={{ width: "90vw", maxWidth: "600px" }}
       >
+        {/* Aviso informativo actualizado */}
+        <div className="p-2 mb-3 border-round bg-blue-900-alpha-10 border-left-3 border-blue-500 flex align-items-center gap-2">
+          <i className="pi pi-info-circle text-blue-400" />
+          <span className="text-sm">
+            El sistema vinculará las ubicaciones a las bodegas indicadas en el
+            archivo.
+          </span>
+        </div>
+
         <div className="field mb-3 mt-2">
           <FileUpload
             ref={fileUploadRef}
@@ -441,31 +451,75 @@ export default function UbicacionesPage() {
               className: "p-button-danger p-button-outlined",
             }}
             emptyTemplate={
-              <div className="custom-upload-container">
-                <div className="flex justify-content-center mb-3">
-                  <i className="pi pi-file-excel text-5xl text-green-500" />
+              <div className="flex flex-column align-items-center">
+                {/* Zona de Drop */}
+                <div className="flex flex-column align-items-center py-3">
+                  <i className="pi pi-file-excel text-5xl text-green-500 mb-3" />
+                  <p className="m-0 text-xl font-semibold text-gray-100 text-center">
+                    Arrastre el Excel aquí o haga clic
+                  </p>
                 </div>
-                <div className="text-center">
-                  <p className="m-0 text-xl font-semibold text-gray-100">
-                    Arrastre el Excel aquí
-                    <br />o haga clic para seleccionarlo
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Solo archivos{" "}
-                    <span className="text-green-400 font-bold">.xlsx</span> o{" "}
-                    <span className="text-green-400 font-bold">.xls</span>
-                  </p>
+
+                {/* Guía Visual de Estructura ACTUALIZADA */}
+                <div
+                  className="w-full mt-2 p-3 border-round-lg bg-gray-900 border-1 border-gray-800"
+                  style={{ maxWidth: "450px" }}
+                >
+                  <div className="flex align-items-center gap-2 mb-3 pb-2 border-bottom-1 border-gray-800">
+                    <i className="pi pi-table text-blue-400" />
+                    <span className="text-sm font-bold text-gray-300">
+                      Estructura requerida (Encabezados en MAYÚSCULAS)
+                    </span>
+                  </div>
+
+                  {/* Simulación de Tabla Excel con 2 Columnas */}
+                  <div className="flex flex-column gap-1 mb-3">
+                    <div className="flex gap-1">
+                      <div className="bg-blue-900 border-1 border-blue-700 p-2 text-xs font-bold text-white flex-1 text-center border-round-top-left">
+                        UBICACION
+                      </div>
+                      <div className="bg-blue-900 border-1 border-blue-700 p-2 text-xs font-bold text-white flex-1 text-center border-round-top-right">
+                        BODEGA
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <div className="bg-gray-800 border-1 border-gray-700 p-2 text-xs text-gray-300 flex-1 text-center border-round-bottom-left italic">
+                        ESTANTE 1
+                      </div>
+                      <div className="bg-gray-800 border-1 border-gray-700 p-2 text-xs text-gray-300 flex-1 text-center border-round-bottom-right italic">
+                        CENTRAL
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tips de validación */}
+                  <div className="flex flex-column gap-2 bg-gray-800-alpha-40 p-2 border-round">
+                    <div className="flex align-items-center gap-2">
+                      <i className="pi pi-check-circle text-green-500 text-xs" />
+                      <span className="text-xs text-gray-400">
+                        Ambas columnas son <b>obligatorias</b>.
+                      </span>
+                    </div>
+                    <div className="flex align-items-center gap-2">
+                      <i className="pi pi-exclamation-triangle text-orange-400 text-xs" />
+                      <span className="text-xs text-gray-400 text-line-height-2">
+                        El nombre de la bodega debe coincidir exactamente con
+                        los registrados.
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             }
           />
         </div>
 
+        {/* Tabla de Errores */}
         {erroresImportar.length > 0 && (
           <div className="mt-4">
             <div className="flex align-items-center gap-2 mb-2 text-red-400">
               <i className="pi pi-exclamation-circle" />
-              <h4 className="m-0">Errores en el archivo</h4>
+              <h4 className="m-0">Errores detectados</h4>
             </div>
             <DataTable
               value={erroresImportar}

@@ -379,7 +379,6 @@ export default function BodegasPage() {
             customUpload
             uploadHandler={subirArchivoBodegas}
             disabled={loadingImportar}
-            // OPCIONES DE BOTONES (Aquí definimos los colores)
             chooseOptions={{
               label: loadingImportar ? "Procesando..." : "Seleccionar",
               icon: "pi pi-plus",
@@ -395,21 +394,64 @@ export default function BodegasPage() {
               icon: "pi pi-times",
               className: "p-button-danger p-button-outlined",
             }}
-            // PLANTILLA VACÍA (El centro del cargador)
             emptyTemplate={
-              <div className="custom-upload-container">
-                <div className="flex justify-content-center mb-3">
-                  <i className="pi pi-file-excel text-5xl text-green-500" />
-                </div>
-                <div className="text-center">
+              <div className="flex flex-column align-items-center">
+                {/* Área de Arrastre */}
+                <div className="flex flex-column align-items-center py-3">
+                  <i className="pi pi-file-excel text-5xl text-green-500 mb-3" />
                   <p className="m-0 text-xl font-semibold text-gray-100">
                     Arrastre el archivo Excel aquí
                   </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Solo archivos{" "}
-                    <span className="text-green-400 font-bold">.xlsx</span> o{" "}
-                    <span className="text-green-400 font-bold">.xls</span>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Límite de 5MB (.xlsx o .xls)
                   </p>
+                </div>
+
+                {/* Guía de Campos con Estilo de Mini-Tabla */}
+                <div
+                  className="w-full mt-3 p-3 border-round-lg bg-gray-900 border-1 border-gray-800"
+                  style={{ maxWidth: "380px" }}
+                >
+                  <div className="flex align-items-center gap-2 mb-3 pb-2 border-bottom-1 border-gray-800">
+                    <i className="pi pi-info-circle text-blue-400" />
+                    <span className="text-sm font-bold text-gray-300">
+                      Ejemplo de estructura
+                    </span>
+                  </div>
+
+                  {/* Representación visual de filas de Excel */}
+                  <div className="flex flex-column gap-1 mb-3">
+                    {/* Encabezado */}
+                    <div className="flex">
+                      <div className="bg-blue-900 border-1 border-blue-700 p-2 text-xs font-bold text-white w-full text-center border-round-top">
+                        NOMBRE{" "}
+                        <span className="text-blue-300 font-normal ml-1">
+                          (Encabezado)
+                        </span>
+                      </div>
+                    </div>
+                    {/* Fila de ejemplo */}
+                    <div className="flex">
+                      <div className="bg-gray-800 border-1 border-gray-700 p-2 text-xs text-gray-300 w-full text-center border-round-bottom italic">
+                        Bodega Central Norte
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-column gap-2 bg-gray-800 p-2 border-round">
+                    <div className="flex align-items-center gap-2">
+                      <i className="pi pi-check text-green-500 text-xs" />
+                      <span className="text-xs text-gray-400">
+                        El sistema solo leerá la columna <b>NOMBRE</b>.
+                      </span>
+                    </div>
+                    <div className="flex align-items-center gap-2">
+                      <i className="pi pi-exclamation-triangle text-orange-400 text-xs" />
+                      <span className="text-xs text-gray-400">
+                        Evite celdas vacías o caracteres especiales.
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             }
