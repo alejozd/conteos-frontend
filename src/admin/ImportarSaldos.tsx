@@ -112,20 +112,116 @@ export default function ImportarSaldos() {
     <div className="p-3">
       <Toast ref={toast} />
 
-      <h2 className="mb-4">Importar información</h2>
+      <div className="flex align-items-center mb-4">
+        <i className="pi pi-file-import text-primary text-4xl mr-3" />
+        <h1 className="m-0 text-3xl font-bold tracking-tight">
+          Importar Información
+        </h1>
+      </div>
 
-      <div className="card p-3">
-        <div className="flex align-items-center gap-2 mb-2">
-          <span className="p-tag p-tag-rounded">1</span>
-          <span>Seleccione el tipo de importación</span>
+      {/* SECCIÓN SUPERIOR: INSTRUCCIONES + GUÍA */}
+      <div className="grid mt-2">
+        {/* PASOS PARA IMPORTAR */}
+        <div className="col-12 lg:col-5">
+          <div className="card h-full p-4 border-left-3 border-primary bg-gray-900 shadow-4">
+            <h3 className="mt-0 mb-4 text-xl font-semibold border-bottom-1 border-gray-800 pb-2">
+              Pasos para importar
+            </h3>
+            <div className="flex flex-column gap-4">
+              <div className="flex align-items-start gap-3">
+                <Tag value="1" rounded severity={"success"} />
+                <div>
+                  <span className="text-xl font-medium text-gray-100 block">
+                    Tipo de datos
+                  </span>
+                  <small className="text-gray-400">
+                    Seleccione si subirá productos o saldos.
+                  </small>
+                </div>
+              </div>
+              <div className="flex align-items-start gap-3">
+                <Tag value="2" rounded severity={"success"} />
+                <div>
+                  <span className="text-xl font-medium text-gray-100 block">
+                    Cargar Excel
+                  </span>
+                  <small className="text-gray-400">
+                    Asegúrese que el archivo sea .xlsx o .xls
+                  </small>
+                </div>
+              </div>
+              <div className="flex align-items-start gap-3">
+                <Tag value="3" rounded severity={"success"} />
+                <div>
+                  <span className="text-xl font-medium text-gray-100 block">
+                    Procesar
+                  </span>
+                  <small className="text-gray-400">
+                    Presione importar y revise los resultados.
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex align-items-center gap-2 mb-2">
-          <span className="p-tag p-tag-rounded">2</span>
-          <span>Seleccione o arrastre el archivo Excel</span>
-        </div>
-        <div className="flex align-items-center gap-2">
-          <span className="p-tag p-tag-rounded">3</span>
-          <span>Presione Importar y espere el resultado</span>
+
+        {/* COLUMNAS REQUERIDAS */}
+        <div className="col-12 lg:col-7">
+          <div className="card h-full p-4 bg-gray-900 border-gray-800 border-1 shadow-4">
+            <div className="flex justify-content-between align-items-center mb-3 border-bottom-1 border-gray-800 pb-2">
+              <h3 className="m-0 text-xl font-semibold text-green-400">
+                Columnas requeridas
+              </h3>
+              {tipo && <Tag value={tipo.toUpperCase()} severity="success" />}
+            </div>
+
+            {!tipo ? (
+              <div className="flex flex-column align-items-center justify-content-center h-full ">
+                <i className="pi pi-info-circle mb-2 text-3xl opacity-50" />
+                <span className="text-lg">
+                  Seleccione un tipo para ver los campos
+                </span>
+              </div>
+            ) : (
+              <div className="grid">
+                <div className="col-12 flex flex-wrap gap-2 mb-1">
+                  {GUIA_IMPORTACION[tipo].map((col) => (
+                    <Tag
+                      key={col.campo}
+                      value={col.campo}
+                      severity={col.requerido ? "danger" : "info"}
+                      className="px-2 py-1 shadow-2 font-bold"
+                    />
+                  ))}
+                </div>
+                <div className="col-12">
+                  <div className="grid row-gap-1">
+                    {GUIA_IMPORTACION[tipo].map((col) => (
+                      <div
+                        key={col.campo}
+                        className="col-12 md:col-6 flex flex-column"
+                      >
+                        <span className="text-gray-200 font-bold text-sm">
+                          {col.campo}
+                        </span>
+                        <span className="text-gray-400 text-sm italic">
+                          {col.desc}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="col-12 mt-4">
+                  <div>
+                    <p className="m-0 text-sm text-orange-200 font-bold uppercase">
+                      <i className="pi pi-exclamation-triangle mr-2" />
+                      Encabezados en MAYÚSCULAS y exactos.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -194,33 +290,6 @@ export default function ImportarSaldos() {
             className="w-full"
           />
         </div>
-        {tipo && (
-          <div className="card p-3 mt-3 border-1 border-gray-800 bg-gray-900">
-            <h4 className="mb-2">
-              Estructura del archivo Excel –{" "}
-              <span className="text-primary">{tipo.toUpperCase()}</span>
-            </h4>
-
-            <DataTable value={GUIA_IMPORTACION[tipo]} size="small" stripedRows>
-              <Column field="campo" header="Columna" />
-              <Column
-                header="Obligatoria"
-                body={(row) => (
-                  <Tag
-                    value={row.requerido ? "Sí" : "No"}
-                    severity={row.requerido ? "danger" : "info"}
-                  />
-                )}
-              />
-              <Column field="desc" header="Descripción" />
-            </DataTable>
-
-            <p className="mt-3 text-sm text-gray-400">
-              ⚠️ Los nombres de las columnas deben coincidir exactamente
-              (mayúsculas).
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Tabla de errores */}
