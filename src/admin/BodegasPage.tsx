@@ -369,7 +369,6 @@ export default function BodegasPage() {
         resizable={false}
       >
         <div className="field mb-3">
-          <label className="block mb-2">Archivo Excel</label>
           <FileUpload
             ref={fileUploadRef}
             name="file"
@@ -377,37 +376,62 @@ export default function BodegasPage() {
             accept=".xlsx,.xls"
             maxFileSize={5000000}
             multiple={false}
-            chooseLabel={
-              loadingImportar ? "Procesando..." : "Seleccionar archivo"
-            }
-            uploadLabel={loadingImportar ? "Importando..." : "Importar"}
-            cancelLabel="Limpiar"
             customUpload
             uploadHandler={subirArchivoBodegas}
             disabled={loadingImportar}
+            // OPCIONES DE BOTONES (Aquí definimos los colores)
+            chooseOptions={{
+              label: loadingImportar ? "Procesando..." : "Seleccionar",
+              icon: "pi pi-plus",
+              className: "p-button-primary shadow-2",
+            }}
+            uploadOptions={{
+              label: loadingImportar ? "Importando..." : "Importar",
+              icon: "pi pi-upload",
+              className: "p-button-success shadow-2",
+            }}
+            cancelOptions={{
+              label: "Limpiar",
+              icon: "pi pi-times",
+              className: "p-button-danger p-button-outlined",
+            }}
+            // PLANTILLA VACÍA (El centro del cargador)
             emptyTemplate={
-              <div className="flex flex-column align-items-center py-5">
-                <div className="bg-gray-800 border-circle p-4 mb-3 shadow-2 border-1 border-gray-700">
+              <div className="custom-upload-container">
+                <div className="flex justify-content-center mb-3">
                   <i className="pi pi-file-excel text-5xl text-green-500" />
                 </div>
-                <p className="m-0 text-xl font-semibold text-gray-200">
-                  Arrastre el archivo Excel aquí
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Soporta archivos .xlsx y .xls (Máx. 5MB)
-                </p>
+                <div className="text-center">
+                  <p className="m-0 text-xl font-semibold text-gray-100">
+                    Arrastre el archivo Excel aquí
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Solo archivos{" "}
+                    <span className="text-green-400 font-bold">.xlsx</span> o{" "}
+                    <span className="text-green-400 font-bold">.xls</span>
+                  </p>
+                </div>
               </div>
             }
-            className="w-full border-round-xl overflow-hidden border-1 border-gray-800 shadow-4"
+            className="w-full border-round-xl shadow-2 overflow-hidden"
           />
         </div>
 
         {erroresImportar.length > 0 && (
           <div className="mt-4">
-            <h4>Errores encontrados</h4>
-            <DataTable value={erroresImportar} paginator rows={5}>
-              <Column field="fila" header="Fila" />
-              <Column field="campo" header="Campo" />
+            <div className="flex align-items-center gap-2 mb-2 text-red-400">
+              <i className="pi pi-exclamation-circle" />
+              <h4 className="m-0">Errores en el archivo</h4>
+            </div>
+            <DataTable
+              value={erroresImportar}
+              paginator
+              rows={5}
+              size="small"
+              className="p-datatable-sm"
+            >
+              <Column field="fila" header="Fila" style={{ width: "4rem" }} />
+              <Column field="campo" header="Campo" style={{ width: "8rem" }} />
               <Column field="mensaje" header="Descripción" />
             </DataTable>
           </div>
