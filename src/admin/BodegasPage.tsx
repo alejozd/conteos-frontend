@@ -370,32 +370,35 @@ export default function BodegasPage() {
       >
         <div className="field mb-3">
           <label className="block mb-2">Archivo Excel</label>
-
           <FileUpload
             ref={fileUploadRef}
             name="file"
             mode="advanced"
             accept=".xlsx,.xls"
-            maxFileSize={5_000_000}
+            maxFileSize={5000000}
             multiple={false}
             chooseLabel={
               loadingImportar ? "Procesando..." : "Seleccionar archivo"
             }
             uploadLabel={loadingImportar ? "Importando..." : "Importar"}
-            cancelLabel="Cancelar"
+            cancelLabel="Limpiar"
             customUpload
             uploadHandler={subirArchivoBodegas}
             disabled={loadingImportar}
             emptyTemplate={
-              <div className="flex flex-column align-items-center">
-                <i className="pi pi-cloud-upload text-3xl mb-3" />
-                <p className="m-0 text-center">
+              <div className="flex flex-column align-items-center py-5">
+                <div className="bg-gray-800 border-circle p-4 mb-3 shadow-2 border-1 border-gray-700">
+                  <i className="pi pi-file-excel text-5xl text-green-500" />
+                </div>
+                <p className="m-0 text-xl font-semibold text-gray-200">
                   Arrastre el archivo Excel aquí
-                  <br />o haga clic para seleccionarlo
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Soporta archivos .xlsx y .xls (Máx. 5MB)
                 </p>
               </div>
             }
-            className="w-full"
+            className="w-full border-round-xl overflow-hidden border-1 border-gray-800 shadow-4"
           />
         </div>
 
