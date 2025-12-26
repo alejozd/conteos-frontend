@@ -56,3 +56,38 @@
     width: 100%;
     margin-top: 10px;
 }
+
+/* Reduce el tamaño de los ítems para que quepan más en la fila */
+.p-menubar .p-menuitem-link {
+    padding: 0.5rem 0.7rem !important;
+}
+
+.p-menubar .p-menuitem-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Color de fondo oscuro para que haga juego con tus tablas */
+.p-menubar {
+    background: #1e293b !important; /* Un azul muy oscuro */
+    border: none !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid #334155 !important;
+}
+
+.p-menubar .p-menuitem-link .p-menuitem-text,
+.p-menubar .p-menuitem-link .p-menuitem-icon {
+    color: #f8fafc !important;
+}
+
+@media screen and (min-width: 768px) {
+    .p-menubar-button {
+        display: none !important; /* Esconde el botón de hamburguesa en tablets/desktop */
+    }
+    .p-menubar-root-list {
+        display: flex !important; /* Fuerza a que la lista sea horizontal */
+        position: static !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+}
