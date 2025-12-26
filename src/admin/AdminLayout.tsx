@@ -42,7 +42,11 @@ export default function AdminLayout() {
       icon: "pi pi-map-marker",
       command: () => navigate("/admin/ubicaciones"),
     },
-
+    {
+      label: "Grupos de conteo",
+      icon: "pi pi-tags",
+      command: () => navigate("/admin/conteos-grupos"),
+    },
     {
       label: "Salir",
       icon: "pi pi-sign-out",
