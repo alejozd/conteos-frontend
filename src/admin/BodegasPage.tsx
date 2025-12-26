@@ -413,7 +413,6 @@ export default function BodegasPage() {
                 </div>
               </div>
             }
-            className="w-full border-round-xl shadow-2 overflow-hidden"
           />
         </div>
 

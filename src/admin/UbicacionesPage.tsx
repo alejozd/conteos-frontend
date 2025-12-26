@@ -254,8 +254,8 @@ export default function UbicacionesPage() {
     <div className="flex flex-column gap-3">
       {/* FILA SUPERIOR: Título y Botones de Acción */}
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-        <div className="flex align-items-center gap-2">
-          <i className="pi pi-map-marker text-primary text-2xl" />
+        <div className="flex align-items-center gap-3">
+          <i className="pi pi-map-marker text-primary text-3xl" />
           <h3 className="m-0 text-xl font-semibold">Ubicaciones por Bodega</h3>
         </div>
 
@@ -367,18 +367,17 @@ export default function UbicacionesPage() {
         resizable={false}
       >
         <div className="flex flex-column gap-3 mt-2">
-          <div className="flex flex-column gap-2">
-            <label className="text-sm font-bold">Bodega Destino</label>
+          <div className="flex flex-column gap-1">
+            <label className="text-sm font-bold text-gray-400">Bodega</label>
             <InputText
               value={bodegaSel?.nombre || ""}
               disabled
               className="bg-gray-800"
             />
           </div>
-
-          <div className="flex flex-column gap-2">
-            <label htmlFor="nombre" className="font-medium">
-              Nombre de la Ubicación
+          <div className="flex flex-column gap-1">
+            <label htmlFor="nombre" className="font-medium text-900">
+              Nombre
             </label>
             <InputText
               id="nombre"
@@ -391,7 +390,6 @@ export default function UbicacionesPage() {
             />
           </div>
         </div>
-
         <div className="flex justify-content-end gap-2 mt-4">
           <Button
             label="Cancelar"
@@ -400,7 +398,7 @@ export default function UbicacionesPage() {
             onClick={() => setVisible(false)}
           />
           <Button
-            label="Guardar Ubicación"
+            label="Guardar"
             icon="pi pi-check"
             onClick={guardar}
             severity="success"
@@ -408,53 +406,75 @@ export default function UbicacionesPage() {
           />
         </div>
       </Dialog>
+      {/* DIALOGO DE IMPORTACIÓN */}
       <Dialog
-        header="Importar Ubicaciones desde Excel"
+        header="Importar Ubicaciones"
         visible={visibleImportar}
-        onHide={() => {
-          setVisibleImportar(false);
-          setErroresImportar([]);
-        }}
+        onHide={() => setVisibleImportar(false)}
         draggable={false}
         resizable={false}
       >
-        <div className="field mb-3">
-          <label className="block mb-2">Archivo Excel</label>
-
+        <div className="field mb-3 mt-2">
           <FileUpload
             ref={fileUploadRef}
             name="file"
             mode="advanced"
             accept=".xlsx,.xls"
-            maxFileSize={5_000_000}
+            maxFileSize={5000000}
             multiple={false}
-            chooseLabel={
-              loadingImportar ? "Procesando..." : "Seleccionar archivo"
-            }
-            uploadLabel={loadingImportar ? "Importando..." : "Importar"}
-            cancelLabel="Cancelar"
             customUpload
             uploadHandler={subirArchivoUbicaciones}
             disabled={loadingImportar}
+            chooseOptions={{
+              label: "Seleccionar",
+              icon: "pi pi-plus",
+              className: "p-button-primary shadow-2",
+            }}
+            uploadOptions={{
+              label: "Importar",
+              icon: "pi pi-upload",
+              className: "p-button-success shadow-2",
+            }}
+            cancelOptions={{
+              label: "Limpiar",
+              icon: "pi pi-times",
+              className: "p-button-danger p-button-outlined",
+            }}
             emptyTemplate={
-              <div className="flex flex-column align-items-center">
-                <i className="pi pi-cloud-upload text-3xl mb-3" />
-                <p className="m-0 text-center">
-                  Arrastre el archivo Excel aquí
-                  <br />o haga clic para seleccionarlo
-                </p>
+              <div className="custom-upload-container">
+                <div className="flex justify-content-center mb-3">
+                  <i className="pi pi-file-excel text-5xl text-green-500" />
+                </div>
+                <div className="text-center">
+                  <p className="m-0 text-xl font-semibold text-gray-100">
+                    Arrastre el Excel aquí
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Solo archivos{" "}
+                    <span className="text-green-400 font-bold">.xlsx</span> o{" "}
+                    <span className="text-green-400 font-bold">.xls</span>
+                  </p>
+                </div>
               </div>
             }
-            className="w-full"
           />
         </div>
 
         {erroresImportar.length > 0 && (
           <div className="mt-4">
-            <h4>Errores encontrados</h4>
-            <DataTable value={erroresImportar} paginator rows={5}>
-              <Column field="fila" header="Fila" />
-              <Column field="campo" header="Campo" />
+            <div className="flex align-items-center gap-2 mb-2 text-red-400">
+              <i className="pi pi-exclamation-circle" />
+              <h4 className="m-0">Errores en el archivo</h4>
+            </div>
+            <DataTable
+              value={erroresImportar}
+              paginator
+              rows={5}
+              size="small"
+              className="p-datatable-sm"
+            >
+              <Column field="fila" header="Fila" style={{ width: "4rem" }} />
+              <Column field="campo" header="Campo" style={{ width: "8rem" }} />
               <Column field="mensaje" header="Descripción" />
             </DataTable>
           </div>
