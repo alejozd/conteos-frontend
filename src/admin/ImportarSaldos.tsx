@@ -6,6 +6,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { FileUpload, type FileUploadHandlerEvent } from "primereact/fileupload";
 import { isAxiosError } from "axios";
+import { Tag } from "primereact/tag";
 
 interface ErrorImportacion {
   fila: number;
@@ -19,6 +20,21 @@ const TIPOS_IMPORTACION: { label: string; value: TipoImportacion }[] = [
   { label: "Productos", value: "productos" },
   { label: "Saldos", value: "saldos" },
 ];
+
+const GUIA_IMPORTACION = {
+  productos: [
+    { campo: "CODIGO", requerido: true, desc: "Código del producto" },
+    { campo: "SUBCODIGO", requerido: true, desc: "Subcódigo del producto" },
+    { campo: "NOMBRE", requerido: true, desc: "Nombre del producto" },
+    { campo: "REFERENCIA", requerido: true, desc: "Referencia opcional" },
+  ],
+  saldos: [
+    { campo: "CODIGO", requerido: true, desc: "Código del producto" },
+    { campo: "SUBCODIGO", requerido: true, desc: "Subcódigo del producto" },
+    { campo: "REFERENCIA", requerido: true, desc: "Referencia opcional" },
+    { campo: "SALDO", requerido: true, desc: "Cantidad numérica" },
+  ],
+};
 
 export default function ImportarSaldos() {
   const toast = useRef<Toast>(null);
@@ -178,6 +194,33 @@ export default function ImportarSaldos() {
             className="w-full"
           />
         </div>
+        {tipo && (
+          <div className="card p-3 mt-3 border-1 border-gray-800 bg-gray-900">
+            <h4 className="mb-2">
+              Estructura del archivo Excel –{" "}
+              <span className="text-primary">{tipo.toUpperCase()}</span>
+            </h4>
+
+            <DataTable value={GUIA_IMPORTACION[tipo]} size="small" stripedRows>
+              <Column field="campo" header="Columna" />
+              <Column
+                header="Obligatoria"
+                body={(row) => (
+                  <Tag
+                    value={row.requerido ? "Sí" : "No"}
+                    severity={row.requerido ? "danger" : "info"}
+                  />
+                )}
+              />
+              <Column field="desc" header="Descripción" />
+            </DataTable>
+
+            <p className="mt-3 text-sm text-gray-400">
+              ⚠️ Los nombres de las columnas deben coincidir exactamente
+              (mayúsculas).
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Tabla de errores */}
