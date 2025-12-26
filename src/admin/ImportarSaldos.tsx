@@ -146,12 +146,32 @@ export default function ImportarSaldos() {
             customUpload
             uploadHandler={subirArchivo}
             disabled={!tipo || loading}
+            chooseOptions={{
+              label: "Seleccionar",
+              icon: "pi pi-plus",
+              className: "p-button-primary shadow-2",
+            }}
+            uploadOptions={{
+              label: "Importar",
+              icon: "pi pi-upload",
+              className: "p-button-success shadow-2",
+            }}
+            cancelOptions={{
+              label: "Limpiar",
+              icon: "pi pi-times",
+              className: "p-button-danger p-button-outlined",
+            }}
             emptyTemplate={
-              <div className="flex flex-column align-items-center">
-                <i className="pi pi-cloud-upload text-3xl mb-3" />
+              <div className="flex flex-column align-items-center gap-2">
+                <i className="pi pi-file-excel text-5xl text-green-500" />
                 <p className="m-0 text-center">
                   Arrastre el archivo Excel aquí
                   <br />o haga clic para seleccionarlo
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Solo archivos{" "}
+                  <span className="text-green-400 font-bold">.xlsx</span> o{" "}
+                  <span className="text-green-400 font-bold">.xls</span>
                 </p>
               </div>
             }

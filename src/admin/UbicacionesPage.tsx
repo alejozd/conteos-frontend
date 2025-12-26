@@ -448,6 +448,7 @@ export default function UbicacionesPage() {
                 <div className="text-center">
                   <p className="m-0 text-xl font-semibold text-gray-100">
                     Arrastre el Excel aquí
+                    <br />o haga clic para seleccionarlo
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
                     Solo archivos{" "}
