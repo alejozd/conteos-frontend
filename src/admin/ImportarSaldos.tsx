@@ -121,102 +121,114 @@ export default function ImportarSaldos() {
 
       {/* SECCIÓN SUPERIOR: INSTRUCCIONES + GUÍA */}
       <div className="grid mt-2">
-        {/* PASOS PARA IMPORTAR */}
+        {/* PASOS PARA IMPORTAR (Izquierda - Pulido) */}
         <div className="col-12 lg:col-5">
           <div className="card h-full p-4 border-left-3 border-primary bg-gray-900 shadow-4">
-            <h3 className="mt-0 mb-4 text-xl font-semibold border-bottom-1 border-gray-800 pb-2">
+            <h3 className="mt-0 mb-4 text-xl font-semibold flex align-items-center gap-2">
+              <i className="pi pi-list text-primary"></i>
               Pasos para importar
             </h3>
             <div className="flex flex-column gap-4">
-              <div className="flex align-items-start gap-3">
-                <Tag value="1" rounded severity={"success"} />
-                <div>
-                  <span className="text-xl font-medium text-gray-100 block">
-                    Tipo de datos
-                  </span>
-                  <small className="text-gray-400">
-                    Seleccione si subirá productos o saldos.
-                  </small>
+              {[
+                {
+                  num: "1",
+                  title: "Tipo de datos",
+                  desc: "Seleccione si subirá productos o saldos.",
+                },
+                {
+                  num: "2",
+                  title: "Cargar Excel",
+                  desc: "Seleccionar archivo o Arrastrar. Asegúrese que el archivo sea .xlsx o .xls ",
+                },
+                {
+                  num: "3",
+                  title: "Procesar",
+                  desc: "Presione importar y revise los resultados.",
+                },
+              ].map((step, index) => (
+                <div key={index} className="flex align-items-start gap-3">
+                  <Tag
+                    value={step.num}
+                    rounded
+                    severity="success"
+                    className="shadow-2"
+                    style={{ minWidth: "2rem", height: "2rem" }}
+                  />
+                  <div>
+                    <span className="text-lg font-medium text-gray-100 block line-height-2">
+                      {step.title}
+                    </span>
+                    <small className="text-gray-500">{step.desc}</small>
+                  </div>
                 </div>
-              </div>
-              <div className="flex align-items-start gap-3">
-                <Tag value="2" rounded severity={"success"} />
-                <div>
-                  <span className="text-xl font-medium text-gray-100 block">
-                    Cargar Excel
-                  </span>
-                  <small className="text-gray-400">
-                    Asegúrese que el archivo sea .xlsx o .xls
-                  </small>
-                </div>
-              </div>
-              <div className="flex align-items-start gap-3">
-                <Tag value="3" rounded severity={"success"} />
-                <div>
-                  <span className="text-xl font-medium text-gray-100 block">
-                    Procesar
-                  </span>
-                  <small className="text-gray-400">
-                    Presione importar y revise los resultados.
-                  </small>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* COLUMNAS REQUERIDAS */}
+        {/* COLUMNAS REQUERIDAS (Derecha - Modernizado) */}
         <div className="col-12 lg:col-7">
-          <div className="card h-full p-4 bg-gray-900 border-gray-800 border-1 shadow-4">
+          <div
+            className="card h-full p-4 bg-gray-900 border-none shadow-4 relative overflow-hidden"
+            style={{ borderRadius: "8px" }}
+          >
+            {/* Decoración sutil de fondo */}
+            <div className="absolute top-0 right-0 p-3 opacity-10">
+              <i className="pi pi-table text-8xl" />
+            </div>
+
             <div className="flex justify-content-between align-items-center mb-3 border-bottom-1 border-gray-800 pb-2">
-              <h3 className="m-0 text-xl font-semibold text-green-400">
-                Columnas requeridas
-              </h3>
-              {tipo && <Tag value={tipo.toUpperCase()} severity="success" />}
+              <div className="flex align-items-center gap-2">
+                <i className="pi pi-database text-green-400 text-xl"></i>
+                <h3 className="m-0 text-xl font-semibold text-gray-100">
+                  Columnas requeridas
+                </h3>
+              </div>
+              {tipo && (
+                <Tag
+                  value={tipo.toUpperCase()}
+                  severity="success"
+                  className="px-3"
+                />
+              )}
             </div>
 
             {!tipo ? (
-              <div className="flex flex-column align-items-center justify-content-center h-full ">
-                <i className="pi pi-info-circle mb-2 text-3xl opacity-50" />
-                <span className="text-lg">
-                  Seleccione un tipo para ver los campos
+              <div className="flex flex-column align-items-center justify-content-center h-full py-5 opacity-40">
+                <i className="pi pi-mouse-pointer mb-3 text-4xl" />
+                <span className="text-lg italic text-center">
+                  Seleccione un tipo de importación <br /> para visualizar la
+                  estructura
                 </span>
               </div>
             ) : (
-              <div className="grid">
-                <div className="col-12 flex flex-wrap gap-2 mb-1">
+              <div className="flex flex-column h-full">
+                {/* Grid de campos */}
+                <div className="grid">
                   {GUIA_IMPORTACION[tipo].map((col) => (
-                    <Tag
-                      key={col.campo}
-                      value={col.campo}
-                      severity={col.requerido ? "danger" : "info"}
-                      className="px-2 py-1 shadow-2 font-bold"
-                    />
-                  ))}
-                </div>
-                <div className="col-12">
-                  <div className="grid row-gap-1">
-                    {GUIA_IMPORTACION[tipo].map((col) => (
-                      <div
-                        key={col.campo}
-                        className="col-12 md:col-6 flex flex-column"
-                      >
-                        <span className="text-gray-200 font-bold text-sm">
-                          {col.campo}
-                        </span>
-                        <span className="text-gray-400 text-sm italic">
+                    <div key={col.campo} className="col-12 md:col-6 p-2">
+                      <div className="p-2 bg-gray-800 border-round-lg border-left-3 border-green-500 hover:bg-gray-700 transition-colors transition-duration-200">
+                        <div className="flex align-items-center justify-content-between mb-1">
+                          <span className="text-green-400 font-bold text-sm tracking-wider">
+                            {col.campo}
+                          </span>
+                          <i className="pi pi-check-circle text-xs text-gray-500"></i>
+                        </div>
+                        <span className="text-gray-300 text-xs block line-height-2">
                           {col.desc}
                         </span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="col-12 mt-4">
-                  <div>
-                    <p className="m-0 text-sm text-orange-200 font-bold uppercase">
-                      <i className="pi pi-exclamation-triangle mr-2" />
-                      Encabezados en MAYÚSCULAS y exactos.
-                    </p>
+
+                {/* Banner de advertencia corregido */}
+                <div className="mt-3">
+                  <div className="p-2 border-round-lg bg-orange-900-alpha-20 border-1 border-orange-800 flex align-items-center gap-3">
+                    <i className="pi pi-exclamation-circle text-orange-400 text-lg" />
+                    <span className="text-xs text-orange-100 font-medium uppercase tracking-wider">
+                      Encabezados en MAYÚSCULAS y exactos
+                    </span>
                   </div>
                 </div>
               </div>
