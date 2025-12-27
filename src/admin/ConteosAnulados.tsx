@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
-import { Dropdown } from "primereact/dropdown";
+import { Dropdown, type DropdownProps } from "primereact/dropdown";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import api from "../services/api";
@@ -25,7 +25,7 @@ interface ConteoAnulado {
 interface ConteoGrupo {
   id: number;
   descripcion: string;
-  activo: number; // Importante incluirlo para el diseño
+  activo: number; // 1 para activo, 0 para inactivo
 }
 
 export default function ConteosAnulados() {
@@ -96,7 +96,7 @@ export default function ConteosAnulados() {
     );
   };
 
-  const grupoValueTemplate = (option: ConteoGrupo, props: any) => {
+  const grupoValueTemplate = (option: ConteoGrupo, props: DropdownProps) => {
     if (option) return grupoOptionTemplate(option);
     return <span>{props.placeholder}</span>;
   };
