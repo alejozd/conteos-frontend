@@ -46,20 +46,26 @@ export default function ConteosGruposAdmin() {
   };
 
   const desactivarGrupo = (row: ConteoGrupoRow) => {
+    const esDesactivar = row.activo === 1;
+
     confirmDialog({
-      message: `¿Desea desactivar el conteo "${row.descripcion}"?`,
+      message: `¿Desea ${esDesactivar ? "desactivar" : "activar"} el conteo "${
+        row.descripcion
+      }"?`,
       header: "Confirmar desactivación",
-      icon: "pi pi-exclamation-triangle",
-      acceptLabel: "Sí, desactivar",
+      icon: esDesactivar ? "pi pi-exclamation-triangle" : "pi pi-info-circle",
+      acceptLabel: esDesactivar ? "Sí, desactivar" : "Sí, activar",
       rejectLabel: "Cancelar",
-      acceptClassName: "p-button-danger",
+      acceptClassName: esDesactivar ? "p-button-danger" : "p-button-success",
       accept: async () => {
         try {
           await api.delete(`/api/admin/conteos-grupos/${row.id}`);
           toast.current?.show({
             severity: "success",
-            summary: "Desactivado",
-            detail: "Grupo de conteo desactivado",
+            summary: esDesactivar ? "Desactivado" : "Activado",
+            detail: `El grupo fue ${
+              esDesactivar ? "desactivado" : "activado"
+            } correctamente`,
             life: 3000,
           });
           cargarGrupos();
@@ -182,7 +188,7 @@ export default function ConteosGruposAdmin() {
                 tooltip="Editar"
               />
               <Button
-                icon="pi pi-trash"
+                icon={row.activo ? "pi pi-lock" : "pi pi-lock-open"}
                 rounded
                 text
                 severity="danger"
