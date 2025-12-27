@@ -8,6 +8,7 @@ import { Button } from "primereact/button";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { Badge } from "primereact/badge";
+import { Dropdown } from "primereact/dropdown";
 import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -24,6 +25,13 @@ interface SaldoRow {
   diferencia: string;
 }
 
+interface ConteoGrupo {
+  id: number;
+  fecha: string;
+  descripcion: string;
+  activo: number;
+}
+
 export default function DashboardSaldos() {
   const [data, setData] = useState<SaldoRow[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -32,8 +40,32 @@ export default function DashboardSaldos() {
   const [productoSeleccionado, setProductoSeleccionado] =
     useState<SaldoRow | null>(null);
   const [soloConDiferencia, setSoloConDiferencia] = useState(false);
+  const [grupos, setGrupos] = useState<ConteoGrupo[]>([]);
+  const [grupoSeleccionado, setGrupoSeleccionado] =
+    useState<ConteoGrupo | null>(null);
 
   useEffect(() => {
+    const cargarGrupos = async () => {
+      try {
+        const res = await api.get("/api/admin/conteos-grupos");
+        const data = res.data || [];
+        setGrupos(data);
+
+        // seleccionar el primero por defecto
+        if (data.length > 0) {
+          setGrupoSeleccionado(data[0]);
+        }
+      } catch (error) {
+        console.error("Error cargando grupos:", error);
+      }
+    };
+
+    cargarGrupos();
+  }, []);
+
+  useEffect(() => {
+    if (!grupoSeleccionado) return;
+
     cargarDatos();
 
     const interval = setInterval(() => {
@@ -43,12 +75,18 @@ export default function DashboardSaldos() {
     }, 60_000);
 
     return () => clearInterval(interval);
-  }, [detalleVisible]);
+  }, [detalleVisible, grupoSeleccionado]);
 
   const cargarDatos = async (): Promise<void> => {
+    if (!grupoSeleccionado) return;
+
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/saldos-resumen");
+      const res = await api.get("/api/admin/saldos-resumen", {
+        params: {
+          conteo_grupo_id: grupoSeleccionado.id,
+        },
+      });
       setData(res.data || []);
     } catch (error) {
       console.error("Error cargando saldos:", error);
@@ -113,25 +151,73 @@ export default function DashboardSaldos() {
     (r) => Number(r.diferencia) !== 0
   ).length;
 
-  const header = (
-    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-      {/* Título con Badge de estado */}
-      <div className="flex align-items-center gap-2">
-        <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
-        {totalDiferencias > 0 && (
-          <Badge
-            value={totalDiferencias}
-            severity="danger"
-            title="Productos con discrepancias"
-          />
+  const grupoOptionTemplate = (option: ConteoGrupo) => {
+    return (
+      <div
+        className="flex align-items-center justify-content-between w-full"
+        style={{ minWidth: "14rem" }}
+      >
+        <span
+          style={{
+            color: option.activo === 0 ? "#94a3b8" : "#f8fafc", // Forzamos color claro si es activo
+            fontWeight: option.activo === 1 ? "500" : "normal",
+          }}
+        >
+          {option.descripcion}
+          {option.activo === 0 && (
+            <small className="ml-2 font-italic" style={{ opacity: 0.7 }}>
+              (Inactivo)
+            </small>
+          )}
+        </span>
+
+        {option.activo === 1 && (
+          <i
+            className="pi pi-circle-fill"
+            style={{
+              fontSize: "0.5rem",
+              color: "#22c55e", // Verde esmeralda directo (text-green-500)
+              marginLeft: "10px",
+            }}
+          ></i>
         )}
       </div>
+    );
+  };
 
+  const header = (
+    <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3">
+      {/* SECCIÓN IZQUIERDA: Título, Badge y Selector */}
+      <div className="flex flex-wrap align-items-center gap-3">
+        <div className="flex align-items-center gap-2">
+          <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
+          {totalDiferencias > 0 && (
+            <Badge
+              value={totalDiferencias}
+              severity="danger"
+              title="Productos con discrepancias"
+            />
+          )}
+        </div>
+
+        {/* Selector de Grupo con ancho controlado */}
+        <Dropdown
+          value={grupoSeleccionado}
+          options={grupos}
+          optionLabel="descripcion"
+          placeholder="Seleccionar conteo"
+          itemTemplate={grupoOptionTemplate}
+          className="p-inputtext-sm w-full md:w-16rem custom-dropdown-header"
+          onChange={(e) => setGrupoSeleccionado(e.value)}
+        />
+      </div>
+
+      {/* SECCIÓN DERECHA: Acciones (Filtro, Excel) y Buscador */}
       <div className="flex flex-wrap gap-2 align-items-center">
-        {/* Grupo de Filtro y Exportación */}
+        {/* Contenedor para botones para que no se separen */}
         <div className="flex gap-2">
           <Button
-            label={soloConDiferencia ? "Mostrar todos" : "Solo diferencias"}
+            label={soloConDiferencia ? "Todos" : "Diferencias"}
             icon={soloConDiferencia ? "pi pi-filter-slash" : "pi pi-filter"}
             className={`p-button-sm ${
               soloConDiferencia ? "p-button-info" : "p-button-outlined"
@@ -145,17 +231,18 @@ export default function DashboardSaldos() {
             className="p-button-sm p-button-success p-button-outlined"
             onClick={exportarExcel}
             tooltip="Exportar datos actuales"
+            tooltipOptions={{ position: "top" }}
           />
         </div>
 
-        {/* Buscador con ancho controlado */}
+        {/* Buscador con IconField */}
         <IconField iconPosition="left">
           <InputIcon className="pi pi-search" />
           <InputText
             placeholder="Buscar..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="p-inputtext-sm w-full md:w-14rem"
+            className="p-inputtext-sm w-full md:w-12rem"
           />
         </IconField>
       </div>
@@ -231,6 +318,7 @@ export default function DashboardSaldos() {
           codigo={productoSeleccionado.codigo}
           subcodigo={productoSeleccionado.subcodigo}
           nombre={productoSeleccionado.nombre}
+          conteo_grupo_id={grupoSeleccionado!.id}
           onConteoAnulado={cargarDatos}
         />
       )}
