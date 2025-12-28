@@ -17,6 +17,7 @@ import ProductosListado from "./admin/ProductosListado";
 import BodegasPage from "./admin/BodegasPage";
 import UbicacionesPage from "./admin/UbicacionesPage";
 import ConteosGruposAdmin from "./admin/ConteosGruposAdmin";
+import ComparativaConteos from "./admin/ComparativaConteos";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -72,6 +73,10 @@ function App() {
 
             <Route path="saldos" element={<DashboardSaldos />} />
             <Route path="conteos-anulados" element={<ConteosAnulados />} />
+            <Route
+              path="comparativa-conteos"
+              element={<ComparativaConteos />}
+            />
             <Route path="importar" element={<ImportarSaldos />} />
             <Route path="productos" element={<ProductosListado />} />
             <Route path="usuarios" element={<UsuariosAdmin />} />

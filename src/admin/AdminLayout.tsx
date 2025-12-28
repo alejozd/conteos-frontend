@@ -24,6 +24,11 @@ export default function AdminLayout() {
           command: () => navigate("/admin/conteos-grupos"),
         },
         {
+          label: "Comparativo de Conteos", // Nueva opción
+          icon: "pi pi-arrows-h",
+          command: () => navigate("/admin/comparativa-conteos"),
+        },
+        {
           label: "Conteos Anulados",
           icon: "pi pi-ban",
           command: () => navigate("/admin/conteos-anulados"),
