@@ -43,6 +43,7 @@ export default function DashboardSaldos() {
   const [grupos, setGrupos] = useState<ConteoGrupo[]>([]);
   const [grupoSeleccionado, setGrupoSeleccionado] =
     useState<ConteoGrupo | null>(null);
+  const [totalRegistros, setTotalRegistros] = useState(0);
 
   useEffect(() => {
     const cargarGrupos = async () => {
@@ -86,22 +87,33 @@ export default function DashboardSaldos() {
 
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/saldos-resumen", {
-        params: {
-          conteo_grupo_id: grupoSeleccionado.id,
-        },
-      });
-      const resAnulados = await api.get("/api/admin/conteos-anulados", {
-        params: { conteo_grupo_id: grupoSeleccionado.id },
-      });
-      setData(res.data || []);
+      const [resSaldos, resAnulados, resConteoStats] = await Promise.all([
+        api.get("/api/admin/saldos-resumen", {
+          params: { conteo_grupo_id: grupoSeleccionado.id },
+        }),
+        api.get("/api/admin/conteos-anulados", {
+          params: { conteo_grupo_id: grupoSeleccionado.id },
+        }),
+        api.get("/api/admin/conteos-stats", {
+          params: { conteo_grupo_id: grupoSeleccionado.id },
+        }), // Tu nuevo endpoint
+      ]);
+
+      setData(resSaldos.data || []);
       setTotalAnulados(resAnulados.data.length || 0);
+      setTotalRegistros(resConteoStats.data.total_registros || 0);
     } catch (error) {
-      console.error("Error cargando saldos:", error);
+      console.error("Error cargando datos:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  const productosContados = data.filter(
+    (r) => Number(r.conteo_total) > 0
+  ).length;
+  const porcentajeAvance =
+    data.length > 0 ? Math.round((productosContados / data.length) * 100) : 0;
 
   const aplicarFiltroSincrono = (accion: () => void) => {
     setLoading(true);
@@ -137,7 +149,6 @@ export default function DashboardSaldos() {
   const totalDiferencias = data.filter(
     (r) => Number(r.diferencia) !== 0
   ).length;
-  const totalConConteos = data.filter((r) => Number(r.conteo_total) > 0).length;
 
   const diferenciaTemplate = (row: SaldoRow) => {
     const valor = Number(row.diferencia);
@@ -252,34 +263,98 @@ export default function DashboardSaldos() {
       </div>
 
       {/* FILA 2: Indicadores Rápidos (KPIs) */}
-      <div className="grid mt-1">
+      <div className="grid mt-2">
+        {/* AVANCE */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse">
-            <div className="text-500 font-medium mb-2">Total Productos</div>
-            <div className="text-900 font-bold text-xl">{data.length}</div>
-          </div>
-        </div>
-        <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse border-left-3 border-red-500">
-            <div className="text-500 font-medium mb-2">Con Diferencias</div>
-            <div className="text-red-500 font-bold text-xl">
-              {totalDiferencias}
+          <div className="kpi-card shadow-2 p-3 border-avance">
+            <i className="pi pi-chart-bar kpi-icon-bg"></i>
+            <div className="flex justify-content-between align-items-start">
+              <div>
+                <span className="kpi-label">Avance General</span>
+                <span className="kpi-value text-blue-500">
+                  {porcentajeAvance}%
+                </span>
+              </div>
+              <i className="pi pi-directions text-blue-500 text-xl"></i>
+            </div>
+            <div
+              className="w-full bg-gray-800 border-round mt-2"
+              style={{ height: "6px" }}
+            >
+              <div
+                className="bg-blue-500 border-round"
+                style={{
+                  width: `${porcentajeAvance}%`,
+                  height: "100%",
+                  transition: "width 0.8s ease-in-out",
+                }}
+              ></div>
+            </div>
+            <div className="kpi-subtext mt-2">
+              <span className="font-bold text-blue-200">
+                {productosContados}
+              </span>{" "}
+              de {data.length} ítems
             </div>
           </div>
         </div>
+
+        {/* DIFERENCIAS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse border-left-3 border-green-500">
-            <div className="text-500 font-medium mb-2">Ya Contados</div>
-            <div className="text-green-500 font-bold text-xl">
-              {totalConConteos}
+          <div
+            className="kpi-card shadow-2 p-3 border-diferencias cursor-pointer"
+            onClick={toggleDiferencias}
+          >
+            <i className="pi pi-exclamation-triangle kpi-icon-bg"></i>
+            <div className="flex justify-content-between">
+              <div>
+                <span className="kpi-label">Con Diferencia</span>
+                <span className="kpi-value text-red-400">
+                  {totalDiferencias}
+                </span>
+              </div>
+              <i className="pi pi-exclamation-circle text-red-400 text-xl"></i>
+            </div>
+            <div className="kpi-subtext mt-1 text-red-200">
+              Requieren atención inmediata
             </div>
           </div>
         </div>
+
+        {/* REGISTROS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse border-left-3 border-orange-500">
-            <div className="text-500 font-medium mb-2">Total Anulados</div>
-            <div className="text-orange-500 font-bold text-xl">
-              {totalAnulados}
+          <div className="kpi-card shadow-2 p-3 border-registros">
+            <i className="pi pi-clone kpi-icon-bg"></i>
+            <div className="flex justify-content-between">
+              <div>
+                <span className="kpi-label">Registros</span>
+                <span className="kpi-value text-green-400">
+                  {totalRegistros}
+                </span>
+              </div>
+              <i className="pi pi-check-square text-green-400 text-xl"></i>
+            </div>
+            <div className="kpi-subtext mt-1 text-green-200">
+              Sincronizaciones exitosas
+            </div>
+          </div>
+        </div>
+
+        {/* ANULADOS */}
+        <div className="col-12 sm:col-6 md:col-3">
+          <div className="kpi-card shadow-2 p-3 border-anulados">
+            <i className="pi pi-trash kpi-icon-bg"></i>
+            <div className="flex justify-content-between">
+              <div>
+                <span className="kpi-label">Anulados</span>
+                <span className="kpi-value text-orange-400">
+                  {totalAnulados}
+                </span>
+              </div>
+              <i className="pi pi-history text-orange-400 text-xl"></i>
+            </div>
+            <div className="kpi-subtext mt-1 text-orange-200">
+              Conteos descartados
             </div>
           </div>
         </div>
@@ -335,6 +410,7 @@ export default function DashboardSaldos() {
         paginator
         rows={15}
         globalFilter={globalFilter}
+        globalFilterFields={["nombre", "referencia"]}
         header={header}
         emptyMessage="No hay datos para mostrar"
         stripedRows

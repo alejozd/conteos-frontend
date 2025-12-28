@@ -47,27 +47,59 @@
   text-decoration: line-through;
 }
 
-/* Badge de estado */
-.estado-anulado {
-  color: #f87171; /* rojo suave */
-  font-weight: 600;
-}
+/* src/styles/DashboardSaldos.css */
+
+/* src/styles/DashboardSaldos.css */
 
 .kpi-card {
     background: var(--surface-card);
-    transition: transform 0.2s;
+    border: 1px solid var(--surface-border);
+    border-radius: 12px !important;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 .kpi-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    border-color: var(--primary-color);
 }
 
-.dashboard-title {
-    font-size: 1.5rem;
-    color: var(--primary-color);
+/* Iconos de fondo sutiles */
+.kpi-icon-bg {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 4rem;
+    opacity: 0.05;
+    transform: rotate(-15deg);
 }
 
-/* Colores de diferencias */
-.diff-positive { color: #22c55e; font-weight: bold; }
-.diff-negative { color: #ef4444; font-weight: bold; }
-.diff-neutral { color: #94a3b8; }
+/* Colores específicos para bordes izquierdos */
+.border-avance { border-left: 4px solid #3b82f6 !important; }
+.border-diferencias { border-left: 4px solid #ef4444 !important; }
+.border-registros { border-left: 4px solid #22c55e !important; }
+.border-anulados { border-left: 4px solid #f59e0b !important; }
+
+/* Tipografía de KPIs */
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: block;
+    margin: 0.2rem 0;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-subtext {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    opacity: 0.8;
+}
