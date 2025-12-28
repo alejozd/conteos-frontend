@@ -6,6 +6,9 @@ import { Dropdown } from "primereact/dropdown";
 import { Card } from "primereact/card";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button"; // Importar botón
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
 import * as XLSX from "xlsx"; // Importar para Excel
 import { saveAs } from "file-saver";
 import api from "../services/api";
@@ -38,6 +41,7 @@ export default function ComparativaConteos() {
   const [loading, setLoading] = useState(false);
   const [compararA, setCompararA] = useState<number | "erp" | null>(null);
   const [compararB, setCompararB] = useState<number | "erp" | null>(null);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   useEffect(() => {
     api.get("/api/admin/conteos-grupos").then((res) => setGrupos(res.data));
@@ -145,46 +149,68 @@ export default function ComparativaConteos() {
 
   const header = (
     <div className="flex flex-column gap-3">
-      {/* FILA 1: Título y Botón Excel */}
-      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-        <h2 className="m-0 text-white text-xl md:text-2xl">
-          Análisis Comparativo
-        </h2>
-        <Button
-          icon="pi pi-file-excel"
-          label="Excel"
-          className="p-button-success p-button-sm p-button-outlined w-full md:w-auto"
-          onClick={exportarExcel}
-          disabled={!datos.length}
-        />
+      {/* FILA 1: Título y Acciones */}
+      <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3">
+        <div className="flex align-items-center gap-2">
+          <i className="pi pi-chart-bar text-primary text-2xl"></i>
+          <h2 className="m-0 text-white text-xl">Análisis Comparativo</h2>
+        </div>
+
+        <div className="flex flex-column md:flex-row gap-2 w-full lg:w-auto">
+          <IconField iconPosition="left" className="w-full md:w-20rem">
+            <InputIcon className="pi pi-search" />
+            <InputText
+              type="search"
+              placeholder="Buscar producto o referencia..."
+              className="w-full p-inputtext-sm"
+              onInput={(e) =>
+                setGlobalFilter((e.target as HTMLInputElement).value)
+              }
+            />
+          </IconField>
+
+          <Button
+            icon="pi pi-file-excel"
+            label="Exportar"
+            className="p-button-success p-button-sm w-full md:w-auto"
+            onClick={exportarExcel}
+            disabled={!datos.length}
+          />
+        </div>
       </div>
 
-      {/* FILA 2: Selector de Conteos (MultiSelect) */}
-      <div className="flex flex-column gap-2">
-        <label className="text-xs text-gray-400 font-bold ml-1 uppercase">
-          Seleccionar Grupos:
-        </label>
-        <MultiSelect
-          value={seleccionados}
-          options={grupos}
-          onChange={(e) => setSeleccionados(e.value)}
-          optionLabel="descripcion"
-          placeholder="Elegir conteos para comparar..."
-          display="chip"
-          className="w-full"
-          maxSelectedLabels={3}
-        />
-      </div>
+      {/* FILA 2: Panel de Filtros Responsivo */}
+      <div className="flex flex-column lg:flex-row gap-3 bg-gray-800 p-3 border-round-xl border-1 border-gray-700 shadow-2">
+        {/* Selector de Grupos */}
+        <div className="flex-1 flex flex-column gap-2">
+          <label className="text-xs font-bold text-blue-400 uppercase flex align-items-center gap-2">
+            <i className="pi pi-filter-fill"></i> Grupos a comparar
+          </label>
+          <MultiSelect
+            value={seleccionados}
+            options={grupos}
+            onChange={(e) => setSeleccionados(e.value)}
+            optionLabel="descripcion"
+            placeholder="Seleccionar conteos..."
+            display="chip"
+            className="w-full p-multiselect-sm"
+            maxSelectedLabels={1}
+          />
+        </div>
 
-      {/* FILA 3: Controles de Diferencia */}
-      {seleccionados.length > 0 && (
-        <div className="flex flex-column gap-2 bg-gray-800 p-3 border-round shadow-2">
-          <span className="text-xs font-bold text-primary uppercase">
-            Configurar Comparación:
-          </span>
-          <div className="flex flex-column md:flex-row align-items-center gap-2">
-            <div className="flex align-items-center gap-2 w-full md:w-auto flex-1">
-              <span className="text-sm text-gray-400 hidden md:inline">A:</span>
+        {/* Separador solo visible en escritorio */}
+        {seleccionados.length > 0 && (
+          <div className="hidden lg:block border-left-1 border-gray-700 mx-2"></div>
+        )}
+
+        {/* Selector de Diferencia - CORREGIDO PARA MÓVIL */}
+        {seleccionados.length > 0 && (
+          <div className="flex-1 flex flex-column gap-2">
+            <label className="text-xs font-bold text-orange-400 uppercase flex align-items-center gap-2">
+              <i className="pi pi-calculator"></i> Configurar Cálculo (A - B)
+            </label>
+            {/* Cambiamos a flex-column en móvil y flex-row en tablets/pc */}
+            <div className="flex flex-column sm:flex-row align-items-center gap-2 w-full">
               <Dropdown
                 value={compararA}
                 options={opcionesDiferencia}
@@ -192,15 +218,13 @@ export default function ComparativaConteos() {
                   setCompararA(e.value);
                   setDatos([...datos]);
                 }}
-                placeholder="Seleccionar A"
-                className="p-inputtext-sm w-full"
+                placeholder="Valor A"
+                className="w-full sm:flex-1 p-inputtext-sm"
               />
-            </div>
-
-            <span className="font-bold text-gray-500 mx-1 md:block">vs</span>
-
-            <div className="flex align-items-center gap-2 w-full md:w-auto flex-1">
-              <span className="text-sm text-gray-400 hidden md:inline">B:</span>
+              {/* El "VS" se oculta en móvil o se centra mejor */}
+              <span className="font-bold text-gray-600 text-xs sm:px-1">
+                vs
+              </span>
               <Dropdown
                 value={compararB}
                 options={opcionesDiferencia}
@@ -208,38 +232,47 @@ export default function ComparativaConteos() {
                   setCompararB(e.value);
                   setDatos([...datos]);
                 }}
-                placeholder="Seleccionar B"
-                className="p-inputtext-sm w-full"
+                placeholder="Valor B"
+                className="w-full sm:flex-1 p-inputtext-sm"
               />
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 
   return (
-    <div className="comparativa-container p-3">
-      <Card header={header} className="bg-gray-900 border-none shadow-4">
+    <div className="comparativa-container p-2 md:p-4 bg-black-alpha-90 min-h-screen">
+      <Card
+        header={header}
+        className="bg-gray-900 border-none shadow-8 overflow-hidden"
+      >
+        {/* Indicador de comparación actual más sutil */}
         {compararA && compararB && (
-          <div className="mb-3 px-3 py-2 text-sm text-gray-300 bg-bluegray-900 border-left-3 border-blue-500 border-round-right shadow-1 w-full flex align-items-center gap-2">
-            <i className="pi pi-info-circle text-blue-400"></i>
-            <span>
-              Análisis de:{" "}
-              <b className="text-blue-400">
-                {opcionesDiferencia.find((o) => o.value === compararA)?.label}
-              </b>
-              <span className="mx-2 text-gray-600">|</span>
-              Base:{" "}
-              <b className="text-orange-400">
-                {opcionesDiferencia.find((o) => o.value === compararB)?.label}
-              </b>
-            </span>
+          <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 border-left-3 border-blue-500 bg-gray-800 border-round-right">
+            <small className="text-gray-400 mr-1">Análisis:</small>
+            <Tag
+              value={
+                opcionesDiferencia.find((o) => o.value === compararA)?.label
+              }
+              severity="info"
+              className="text-xs"
+            />
+            <i className="pi pi-arrows-h text-gray-600 text-xs"></i>
+            <Tag
+              value={
+                opcionesDiferencia.find((o) => o.value === compararB)?.label
+              }
+              severity="warning"
+              className="text-xs"
+            />
           </div>
         )}
         <DataTable
           value={datos}
           loading={loading}
+          globalFilter={globalFilter}
           emptyMessage="Selecciona al menos un grupo para comparar."
           stripedRows
           size="small"
@@ -247,22 +280,24 @@ export default function ComparativaConteos() {
           rows={20}
           rowsPerPageOptions={[20, 50, 100]}
           scrollable
-          scrollHeight="600px"
+          // scrollHeight="calc(100vh - 380px)"
           tableStyle={{ minWidth: "50rem" }}
+          className="custom-datatable mt-2"
         >
           <Column
             field="referencia"
             header="Referencia"
             sortable
             frozen
-            style={{ width: "150px" }}
+            style={{ width: "140px" }}
+            className="font-bold"
           />
           <Column
             field="nombre"
             header="Producto"
             sortable
             frozen
-            style={{ width: "250px" }}
+            style={{ width: "280px" }}
           />
           <Column
             field="saldo_sistema"
