@@ -148,69 +148,70 @@ export default function ComparativaConteos() {
   ];
 
   const header = (
-    <div className="flex flex-column gap-3">
-      {/* FILA 1: Título y Acciones */}
-      <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3">
+    <div className="flex flex-column gap-2 md:gap-3">
+      {/* FILA 1: Título y Buscador (Más compacto) */}
+      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-2">
         <div className="flex align-items-center gap-2">
-          <i className="pi pi-chart-bar text-primary text-2xl"></i>
-          <h2 className="m-0 text-white text-xl">Análisis Comparativo</h2>
+          <i className="pi pi-chart-bar text-primary text-xl"></i>
+          <h2 className="m-0 text-white text-lg md:text-xl font-semibold">
+            Análisis Comparativo
+          </h2>
         </div>
 
-        <div className="flex flex-column md:flex-row gap-2 w-full lg:w-auto">
-          <IconField iconPosition="left" className="w-full md:w-20rem">
+        <div className="flex flex-row align-items-center gap-2 w-full md:w-auto">
+          <IconField iconPosition="left" className="flex-1 md:w-15rem">
             <InputIcon className="pi pi-search" />
             <InputText
               type="search"
-              placeholder="Buscar producto o referencia..."
+              placeholder="Buscar..."
               className="w-full p-inputtext-sm"
               onInput={(e) =>
                 setGlobalFilter((e.target as HTMLInputElement).value)
               }
             />
           </IconField>
-
           <Button
             icon="pi pi-file-excel"
-            label="Exportar"
-            className="p-button-success p-button-sm w-full md:w-auto"
+            label="Excel"
+            className="p-button-success p-button-sm px-3"
             onClick={exportarExcel}
             disabled={!datos.length}
           />
         </div>
       </div>
 
-      {/* FILA 2: Panel de Filtros Responsivo */}
-      <div className="flex flex-column lg:flex-row gap-3 bg-gray-800 p-3 border-round-xl border-1 border-gray-700 shadow-2">
-        {/* Selector de Grupos */}
-        <div className="flex-1 flex flex-column gap-2">
-          <label className="text-xs font-bold text-blue-400 uppercase flex align-items-center gap-2">
-            <i className="pi pi-filter-fill"></i> Grupos a comparar
+      {/* FILA 2: Controles de Selección (Layout Inteligente) */}
+      <div className="flex flex-column lg:flex-row gap-2 bg-gray-800 p-2 border-round-lg border-1 border-gray-700">
+        {/* Panel Izquierdo: Grupos */}
+        <div className="flex-1 flex flex-column gap-1">
+          <label
+            className="text-xs font-bold text-blue-300 uppercase ml-1"
+            style={{ fontSize: "10px" }}
+          >
+            <i className="pi pi-filter mr-1"></i> Grupos
           </label>
           <MultiSelect
             value={seleccionados}
             options={grupos}
             onChange={(e) => setSeleccionados(e.value)}
             optionLabel="descripcion"
-            placeholder="Seleccionar conteos..."
+            placeholder="Seleccionar..."
             display="chip"
-            className="w-full p-multiselect-sm"
+            className="w-full p-multiselect-sm border-none bg-gray-900"
             maxSelectedLabels={1}
           />
         </div>
 
-        {/* Separador solo visible en escritorio */}
+        {/* Panel Derecho: Cálculo (Solo si hay grupos) */}
         {seleccionados.length > 0 && (
-          <div className="hidden lg:block border-left-1 border-gray-700 mx-2"></div>
-        )}
-
-        {/* Selector de Diferencia - CORREGIDO PARA MÓVIL */}
-        {seleccionados.length > 0 && (
-          <div className="flex-1 flex flex-column gap-2">
-            <label className="text-xs font-bold text-orange-400 uppercase flex align-items-center gap-2">
-              <i className="pi pi-calculator"></i> Configurar Cálculo (A - B)
+          <div className="flex-1 flex flex-column gap-1 border-top-1 lg:border-top-none lg:border-left-1 border-gray-700 pt-2 lg:pt-0 lg:pl-3">
+            <label
+              className="text-xs font-bold text-orange-300 uppercase ml-1"
+              style={{ fontSize: "10px" }}
+            >
+              <i className="pi pi-calculator mr-1"></i> Cálculo (A - B)
             </label>
-            {/* Cambiamos a flex-column en móvil y flex-row en tablets/pc */}
-            <div className="flex flex-column sm:flex-row align-items-center gap-2 w-full">
+            <div className="flex align-items-center gap-2">
               <Dropdown
                 value={compararA}
                 options={opcionesDiferencia}
@@ -218,13 +219,10 @@ export default function ComparativaConteos() {
                   setCompararA(e.value);
                   setDatos([...datos]);
                 }}
-                placeholder="Valor A"
-                className="w-full sm:flex-1 p-inputtext-sm"
+                placeholder="A"
+                className="flex-1 p-inputtext-sm border-none bg-gray-900"
               />
-              {/* El "VS" se oculta en móvil o se centra mejor */}
-              <span className="font-bold text-gray-600 text-xs sm:px-1">
-                vs
-              </span>
+              <span className="text-xs font-bold text-gray-500">vs</span>
               <Dropdown
                 value={compararB}
                 options={opcionesDiferencia}
@@ -232,13 +230,30 @@ export default function ComparativaConteos() {
                   setCompararB(e.value);
                   setDatos([...datos]);
                 }}
-                placeholder="Valor B"
-                className="w-full sm:flex-1 p-inputtext-sm"
+                placeholder="B"
+                className="flex-1 p-inputtext-sm border-none bg-gray-900"
               />
             </div>
           </div>
         )}
       </div>
+
+      {/* Info sutil de lo que se está viendo */}
+      {compararA && compararB && (
+        <div className="flex align-items-center gap-2 px-2 py-1 opacity-80">
+          <i className="pi pi-info-circle text-xs text-blue-400"></i>
+          <small className="text-white text-xs">
+            Diferencia:{" "}
+            <b>
+              {opcionesDiferencia.find((o) => o.value === compararA)?.label}
+            </b>{" "}
+            menos{" "}
+            <b>
+              {opcionesDiferencia.find((o) => o.value === compararB)?.label}
+            </b>
+          </small>
+        </div>
+      )}
     </div>
   );
 
