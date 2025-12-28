@@ -145,52 +145,74 @@ export default function ComparativaConteos() {
 
   const header = (
     <div className="flex flex-column gap-3">
-      <div className="flex justify-content-between align-items-center">
-        <h2 className="m-0 text-white">Análisis Comparativo</h2>
-        <div className="flex gap-2">
-          <Button
-            icon="pi pi-file-excel"
-            label="Excel"
-            className="p-button-success p-button-sm p-button-outlined"
-            onClick={exportarExcel}
-            disabled={!datos.length}
-          />
-          <MultiSelect
-            value={seleccionados}
-            options={grupos}
-            onChange={(e) => setSeleccionados(e.value)}
-            optionLabel="descripcion"
-            placeholder="Seleccionar Conteos"
-            display="chip"
-            className="w-full md:w-30rem"
-          />
-        </div>
+      {/* FILA 1: Título y Botón Excel */}
+      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+        <h2 className="m-0 text-white text-xl md:text-2xl">
+          Análisis Comparativo
+        </h2>
+        <Button
+          icon="pi pi-file-excel"
+          label="Excel"
+          className="p-button-success p-button-sm p-button-outlined w-full md:w-auto"
+          onClick={exportarExcel}
+          disabled={!datos.length}
+        />
       </div>
 
+      {/* FILA 2: Selector de Conteos (MultiSelect) */}
+      <div className="flex flex-column gap-2">
+        <label className="text-xs text-gray-400 font-bold ml-1 uppercase">
+          Seleccionar Grupos:
+        </label>
+        <MultiSelect
+          value={seleccionados}
+          options={grupos}
+          onChange={(e) => setSeleccionados(e.value)}
+          optionLabel="descripcion"
+          placeholder="Elegir conteos para comparar..."
+          display="chip"
+          className="w-full"
+          maxSelectedLabels={3}
+        />
+      </div>
+
+      {/* FILA 3: Controles de Diferencia */}
       {seleccionados.length > 0 && (
-        <div className="flex align-items-center gap-2 bg-gray-800 p-2 border-round">
-          <span className="text-sm font-bold ml-2">Calcular Diferencia:</span>
-          <Dropdown
-            value={compararA}
-            options={opcionesDiferencia}
-            onChange={(e) => {
-              setCompararA(e.value);
-              setDatos([...datos]);
-            }}
-            placeholder="Seleccionar A"
-            className="p-inputtext-sm"
-          />
-          <span className="font-bold text-primary mx-1">menos</span>
-          <Dropdown
-            value={compararB}
-            options={opcionesDiferencia}
-            onChange={(e) => {
-              setCompararB(e.value);
-              setDatos([...datos]);
-            }}
-            placeholder="Seleccionar B"
-            className="p-inputtext-sm"
-          />
+        <div className="flex flex-column gap-2 bg-gray-800 p-3 border-round shadow-2">
+          <span className="text-xs font-bold text-primary uppercase">
+            Configurar Comparación:
+          </span>
+          <div className="flex flex-column md:flex-row align-items-center gap-2">
+            <div className="flex align-items-center gap-2 w-full md:w-auto flex-1">
+              <span className="text-sm text-gray-400 hidden md:inline">A:</span>
+              <Dropdown
+                value={compararA}
+                options={opcionesDiferencia}
+                onChange={(e) => {
+                  setCompararA(e.value);
+                  setDatos([...datos]);
+                }}
+                placeholder="Seleccionar A"
+                className="p-inputtext-sm w-full"
+              />
+            </div>
+
+            <span className="font-bold text-gray-500 mx-1 md:block">vs</span>
+
+            <div className="flex align-items-center gap-2 w-full md:w-auto flex-1">
+              <span className="text-sm text-gray-400 hidden md:inline">B:</span>
+              <Dropdown
+                value={compararB}
+                options={opcionesDiferencia}
+                onChange={(e) => {
+                  setCompararB(e.value);
+                  setDatos([...datos]);
+                }}
+                placeholder="Seleccionar B"
+                className="p-inputtext-sm w-full"
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -200,16 +222,19 @@ export default function ComparativaConteos() {
     <div className="comparativa-container p-3">
       <Card header={header} className="bg-gray-900 border-none shadow-4">
         {compararA && compararB && (
-          <div className="mb-3 px-3 py-2 text-sm text-gray-300 bg-gray-800 border-round shadow-1 w-fit flex align-items-center gap-2">
+          <div className="mb-3 px-3 py-2 text-sm text-gray-300 bg-bluegray-900 border-left-3 border-blue-500 border-round-right shadow-1 w-full flex align-items-center gap-2">
             <i className="pi pi-info-circle text-blue-400"></i>
-            <span>Mostrando diferencia de:</span>
-            <b className="text-blue-400 font-bold">
-              {opcionesDiferencia.find((o) => o.value === compararA)?.label}
-            </b>
-            <span className="text-gray-500 mx-1">vs</span>
-            <b className="text-orange-400 font-bold">
-              {opcionesDiferencia.find((o) => o.value === compararB)?.label}
-            </b>
+            <span>
+              Análisis de:{" "}
+              <b className="text-blue-400">
+                {opcionesDiferencia.find((o) => o.value === compararA)?.label}
+              </b>
+              <span className="mx-2 text-gray-600">|</span>
+              Base:{" "}
+              <b className="text-orange-400">
+                {opcionesDiferencia.find((o) => o.value === compararB)?.label}
+              </b>
+            </span>
           </div>
         )}
         <DataTable
