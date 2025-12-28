@@ -2,8 +2,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://conteosapi.zdevs.uk", // ✔ tu backend prod
+  // baseURL: "https://conteosapi.zdevs.uk", // ✔ tu backend prod
   // baseURL: "http://localhost:3411", // ✔ tu backend dev
+  baseURL: import.meta.env.VITE_API_URL,
 
 });
 
