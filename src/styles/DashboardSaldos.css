@@ -52,3 +52,22 @@
   color: #f87171; /* rojo suave */
   font-weight: 600;
 }
+
+.kpi-card {
+    background: var(--surface-card);
+    transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+}
+
+.dashboard-title {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+/* Colores de diferencias */
+.diff-positive { color: #22c55e; font-weight: bold; }
+.diff-negative { color: #ef4444; font-weight: bold; }
+.diff-neutral { color: #94a3b8; }

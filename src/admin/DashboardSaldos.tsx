@@ -1,13 +1,11 @@
 // src/admin/DashboardSaldos.tsx
-// src/admin/DashboardSaldos.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-import { Badge } from "primereact/badge";
 import { Dropdown, type DropdownProps } from "primereact/dropdown";
 import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
@@ -40,6 +38,8 @@ export default function DashboardSaldos() {
   const [productoSeleccionado, setProductoSeleccionado] =
     useState<SaldoRow | null>(null);
   const [soloConDiferencia, setSoloConDiferencia] = useState(false);
+  const [soloConConteo, setSoloConConteo] = useState(false);
+  const [totalAnulados, setTotalAnulados] = useState(0);
   const [grupos, setGrupos] = useState<ConteoGrupo[]>([]);
   const [grupoSeleccionado, setGrupoSeleccionado] =
     useState<ConteoGrupo | null>(null);
@@ -91,7 +91,11 @@ export default function DashboardSaldos() {
           conteo_grupo_id: grupoSeleccionado.id,
         },
       });
+      const resAnulados = await api.get("/api/admin/conteos-anulados", {
+        params: { conteo_grupo_id: grupoSeleccionado.id },
+      });
       setData(res.data || []);
+      setTotalAnulados(resAnulados.data.length || 0);
     } catch (error) {
       console.error("Error cargando saldos:", error);
     } finally {
@@ -99,9 +103,41 @@ export default function DashboardSaldos() {
     }
   };
 
-  const dataFiltrada = soloConDiferencia
-    ? data.filter((r) => Number(r.diferencia) !== 0)
-    : data;
+  const aplicarFiltroSincrono = (accion: () => void) => {
+    setLoading(true);
+
+    // Usamos un pequeño setTimeout para permitir que React renderice el estado 'loading: true'
+    // antes de ejecutar la pesada tarea de filtrado
+    setTimeout(() => {
+      accion();
+      setLoading(false);
+    }, 100);
+  };
+
+  // Handlers para los botones
+  const toggleDiferencias = () => {
+    aplicarFiltroSincrono(() => setSoloConDiferencia(!soloConDiferencia));
+  };
+
+  const toggleSoloConteos = () => {
+    aplicarFiltroSincrono(() => setSoloConConteo(!soloConConteo));
+  };
+
+  const dataFiltrada = useMemo(() => {
+    return data.filter((r) => {
+      const cumpleDiferencia = soloConDiferencia
+        ? Number(r.diferencia) !== 0
+        : true;
+      const cumpleConteo = soloConConteo ? Number(r.conteo_total) > 0 : true;
+      return cumpleDiferencia && cumpleConteo;
+    });
+  }, [data, soloConDiferencia, soloConConteo]);
+
+  // Cálculos para indicadores
+  const totalDiferencias = data.filter(
+    (r) => Number(r.diferencia) !== 0
+  ).length;
+  const totalConConteos = data.filter((r) => Number(r.conteo_total) > 0).length;
 
   const diferenciaTemplate = (row: SaldoRow) => {
     const valor = Number(row.diferencia);
@@ -111,15 +147,6 @@ export default function DashboardSaldos() {
     if (valor < 0) className = "diff-negative";
 
     return <span className={className}>{valor.toFixed(2)}</span>;
-  };
-
-  const toggleSoloConDiferencia = () => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setSoloConDiferencia((prev) => !prev);
-      setLoading(false);
-    }, 200);
   };
 
   const exportarExcel = () => {
@@ -149,11 +176,6 @@ export default function DashboardSaldos() {
       `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`
     );
   };
-
-  // Calculamos la cantidad de productos con diferencia para el Badge
-  const totalDiferencias = data.filter(
-    (r) => Number(r.diferencia) !== 0
-  ).length;
 
   const grupoOptionTemplate = (option: ConteoGrupo) => {
     return (
@@ -213,21 +235,10 @@ export default function DashboardSaldos() {
   };
 
   const header = (
-    <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3">
-      {/* SECCIÓN IZQUIERDA: Título, Badge y Selector */}
-      <div className="flex flex-wrap align-items-center gap-3">
-        <div className="flex align-items-center gap-2">
-          <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
-          {totalDiferencias > 0 && (
-            <Badge
-              value={totalDiferencias}
-              severity="danger"
-              title="Productos con discrepancias"
-            />
-          )}
-        </div>
-
-        {/* Selector de Grupo con ancho controlado */}
+    <div className="flex flex-column gap-3">
+      {/* FILA 1: Título y Selector de Grupo */}
+      <div className="flex flex-column md:flex-row justify-content-between align-items-center gap-3">
+        <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
         <Dropdown
           value={grupoSeleccionado}
           options={grupos}
@@ -235,42 +246,81 @@ export default function DashboardSaldos() {
           placeholder="Seleccionar conteo"
           itemTemplate={grupoOptionTemplate}
           valueTemplate={grupoValueTemplate}
-          className="p-inputtext-sm w-full md:w-16rem custom-dropdown-header"
+          className="p-inputtext-sm w-full md:w-20rem"
           onChange={(e) => setGrupoSeleccionado(e.value)}
         />
       </div>
 
-      {/* SECCIÓN DERECHA: Acciones (Filtro, Excel) y Buscador */}
-      <div className="flex flex-wrap gap-2 align-items-center">
-        {/* Contenedor para botones para que no se separen */}
-        <div className="flex gap-2">
-          <Button
-            label={soloConDiferencia ? "Todos" : "Diferencias"}
-            icon={soloConDiferencia ? "pi pi-filter-slash" : "pi pi-filter"}
-            className={`p-button-sm ${
-              soloConDiferencia ? "p-button-info" : "p-button-outlined"
-            }`}
-            onClick={toggleSoloConDiferencia}
-          />
+      {/* FILA 2: Indicadores Rápidos (KPIs) */}
+      <div className="grid mt-1">
+        <div className="col-12 sm:col-6 md:col-3">
+          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse">
+            <div className="text-500 font-medium mb-2">Total Productos</div>
+            <div className="text-900 font-bold text-xl">{data.length}</div>
+          </div>
+        </div>
+        <div className="col-12 sm:col-6 md:col-3">
+          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse border-left-3 border-red-500">
+            <div className="text-500 font-medium mb-2">Con Diferencias</div>
+            <div className="text-red-500 font-bold text-xl">
+              {totalDiferencias}
+            </div>
+          </div>
+        </div>
+        <div className="col-12 sm:col-6 md:col-3">
+          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse border-left-3 border-green-500">
+            <div className="text-500 font-medium mb-2">Ya Contados</div>
+            <div className="text-green-500 font-bold text-xl">
+              {totalConConteos}
+            </div>
+          </div>
+        </div>
+        <div className="col-12 sm:col-6 md:col-3">
+          <div className="kpi-card shadow-1 p-3 border-round bg-primary-reverse border-left-3 border-orange-500">
+            <div className="text-500 font-medium mb-2">Total Anulados</div>
+            <div className="text-orange-500 font-bold text-xl">
+              {totalAnulados}
+            </div>
+          </div>
+        </div>
+      </div>
 
+      {/* FILA 3: Botones de Acción y Buscador */}
+      <div className="flex flex-wrap lg:justify-content-between align-items-center gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            label="Diferencias"
+            icon="pi pi-filter"
+            className={`p-button-sm ${
+              soloConDiferencia ? "p-button-danger" : "p-button-outlined"
+            }`}
+            onClick={toggleDiferencias} // Nueva función con loading
+            disabled={loading} // Evita clics dobles mientras procesa
+          />
+          <Button
+            label="Con Conteos"
+            icon="pi pi-box"
+            className={`p-button-sm ${
+              soloConConteo ? "p-button-success" : "p-button-outlined"
+            }`}
+            onClick={toggleSoloConteos} // Nueva función con loading
+            disabled={loading}
+          />
           <Button
             label="Excel"
             icon="pi pi-file-excel"
             className="p-button-sm p-button-success p-button-outlined"
             onClick={exportarExcel}
-            tooltip="Exportar datos actuales"
-            tooltipOptions={{ position: "top" }}
           />
         </div>
 
-        {/* Buscador con IconField */}
         <IconField iconPosition="left">
           <InputIcon className="pi pi-search" />
           <InputText
-            placeholder="Buscar..."
+            placeholder="Buscar producto..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="p-inputtext-sm w-full md:w-12rem"
+            className="p-inputtext-sm w-full md:w-15rem"
           />
         </IconField>
       </div>
