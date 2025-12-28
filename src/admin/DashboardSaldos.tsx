@@ -262,39 +262,31 @@ export default function DashboardSaldos() {
         />
       </div>
 
-      {/* FILA 2: Indicadores Rápidos (KPIs) */}
-      <div className="grid mt-2">
+      {/* FILA 2: Indicadores Rápidos (KPIs) Compactos */}
+      <div className="grid mt-1">
         {/* AVANCE */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-2 p-3 border-avance">
-            <i className="pi pi-chart-bar kpi-icon-bg"></i>
-            <div className="flex justify-content-between align-items-start">
-              <div>
-                <span className="kpi-label">Avance General</span>
-                <span className="kpi-value text-blue-500">
-                  {porcentajeAvance}%
-                </span>
-              </div>
-              <i className="pi pi-directions text-blue-500 text-xl"></i>
+          <div className="kpi-card shadow-1 border-avance">
+            <div className="flex align-items-center gap-2 mb-1">
+              <i className="pi pi-chart-bar color-avance text-xs"></i>
+              <span className="kpi-label color-avance">Avance General</span>
+            </div>
+            <div className="flex justify-content-between align-items-end">
+              <span className="kpi-value color-avance">
+                {porcentajeAvance}%
+              </span>
+              <span className="kpi-subtext mb-1">
+                {productosContados} / {data.length}
+              </span>
             </div>
             <div
               className="w-full bg-gray-800 border-round mt-2"
-              style={{ height: "6px" }}
+              style={{ height: "4px" }}
             >
               <div
                 className="bg-blue-500 border-round"
-                style={{
-                  width: `${porcentajeAvance}%`,
-                  height: "100%",
-                  transition: "width 0.8s ease-in-out",
-                }}
+                style={{ width: `${porcentajeAvance}%`, height: "100%" }}
               ></div>
-            </div>
-            <div className="kpi-subtext mt-2">
-              <span className="font-bold text-blue-200">
-                {productosContados}
-              </span>{" "}
-              de {data.length} ítems
             </div>
           </div>
         </div>
@@ -302,59 +294,50 @@ export default function DashboardSaldos() {
         {/* DIFERENCIAS */}
         <div className="col-12 sm:col-6 md:col-3">
           <div
-            className="kpi-card shadow-2 p-3 border-diferencias cursor-pointer"
+            className="kpi-card shadow-1 border-diferencias cursor-pointer"
             onClick={toggleDiferencias}
           >
-            <i className="pi pi-exclamation-triangle kpi-icon-bg"></i>
-            <div className="flex justify-content-between">
-              <div>
-                <span className="kpi-label">Con Diferencia</span>
-                <span className="kpi-value text-red-400">
-                  {totalDiferencias}
-                </span>
-              </div>
-              <i className="pi pi-exclamation-circle text-red-400 text-xl"></i>
+            <div className="flex align-items-center gap-2 mb-1">
+              <i className="pi pi-exclamation-triangle color-diferencias text-xs"></i>
+              <span className="kpi-label color-diferencias">
+                Con Diferencia
+              </span>
             </div>
-            <div className="kpi-subtext mt-1 text-red-200">
-              Requieren atención inmediata
+            <div className="flex flex-column">
+              <span className="kpi-value color-diferencias">
+                {totalDiferencias}
+              </span>
+              <span className="kpi-subtext">Pendientes de revisión</span>
             </div>
           </div>
         </div>
 
         {/* REGISTROS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-2 p-3 border-registros">
-            <i className="pi pi-clone kpi-icon-bg"></i>
-            <div className="flex justify-content-between">
-              <div>
-                <span className="kpi-label">Registros</span>
-                <span className="kpi-value text-green-400">
-                  {totalRegistros}
-                </span>
-              </div>
-              <i className="pi pi-check-square text-green-400 text-xl"></i>
+          <div className="kpi-card shadow-1 border-registros">
+            <div className="flex align-items-center gap-2 mb-1">
+              <i className="pi pi-clone color-registros text-xs"></i>
+              <span className="kpi-label color-registros">Registros</span>
             </div>
-            <div className="kpi-subtext mt-1 text-green-200">
-              Sincronizaciones exitosas
+            <div className="flex flex-column">
+              <span className="kpi-value color-registros">
+                {totalRegistros}
+              </span>
+              <span className="kpi-subtext">Operaciones guardadas</span>
             </div>
           </div>
         </div>
 
         {/* ANULADOS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-2 p-3 border-anulados">
-            <i className="pi pi-trash kpi-icon-bg"></i>
-            <div className="flex justify-content-between">
-              <div>
-                <span className="kpi-label">Anulados</span>
-                <span className="kpi-value text-orange-400">
-                  {totalAnulados}
-                </span>
-              </div>
-              <i className="pi pi-history text-orange-400 text-xl"></i>
+          <div className="kpi-card shadow-1 border-anulados">
+            <div className="flex align-items-center gap-2 mb-1">
+              <i className="pi pi-trash color-anulados text-xs"></i>
+              <span className="kpi-label color-anulados">Anulados</span>
             </div>
-            <div className="kpi-subtext mt-1 text-orange-200">
-              Conteos descartados
+            <div className="flex flex-column">
+              <span className="kpi-value color-anulados">{totalAnulados}</span>
+              <span className="kpi-subtext">Correcciones realizadas</span>
             </div>
           </div>
         </div>
