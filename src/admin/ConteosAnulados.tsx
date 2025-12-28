@@ -41,7 +41,12 @@ export default function ConteosAnulados() {
         const res = await api.get("/api/admin/conteos-grupos");
         const lista = res.data || [];
         setGrupos(lista);
-        if (lista.length > 0) setGrupoSeleccionado(lista[0]);
+        if (lista.length > 0) {
+          // BUSCAR EL ACTIVO:
+          const activo = lista.find((g: ConteoGrupo) => g.activo === 1);
+          // Si existe el activo, seleccionarlo. Si no, el primero.
+          setGrupoSeleccionado(activo || lista[0]);
+        }
       } catch (error) {
         console.error("Error cargando grupos:", error);
       }
@@ -97,8 +102,24 @@ export default function ConteosAnulados() {
   };
 
   const grupoValueTemplate = (option: ConteoGrupo, props: DropdownProps) => {
-    if (option) return grupoOptionTemplate(option);
-    return <span>{props.placeholder}</span>;
+    if (!option) {
+      return <span>{props.placeholder}</span>;
+    }
+
+    // Usamos el mismo diseño pero asegurándonos de que se vea bien en el input
+    return (
+      <div className="flex align-items-center gap-2">
+        <span style={{ fontWeight: option.activo === 1 ? "600" : "normal" }}>
+          {option.descripcion}
+        </span>
+        {option.activo === 1 && (
+          <i
+            className="pi pi-circle-fill"
+            style={{ fontSize: "0.5rem", color: "#22c55e" }}
+          ></i>
+        )}
+      </div>
+    );
   };
 
   const formatearFecha = (value: string) =>

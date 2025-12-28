@@ -8,7 +8,7 @@ import { Button } from "primereact/button";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { Badge } from "primereact/badge";
-import { Dropdown } from "primereact/dropdown";
+import { Dropdown, type DropdownProps } from "primereact/dropdown";
 import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -51,9 +51,13 @@ export default function DashboardSaldos() {
         const data = res.data || [];
         setGrupos(data);
 
-        // seleccionar el primero por defecto
+        // LÓGICA DE SELECCIÓN INTELIGENTE
         if (data.length > 0) {
-          setGrupoSeleccionado(data[0]);
+          // Buscamos el que tenga activo === 1
+          const grupoActivo = data.find((g: ConteoGrupo) => g.activo === 1);
+
+          // Si hay uno activo lo seleccionamos, si no, tomamos el primero por defecto
+          setGrupoSeleccionado(grupoActivo || data[0]);
         }
       } catch (error) {
         console.error("Error cargando grupos:", error);
@@ -185,6 +189,29 @@ export default function DashboardSaldos() {
     );
   };
 
+  const grupoValueTemplate = (option: ConteoGrupo, props: DropdownProps) => {
+    if (!option) return <span>{props.placeholder}</span>;
+
+    return (
+      <div className="flex align-items-center gap-2">
+        <span
+          style={{
+            color: "#f8fafc", // Forzamos blanco para el valor seleccionado
+            fontWeight: option.activo === 1 ? "600" : "400",
+          }}
+        >
+          {option.descripcion}
+        </span>
+        {option.activo === 1 && (
+          <i
+            className="pi pi-circle-fill"
+            style={{ fontSize: "0.5rem", color: "#22c55e" }}
+          />
+        )}
+      </div>
+    );
+  };
+
   const header = (
     <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3">
       {/* SECCIÓN IZQUIERDA: Título, Badge y Selector */}
@@ -207,6 +234,7 @@ export default function DashboardSaldos() {
           optionLabel="descripcion"
           placeholder="Seleccionar conteo"
           itemTemplate={grupoOptionTemplate}
+          valueTemplate={grupoValueTemplate}
           className="p-inputtext-sm w-full md:w-16rem custom-dropdown-header"
           onChange={(e) => setGrupoSeleccionado(e.value)}
         />

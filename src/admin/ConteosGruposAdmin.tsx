@@ -49,17 +49,21 @@ export default function ConteosGruposAdmin() {
     const esDesactivar = row.activo === 1;
 
     confirmDialog({
-      message: `¿Desea ${esDesactivar ? "desactivar" : "activar"} el conteo "${
-        row.descripcion
-      }"?`,
-      header: "Confirmar desactivación",
+      message: esDesactivar
+        ? `¿Desea desactivar el conteo "${row.descripcion}"?`
+        : `Al activar "${row.descripcion}", se cerrarán automáticamente los demás conteos. ¿Continuar?`,
+      header: esDesactivar ? "Confirmar Bloqueo" : "Confirmar Activación",
       icon: esDesactivar ? "pi pi-exclamation-triangle" : "pi pi-info-circle",
       acceptLabel: esDesactivar ? "Sí, desactivar" : "Sí, activar",
       rejectLabel: "Cancelar",
       acceptClassName: esDesactivar ? "p-button-danger" : "p-button-success",
       accept: async () => {
         try {
-          await api.delete(`/api/admin/conteos-grupos/${row.id}`);
+          if (esDesactivar) {
+            await api.put(`/api/admin/conteos-grupos/${row.id}/desactivar`);
+          } else {
+            await api.put(`/api/admin/conteos-grupos/${row.id}/activar`);
+          }
           toast.current?.show({
             severity: "success",
             summary: esDesactivar ? "Desactivado" : "Activado",
@@ -188,12 +192,12 @@ export default function ConteosGruposAdmin() {
                 tooltip="Editar"
               />
               <Button
-                icon={row.activo ? "pi pi-lock" : "pi pi-lock-open"}
+                icon={row.activo ? "pi pi-lock-open" : "pi pi-lock"}
                 rounded
                 text
                 severity="danger"
                 onClick={() => desactivarGrupo(row)}
-                tooltip="Desactivar"
+                tooltip={row.activo ? "Bloquear" : "Desbloquear"}
                 tooltipOptions={{ position: "bottom" }}
               />
             </div>
