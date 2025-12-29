@@ -147,7 +147,7 @@ export default function ComparativaConteos() {
   ];
 
   const header = (
-    <div className="flex flex-column gap-2 md:gap-3">
+    <div className="flex flex-column gap-2 ">
       {/* FILA 1: Título y Buscador (Más compacto) */}
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-2">
         <div className="flex align-items-center gap-2">
@@ -180,9 +180,9 @@ export default function ComparativaConteos() {
       </div>
 
       {/* FILA 2: Controles de Selección (Layout Inteligente) */}
-      <div className="flex flex-column lg:flex-row gap-2 bg-gray-800 p-2 border-round-lg border-1 border-gray-700">
+      <div className="flex flex-column lg:flex-row gap-2  border-gray-700">
         {/* Panel Izquierdo: Grupos */}
-        <div className="flex-1 flex flex-column gap-1">
+        <div className="flex-1 flex flex-column gap-1 kpi-card">
           <label className="text-xs font-bold text-blue-300 uppercase ml-1">
             <i className="pi pi-filter mr-1"></i> Grupos
           </label>
@@ -195,16 +195,14 @@ export default function ComparativaConteos() {
             display="chip"
             className="w-full p-multiselect-sm border-none bg-gray-900"
             maxSelectedLabels={1}
+            selectedItemsLabel="{0} grupos seleccionados"
           />
         </div>
 
         {/* Panel Derecho: Cálculo (Solo si hay grupos) */}
         {seleccionados.length > 0 && (
-          <div className="flex-1 flex flex-column gap-1 border-top-1 lg:border-top-none lg:border-left-1 border-gray-700 pt-2 lg:pt-0 lg:pl-3">
-            <label
-              className="text-xs font-bold text-orange-300 uppercase ml-1"
-              style={{ fontSize: "10px" }}
-            >
+          <div className="flex-1 flex flex-column gap-2 kpi-card">
+            <label className="text-xs font-bold uppercase ml-1">
               <i className="pi pi-calculator mr-1"></i> Cálculo (A - B)
             </label>
             <div className="flex align-items-center gap-2">
