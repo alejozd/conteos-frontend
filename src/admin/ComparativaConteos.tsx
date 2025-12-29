@@ -193,7 +193,7 @@ export default function ComparativaConteos() {
             optionLabel="descripcion"
             placeholder="Seleccionar..."
             display="chip"
-            className="w-full p-multiselect-sm border-none bg-gray-900"
+            className="w-full p-multiselect-sm "
             maxSelectedLabels={1}
             selectedItemsLabel="{0} grupos seleccionados"
           />
@@ -214,7 +214,7 @@ export default function ComparativaConteos() {
                   setDatos([...datos]);
                 }}
                 placeholder="A"
-                className="flex-1 p-inputtext-sm border-none bg-gray-900"
+                className="flex-1 p-inputtext-sm "
               />
               <span className="text-xs font-bold text-gray-500">vs</span>
               <Dropdown
@@ -225,7 +225,7 @@ export default function ComparativaConteos() {
                   setDatos([...datos]);
                 }}
                 placeholder="B"
-                className="flex-1 p-inputtext-sm border-none bg-gray-900"
+                className="flex-1 p-inputtext-sm "
               />
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function ComparativaConteos() {
 
       {/* Indicador de comparación actual más sutil */}
       {compararA && compararB && (
-        <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 border-left-3 border-blue-500 bg-gray-800 border-round-right">
+        <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 kpi-card">
           <i className="pi pi-info-circle text-xs text-blue-400"></i>
           <small className="text-gray-400 mr-1">Análisis:</small>
           <Tag
