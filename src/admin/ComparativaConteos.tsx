@@ -3,7 +3,6 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { MultiSelect } from "primereact/multiselect";
 import { Dropdown } from "primereact/dropdown";
-import { Card } from "primereact/card";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button"; // Importar botón
 import { IconField } from "primereact/iconfield";
@@ -184,10 +183,7 @@ export default function ComparativaConteos() {
       <div className="flex flex-column lg:flex-row gap-2 bg-gray-800 p-2 border-round-lg border-1 border-gray-700">
         {/* Panel Izquierdo: Grupos */}
         <div className="flex-1 flex flex-column gap-1">
-          <label
-            className="text-xs font-bold text-blue-300 uppercase ml-1"
-            style={{ fontSize: "10px" }}
-          >
+          <label className="text-xs font-bold text-blue-300 uppercase ml-1">
             <i className="pi pi-filter mr-1"></i> Grupos
           </label>
           <MultiSelect
@@ -238,122 +234,99 @@ export default function ComparativaConteos() {
         )}
       </div>
 
-      {/* Info sutil de lo que se está viendo */}
+      {/* Indicador de comparación actual más sutil */}
       {compararA && compararB && (
-        <div className="flex align-items-center gap-2 px-2 py-1 opacity-80">
+        <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 border-left-3 border-blue-500 bg-gray-800 border-round-right">
           <i className="pi pi-info-circle text-xs text-blue-400"></i>
-          <small className="text-white text-xs">
-            Diferencia:{" "}
-            <b>
-              {opcionesDiferencia.find((o) => o.value === compararA)?.label}
-            </b>{" "}
-            menos{" "}
-            <b>
-              {opcionesDiferencia.find((o) => o.value === compararB)?.label}
-            </b>
-          </small>
+          <small className="text-gray-400 mr-1">Análisis:</small>
+          <Tag
+            value={opcionesDiferencia.find((o) => o.value === compararA)?.label}
+            severity="info"
+            className="text-xs"
+          />
+          menos{" "}
+          <Tag
+            value={opcionesDiferencia.find((o) => o.value === compararB)?.label}
+            severity="warning"
+            className="text-xs"
+          />
         </div>
       )}
     </div>
   );
 
   return (
-    <div className="comparativa-container p-2 md:p-4 bg-black-alpha-90 min-h-screen">
-      <Card
+    <div className="card">
+      <DataTable
+        value={datos}
+        loading={loading}
+        globalFilter={globalFilter}
         header={header}
-        className="bg-gray-900 border-none shadow-8 overflow-hidden"
+        emptyMessage="Selecciona al menos un grupo para comparar."
+        stripedRows
+        size="small"
+        paginator
+        rows={20}
+        rowsPerPageOptions={[20, 50, 100]}
+        scrollable
+        // scrollHeight="calc(100vh - 380px)"
+        tableStyle={{ minWidth: "50rem" }}
+        className="custom-datatable mt-2"
       >
-        {/* Indicador de comparación actual más sutil */}
-        {compararA && compararB && (
-          <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 border-left-3 border-blue-500 bg-gray-800 border-round-right">
-            <small className="text-gray-400 mr-1">Análisis:</small>
-            <Tag
-              value={
-                opcionesDiferencia.find((o) => o.value === compararA)?.label
-              }
-              severity="info"
-              className="text-xs"
-            />
-            <i className="pi pi-arrows-h text-gray-600 text-xs"></i>
-            <Tag
-              value={
-                opcionesDiferencia.find((o) => o.value === compararB)?.label
-              }
-              severity="warning"
-              className="text-xs"
-            />
-          </div>
-        )}
-        <DataTable
-          value={datos}
-          loading={loading}
-          globalFilter={globalFilter}
-          emptyMessage="Selecciona al menos un grupo para comparar."
-          stripedRows
-          size="small"
-          paginator
-          rows={20}
-          rowsPerPageOptions={[20, 50, 100]}
-          scrollable
-          // scrollHeight="calc(100vh - 380px)"
-          tableStyle={{ minWidth: "50rem" }}
-          className="custom-datatable mt-2"
-        >
-          <Column
-            field="referencia"
-            header="Referencia"
-            sortable
-            frozen
-            style={{ width: "140px" }}
-            className="font-bold"
-          />
-          <Column
-            field="nombre"
-            header="Producto"
-            sortable
-            frozen
-            style={{ width: "280px" }}
-          />
-          <Column
-            field="saldo_sistema"
-            header="Saldo ERP"
-            body={(row) => (
-              <span className="text-blue-400 font-bold">
-                {Number(row.saldo_sistema).toFixed(2)}
-              </span>
-            )}
-            sortable
-          />
-
-          {seleccionados.map((grupo) => (
-            <Column
-              key={grupo.id}
-              header={grupo.descripcion}
-              body={(row) => Number(row[`c_${grupo.id}`] || 0).toFixed(2)}
-              sortable
-            />
-          ))}
-
-          {seleccionados.length > 0 && (
-            <Column
-              key={`dif-col-${compararA}-${compararB}`}
-              header="Dif. Comparativa"
-              field={`diff_${compararA}_${compararB}`}
-              body={(row: ProductoComparativo) => {
-                const dif = calcularDiferencia(row);
-                return (
-                  <Tag
-                    severity={dif === 0 ? "success" : "danger"}
-                    value={dif.toFixed(2)}
-                    style={{ fontSize: "1rem" }}
-                  />
-                );
-              }}
-              sortable
-            />
+        <Column
+          field="referencia"
+          header="Referencia"
+          sortable
+          frozen
+          style={{ width: "140px" }}
+          className="font-bold"
+        />
+        <Column
+          field="nombre"
+          header="Producto"
+          sortable
+          frozen
+          style={{ width: "280px" }}
+        />
+        <Column
+          field="saldo_sistema"
+          header="Saldo ERP"
+          body={(row) => (
+            <span className="text-blue-400 font-bold">
+              {Number(row.saldo_sistema).toFixed(2)}
+            </span>
           )}
-        </DataTable>
-      </Card>
+          sortable
+        />
+
+        {seleccionados.map((grupo) => (
+          <Column
+            key={grupo.id}
+            header={grupo.descripcion}
+            body={(row) => Number(row[`c_${grupo.id}`] || 0).toFixed(2)}
+            sortable
+          />
+        ))}
+
+        {seleccionados.length > 0 && (
+          <Column
+            key={`dif-col-${compararA}-${compararB}`}
+            header="Dif. Comparativa"
+            field={`diff_${compararA}_${compararB}`}
+            body={(row: ProductoComparativo) => {
+              const dif = calcularDiferencia(row);
+              return (
+                <Tag
+                  severity={dif === 0 ? "success" : "danger"}
+                  value={dif.toFixed(2)}
+                  style={{ fontSize: "1rem" }}
+                />
+              );
+            }}
+            sortable
+          />
+        )}
+      </DataTable>
     </div>
   );
 }
