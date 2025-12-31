@@ -42,3 +42,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.bg-blue-900-alpha-20 {
+    background-color: rgba(30, 58, 138, 0.2) !important;
+}
+.bg-orange-900-alpha-20 {
+    background-color: rgba(124, 45, 18, 0.2) !important;
+}

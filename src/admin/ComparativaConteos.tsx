@@ -271,6 +271,7 @@ export default function ComparativaConteos() {
         tableStyle={{ minWidth: "50rem" }}
         className="custom-datatable mt-2"
       >
+        {/* 1. Columnas estáticas iniciales */}
         <Column
           field="referencia"
           header="Referencia"
@@ -286,31 +287,62 @@ export default function ComparativaConteos() {
           frozen
           style={{ width: "280px" }}
         />
-        <Column
-          field="saldo_sistema"
-          header="Saldo ERP"
-          body={(row) => (
-            <span className="text-blue-400 font-bold">
-              {Number(row.saldo_sistema).toFixed(2)}
-            </span>
-          )}
-          sortable
-        />
-
-        {seleccionados.map((grupo) => (
+        {/* 2. Saldo ERP: Solo se muestra aquí si NO es parte del cálculo actual o si A es ERP */}
+        {/* 2. Saldo ERP: Se muestra al inicio SOLO si es el Valor A o si no participa en la resta */}
+        {String(compararA) === "erp" ||
+        (String(compararA) !== "erp" && String(compararB) !== "erp") ? (
           <Column
-            key={grupo.id}
-            header={grupo.descripcion}
-            body={(row) => Number(row[`c_${grupo.id}`] || 0).toFixed(2)}
+            field="saldo_sistema"
+            header="Saldo ERP"
+            body={(row) => (
+              <span className="text-blue-400 font-bold">
+                {Number(row.saldo_sistema).toFixed(2)}
+              </span>
+            )}
             sortable
           />
-        ))}
+        ) : null}
 
+        {/* 3. Columnas de Conteos: Reordenadas dinámicamente */}
+        {seleccionados
+          .slice() // Copia para no mutar el estado original
+          .sort((a, b) => {
+            if (a.id === compararA) return -1;
+            if (b.id === compararA) return 1;
+            if (a.id === compararB) return -1;
+            if (b.id === compararB) return 1;
+            return 0;
+          })
+          .map((grupo) => (
+            <Column
+              key={grupo.id}
+              header={grupo.descripcion}
+              body={(row) => Number(row[`c_${grupo.id}`] || 0).toFixed(2)}
+              sortable
+              // Estilo opcional para resaltar el orden A -> B
+              className={grupo.id === compararA ? "bg-blue-900-alpha-10" : ""}
+            />
+          ))}
+
+        {/* 4. Saldo ERP: Se muestra al final SOLO si es el Valor B */}
+        {String(compararB) === "erp" && (
+          <Column
+            field="saldo_sistema"
+            header="Saldo ERP"
+            body={(row) => (
+              <span className="text-blue-400 font-bold">
+                {Number(row.saldo_sistema).toFixed(2)}
+              </span>
+            )}
+            sortable
+          />
+        )}
+
+        {/* 5. Columna de Diferencia (Siempre al final) */}
         {seleccionados.length > 0 && (
           <Column
             key={`dif-col-${compararA}-${compararB}`}
             header="Dif. Comparativa"
-            field={`diff_${compararA}_${compararB}`}
             body={(row: ProductoComparativo) => {
               const dif = calcularDiferencia(row);
               return (
