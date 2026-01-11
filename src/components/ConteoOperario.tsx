@@ -101,20 +101,27 @@ export default function ConteoOperario() {
 
   // 1. Cargar ubicaciones =========================
   useEffect(() => {
-    const fetchBodegas = async () => {
+    const fetchBodegasAsignadas = async () => {
       try {
-        const res = await api.get("/api/bodegas/listar");
-        setBodegas(res.data);
+        // CAMBIO: Ahora llamamos a /api/asignacion/mis-bodegas
+        const res = await api.get("/api/asignacion/mis-bodegas");
+        const data = res.data || [];
+        setBodegas(data);
+
+        // OPCIONAL: Si solo tiene una bodega asignada, seleccionarla de una vez
+        if (data.length === 1) {
+          setBodegaSeleccionada(data[0]);
+        }
       } catch {
         toast.current?.show({
           severity: "error",
           summary: "Error",
-          detail: "No se pudieron cargar las bodegas",
+          detail: "No se pudieron cargar tus bodegas asignadas",
         });
       }
     };
 
-    fetchBodegas();
+    fetchBodegasAsignadas();
   }, []);
 
   useEffect(() => {
@@ -124,29 +131,33 @@ export default function ConteoOperario() {
       return;
     }
 
-    const fetchUbicaciones = async () => {
+    const fetchUbicacionesAsignadas = async () => {
       try {
+        // USAMOS EL NUEVO ENDPOINT DE ASIGNACIONES
         const res = await api.get(
-          `/api/ubicaciones/listar?bodegaId=${bodegaSeleccionada.id}`
+          `/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`
         );
+
         const data: Ubicacion[] = res.data || [];
         setUbicaciones(data);
 
-        if (data.length > 0) {
+        // Si solo tiene una ubicación en esta bodega, se la seleccionamos automáticamente
+        if (data.length === 1) {
           setUbicacionSeleccionada(data[0]);
         } else {
           setUbicacionSeleccionada(null);
         }
-      } catch {
+      } catch (error) {
+        console.error("Error cargando ubicaciones asignadas:", error);
         toast.current?.show({
           severity: "error",
           summary: "Error",
-          detail: "No se pudieron cargar las ubicaciones",
+          detail: "No se pudieron cargar tus ubicaciones asignadas",
         });
       }
     };
 
-    fetchUbicaciones();
+    fetchUbicacionesAsignadas();
   }, [bodegaSeleccionada]);
 
   // 2. Buscar productos =========================
