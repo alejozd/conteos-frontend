@@ -18,6 +18,7 @@ import BodegasPage from "./admin/BodegasPage";
 import UbicacionesPage from "./admin/UbicacionesPage";
 import ConteosGruposAdmin from "./admin/ConteosGruposAdmin";
 import ComparativaConteos from "./admin/ComparativaConteos";
+import AsignacionTareas from "./admin/AsignacionTareas";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -83,6 +84,7 @@ function App() {
             <Route path="bodegas" element={<BodegasPage />} />
             <Route path="ubicaciones" element={<UbicacionesPage />} />
             <Route path="conteos-grupos" element={<ConteosGruposAdmin />} />
+            <Route path="asignacion-tareas" element={<AsignacionTareas />} />
           </Route>
 
           {/* Si ponen cualquier ruta no válida */}

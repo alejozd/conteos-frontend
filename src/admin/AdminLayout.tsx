@@ -24,6 +24,11 @@ export default function AdminLayout() {
           command: () => navigate("/admin/conteos-grupos"),
         },
         {
+          label: "Asignación de Tareas", // Nueva opción
+          icon: "pi pi-users",
+          command: () => navigate("/admin/asignacion-tareas"),
+        },
+        {
           label: "Comparativo de Conteos", // Nueva opción
           icon: "pi pi-arrows-h",
           command: () => navigate("/admin/comparativa-conteos"),

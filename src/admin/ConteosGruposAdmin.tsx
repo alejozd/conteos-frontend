@@ -8,6 +8,7 @@ import { InputText } from "primereact/inputtext";
 import { Tag } from "primereact/tag";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import ConteoGrupoDialog from "./ConteoGrupoDialog";
 
@@ -20,6 +21,7 @@ interface ConteoGrupoRow {
 }
 
 export default function ConteosGruposAdmin() {
+  const navigate = useNavigate();
   const [data, setData] = useState<ConteoGrupoRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -198,6 +200,17 @@ export default function ConteosGruposAdmin() {
                 severity="danger"
                 onClick={() => desactivarGrupo(row)}
                 tooltip={row.activo ? "Bloquear" : "Desbloquear"}
+                tooltipOptions={{ position: "bottom" }}
+              />
+              <Button
+                icon="pi pi-users"
+                rounded
+                text
+                severity="warning"
+                onClick={() =>
+                  navigate(`/admin/asignacion-tareas?grupoId=${row.id}`)
+                }
+                tooltip="Asignar Operarios"
                 tooltipOptions={{ position: "bottom" }}
               />
             </div>
