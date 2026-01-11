@@ -14,9 +14,8 @@ import {
   type AutoCompleteSelectEvent,
   type AutoCompleteCompleteEvent,
 } from "primereact/autocomplete";
-
 import { Dropdown, type DropdownChangeEvent } from "primereact/dropdown";
-
+import axios from "axios";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { ProgressSpinner } from "primereact/progressspinner";
@@ -256,39 +255,18 @@ export default function ConteoOperario() {
   };
 
   const guardar = async () => {
-    // VALIDACIONES =====================
-    if (!productoSeleccionado) {
+    // VALIDACIONES INTERNAS
+    if (
+      !productoSeleccionado ||
+      !bodegaSeleccionada ||
+      !ubicacionSeleccionada ||
+      cantidad === null ||
+      cantidad <= 0
+    ) {
       toast.current?.show({
         severity: "warn",
-        summary: "Producto requerido",
-        detail: "Debes seleccionar un producto antes de continuar",
-      });
-      return;
-    }
-
-    if (cantidad === null || cantidad <= 0) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Cantidad inválida",
-        detail: "La cantidad debe ser mayor a 0",
-      });
-      return;
-    }
-
-    if (!bodegaSeleccionada) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Bodega requerida",
-        detail: "Selecciona una bodega",
-      });
-      return;
-    }
-
-    if (!ubicacionSeleccionada) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Ubicación requerida",
-        detail: "Selecciona una ubicación",
+        summary: "Faltan datos",
+        detail: "Completa el formulario correctamente",
       });
       return;
     }
@@ -316,14 +294,21 @@ export default function ConteoOperario() {
       setResultadosProductos([]);
     } catch (error) {
       let msg = "No se pudo guardar el conteo";
-      if (error instanceof Error) {
-        msg = error.message;
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          msg = error.response.data.message || "El conteo ya no está activo.";
+          toast.current?.show({
+            severity: "error",
+            summary: "Conteo Inactivo",
+            detail: msg,
+            life: 5000,
+          });
+          setTimeout(() => navigate("/post-login"), 3000);
+          return;
+        }
+        msg = error.response?.data?.message || msg;
       }
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: msg,
-      });
+      toast.current?.show({ severity: "error", summary: "Error", detail: msg });
     } finally {
       setLoading(false);
     }
