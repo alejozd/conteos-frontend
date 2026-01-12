@@ -18,7 +18,8 @@ interface UsuarioRow {
   username: string;
   role: "admin" | "user";
   activo: number;
-  empresa: string | null;
+  empresa_id?: number;
+  empresa?: string | null;
 }
 
 export default function UsuariosAdmin() {

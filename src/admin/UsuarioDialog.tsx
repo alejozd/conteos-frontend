@@ -5,6 +5,8 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
 
 interface UsuarioRow {
@@ -12,6 +14,7 @@ interface UsuarioRow {
   username: string;
   role: "admin" | "user";
   empresa_id?: number;
+  empresa?: string | null;
 }
 
 interface Props {
@@ -33,22 +36,28 @@ export default function UsuarioDialog({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
-  const [empresaId, setEmpresaId] = useState<number>(1);
   const [guardando, setGuardando] = useState(false);
+
+  const authContext = useContext(AuthContext);
+  const adminLogueado = authContext?.user;
+
+  // Priorizamos el nombre que venga del registro, si no, el del admin logueado
+  const nombreEmpresa =
+    esEdicion && usuario?.empresa
+      ? usuario.empresa
+      : adminLogueado?.empresa_nombre || "Mi Empresa";
 
   useEffect(() => {
     if (usuario) {
       setUsername(usuario.username);
       setRole(usuario.role);
-      setEmpresaId(usuario.empresa_id ?? 1);
       setPassword("");
     } else {
       setUsername("");
       setPassword("");
       setRole("user");
-      setEmpresaId(1);
     }
-  }, [usuario]);
+  }, [usuario, visible]);
 
   const guardar = async () => {
     if (!username.trim()) {
@@ -72,18 +81,23 @@ export default function UsuarioDialog({
     try {
       setGuardando(true);
 
+      // Siempre usamos el empresa_id del administrador para nuevos, o el del usuario para edición
+      const idEmpresaFinal = esEdicion
+        ? usuario?.empresa_id
+        : adminLogueado?.empresa_id;
+
+      const payload = {
+        role,
+        empresa_id: idEmpresaFinal,
+        password: password || undefined,
+      };
+
       if (esEdicion) {
-        await api.put(`/api/admin/usuarios/${usuario!.id}`, {
-          role,
-          empresa_id: empresaId,
-          password: password || undefined,
-        });
+        await api.put(`/api/admin/usuarios/${usuario!.id}`, payload);
       } else {
         await api.post("/api/admin/usuarios", {
+          ...payload,
           username,
-          password,
-          role,
-          empresa_id: empresaId,
         });
       }
 
@@ -97,16 +111,9 @@ export default function UsuarioDialog({
 
       onSuccess();
       onHide();
-    } catch (error) {
-      let msg = "No se pudo guardar el usuario";
-      if (error instanceof Error) {
-        msg = error.message;
-      }
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: msg,
-      });
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Error al guardar";
+      toast.current?.show({ severity: "error", summary: "Error", detail: msg });
     } finally {
       setGuardando(false);
     }
@@ -117,8 +124,7 @@ export default function UsuarioDialog({
       header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
       visible={visible}
       modal
-      style={{ width: "40vw", maxWidth: "600px" }}
-      breakpoints={{ "960px": "75vw", "640px": "95vw" }}
+      style={{ width: "90vw", maxWidth: "500px" }}
       onHide={onHide}
       footer={
         <div className="flex justify-content-end gap-2">
@@ -139,10 +145,9 @@ export default function UsuarioDialog({
     >
       <Toast ref={toast} />
 
-      {/* Añadimos mt-4 para dar espacio al primer label flotante */}
-      <div className="grid p-fluid mt-4">
-        {/* Usamos mb-5 para dar aire entre filas para que el label no choque */}
-        <div className="col-12 mb-5">
+      <div className="grid p-fluid mt-3">
+        {/* Usuario - Ancho completo */}
+        <div className="col-12 mb-4">
           <span className="p-float-label">
             <InputText
               id="username"
@@ -150,13 +155,12 @@ export default function UsuarioDialog({
               disabled={esEdicion}
               onChange={(e) => setUsername(e.target.value)}
             />
-            <label htmlFor="username" className="font-semibold text-700">
-              Usuario
-            </label>
+            <label htmlFor="username">Usuario</label>
           </span>
         </div>
 
-        <div className="col-12 mb-5">
+        {/* Contraseña - Ancho completo */}
+        <div className="col-12 mb-4">
           <span className="p-float-label">
             <InputText
               id="password"
@@ -165,13 +169,14 @@ export default function UsuarioDialog({
               onChange={(e) => setPassword(e.target.value)}
               placeholder={esEdicion ? "Dejar vacío para no cambiar" : ""}
             />
-            <label htmlFor="password" className="font-semibold text-700">
+            <label htmlFor="password">
               {esEdicion ? "Nueva contraseña" : "Contraseña"}
             </label>
           </span>
         </div>
 
-        <div className="col-12 md:col-6 mb-5">
+        {/* Rol - Mitad de ancho */}
+        <div className="col-12 md:col-5 mb-4">
           <span className="p-float-label">
             <Dropdown
               id="role"
@@ -180,21 +185,32 @@ export default function UsuarioDialog({
                 { label: "Administrador", value: "admin" },
                 { label: "Usuario", value: "user" },
               ]}
-              onChange={(e) => setRole(e.value)} // <--- Faltaba esto
+              onChange={(e) => setRole(e.value)}
             />
-            <label htmlFor="role" className="font-semibold text-700">
-              Rol
-            </label>
+            <label htmlFor="role">Rol</label>
           </span>
         </div>
 
-        <div className="col-12 md:col-6 mb-5">
-          <span className="p-float-label">
-            <InputText id="empresa" value="Empresa principal" disabled />
-            <label htmlFor="empresa" className="font-semibold text-700">
-              Empresa
-            </label>
-          </span>
+        {/* Empresa - Mitad de ancho restante (col-7 para dar más espacio al texto largo) */}
+        <div className="col-12 md:col-7 mb-4">
+          <label
+            htmlFor="empresa"
+            className="block text-sm mb-1 text-700 font-semibold"
+          >
+            Empresa
+          </label>
+          <div
+            className="p-2 border-round surface-200 text-800 font-medium"
+            style={{
+              minHeight: "38px",
+              fontSize: "0.9rem",
+              overflowX: "auto",
+              whiteSpace: "nowrap",
+              border: "1px solid #ced4da",
+            }}
+          >
+            {nombreEmpresa}
+          </div>
         </div>
       </div>
     </Dialog>
