@@ -123,30 +123,66 @@ export default function AsignacionTareas() {
 
   // 3. Finalizar por BODEGA (lo que está en el resumen)
   const finalizarPorBodega = (bodegaId: number, bodegaNombre: string) => {
+    // 1. Verificación detallada para saber qué falta
+    if (!usuarioSel?.id || !grupoSel?.id || !bodegaId) {
+      console.error("DEBUG - Faltan datos:", {
+        usuario: usuarioSel?.id,
+        grupo: grupoSel?.id,
+        bodega: bodegaId,
+      });
+
+      toast.current?.show({
+        severity: "warn",
+        summary: "Atención",
+        detail:
+          "Seleccione primero un Grupo y un Operario en los selectores superiores.",
+      });
+      return;
+    }
+
     confirmDialog({
-      message: `¿Estás seguro de finalizar TODAS las ubicaciones de la bodega ${bodegaNombre} para este operario?`,
-      header: "Finalizar Asignaciones de Bodega",
+      message: `¿Estás seguro de finalizar TODAS las ubicaciones de ${bodegaNombre}?`,
+      header: "Confirmar Finalización",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
       accept: async () => {
         try {
-          // El endpoint debe recibir usuario, grupo y bodega para marcar como finalizado (estado 1)
-          await api.put(`/api/asignacion/admin/finalizar-bodega`, {
-            usuarioId: usuarioSel?.id,
-            grupoId: grupoSel?.id,
-            bodegaId: bodegaId,
-          });
+          // Tipado explícito para evitar 'any'
+          const payload: {
+            usuarioId: number;
+            grupoId: number;
+            bodegaId: number;
+          } = {
+            usuarioId: Number(usuarioSel.id),
+            grupoId: Number(grupoSel.id),
+            bodegaId: Number(bodegaId),
+          };
+
+          await api.put("/api/asignacion/admin/finalizar-bodega", payload);
+
           toast.current?.show({
             severity: "success",
             summary: "Éxito",
-            detail: "Bodega finalizada",
+            detail: `Bodega ${bodegaNombre} finalizada correctamente.`,
           });
-          refrescarTodo();
-        } catch (err) {
+
+          // Limpiar el panel derecho si es la bodega que estamos editando actualmente
+          if (bodegaSel?.id === bodegaId) {
+            setAsignadas([]);
+          }
+
+          // Refrescar los tags azules y las listas
+          await refrescarTodo();
+        } catch (err: unknown) {
+          // Manejo de errores sin 'any'
+          const error = err as { response?: { data?: { message?: string } } };
+          const mensaje =
+            error.response?.data?.message || "Error desconocido en el servidor";
+
           toast.current?.show({
             severity: "error",
             summary: "Error",
-            detail: "No se pudo finalizar, " + err,
+            detail: mensaje,
           });
         }
       },
