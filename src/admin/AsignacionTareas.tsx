@@ -37,6 +37,7 @@ interface Bodega {
   nombre: string;
 }
 interface ResumenAsignacion {
+  bodega_id: number;
   bodega_nombre: string;
   total_ubicaciones: number;
 }
@@ -88,70 +89,65 @@ export default function AsignacionTareas() {
 
   // 2. Refrescar listas y resumen
   const refrescarTodo = async () => {
-    if (!usuarioSel || !grupoSel || !bodegaSel) return;
-
+    if (!usuarioSel || !grupoSel) return;
     try {
-      // Ejecutamos las peticiones en paralelo para mejor rendimiento
-      const [resResumen, resAsig, resTodas] = await Promise.all([
-        api.get<ResumenAsignacion[]>(
-          `/api/asignacion/admin/resumen-usuario?usuarioId=${usuarioSel.id}&grupoId=${grupoSel.id}`
-        ),
-        api.get<Ubicacion[]>(
-          `/api/asignacion/admin/ubicaciones-usuario?usuarioId=${usuarioSel.id}&bodegaId=${bodegaSel.id}`
-        ),
-        api.get<Ubicacion[]>(
-          `/api/ubicaciones/listar?bodegaId=${bodegaSel.id}`
-        ),
-      ]);
-
+      const resResumen = await api.get<ResumenAsignacion[]>(
+        `/api/asignacion/admin/resumen-usuario?usuarioId=${usuarioSel.id}&grupoId=${grupoSel.id}`
+      );
       setResumenCarga(resResumen.data);
 
-      const actuales = resAsig.data || [];
-      const todas = resTodas.data || [];
-
-      // Mapeo seguro sin usar 'any'
-      const idsAsignados = new Set(actuales.map((a: Ubicacion) => a.id));
-
-      setAsignadas(actuales);
-      setDisponibles(todas.filter((u: Ubicacion) => !idsAsignados.has(u.id)));
+      if (bodegaSel) {
+        const [resAsig, resTodas] = await Promise.all([
+          api.get<Ubicacion[]>(
+            `/api/asignacion/admin/ubicaciones-usuario?usuarioId=${usuarioSel.id}&bodegaId=${bodegaSel.id}`
+          ),
+          api.get<Ubicacion[]>(
+            `/api/ubicaciones/listar?bodegaId=${bodegaSel.id}`
+          ),
+        ]);
+        const actuales = resAsig.data || [];
+        const todas = resTodas.data || [];
+        const idsAsignados = new Set(actuales.map((a: Ubicacion) => a.id));
+        setAsignadas(actuales);
+        setDisponibles(todas.filter((u: Ubicacion) => !idsAsignados.has(u.id)));
+      }
     } catch (err) {
-      console.error("Error al refrescar datos:", err);
+      console.error("Error al refrescar:", err);
     }
   };
 
   useEffect(() => {
-    const ejecutarCarga = async () => {
-      // Solo disparamos la petición si tenemos los datos necesarios
-      if (bodegaSel && usuarioSel && grupoSel) {
-        await refrescarTodo();
-      }
-    };
-
-    ejecutarCarga();
+    if (usuarioSel && grupoSel) refrescarTodo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bodegaSel?.id, usuarioSel?.id, grupoSel?.id]);
 
-  const confirmarCambioEstado = (ubicacion: Ubicacion) => {
+  // 3. Finalizar por BODEGA (lo que está en el resumen)
+  const finalizarPorBodega = (bodegaId: number, bodegaNombre: string) => {
     confirmDialog({
-      message: `¿Finalizar '${ubicacion.nombre}'?`,
-      header: "Confirmar",
+      message: `¿Estás seguro de finalizar TODAS las ubicaciones de la bodega ${bodegaNombre} para este operario?`,
+      header: "Finalizar Asignaciones de Bodega",
       icon: "pi pi-exclamation-triangle",
       acceptClassName: "p-button-danger",
-      acceptLabel: "Sí, Finalizar",
-      rejectLabel: "No",
       accept: async () => {
         try {
-          await api.put(`/api/asignacion/admin/estado/${ubicacion.id}`, {
-            nuevoEstado: 1,
+          // El endpoint debe recibir usuario, grupo y bodega para marcar como finalizado (estado 1)
+          await api.put(`/api/asignacion/admin/finalizar-bodega`, {
+            usuarioId: usuarioSel?.id,
+            grupoId: grupoSel?.id,
+            bodegaId: bodegaId,
           });
           toast.current?.show({
             severity: "success",
             summary: "Éxito",
-            detail: "Ubicación cerrada",
+            detail: "Bodega finalizada",
           });
           refrescarTodo();
         } catch (err) {
-          console.error(err);
+          toast.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: "No se pudo finalizar, " + err,
+          });
         }
       },
     });
@@ -178,38 +174,15 @@ export default function AsignacionTareas() {
     }
   };
 
-  // TEMPLATE COMPACTO
-  const itemTemplate = (item: Ubicacion, type: "source" | "target") => {
-    return (
-      <div
-        className="flex align-items-center justify-content-between w-full"
-        style={{ padding: "0px", margin: "0px", lineHeight: "1" }}
-      >
-        <div className="flex align-items-center">
-          <i
-            className="pi pi-map-marker mr-2 text-primary"
-            style={{ fontSize: "0.75rem" }}
-          />
-          <span style={{ fontSize: "0.85rem", whiteSpace: "nowrap" }}>
-            {item.nombre}
-          </span>
-        </div>
-        {type === "target" && (
-          <Button
-            icon="pi pi-check"
-            className="p-button-rounded p-button-success p-button-text p-0"
-            style={{ width: "1.2rem", height: "1.2rem" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              confirmarCambioEstado(item);
-            }}
-            tooltip="Finalizar"
-            tooltipOptions={{ position: "top" }}
-          />
-        )}
-      </div>
-    );
-  };
+  const itemTemplate = (item: Ubicacion) => (
+    <div className="flex align-items-center w-full" style={{ lineHeight: "1" }}>
+      <i
+        className="pi pi-map-marker mr-2 text-primary"
+        style={{ fontSize: "0.75rem" }}
+      />
+      <span style={{ fontSize: "0.85rem" }}>{item.nombre}</span>
+    </div>
+  );
 
   return (
     <div className="p-3">
@@ -272,7 +245,7 @@ export default function AsignacionTareas() {
           </div>
         </div>
 
-        {/* 2. RESUMEN AZUL */}
+        {/* 2. RESUMEN AZUL CON BOTÓN DE FINALIZAR */}
         {usuarioSel && resumenCarga.length > 0 && (
           <div className="mb-3 p-3 border-round bg-gray-800 text-white shadow-2">
             <div className="flex align-items-center mb-2">
@@ -283,18 +256,31 @@ export default function AsignacionTareas() {
             </div>
             <div className="flex flex-wrap gap-2">
               {resumenCarga.map((item, index) => (
-                <Tag
+                <div
                   key={index}
-                  severity="info"
-                  value={`${item.bodega_nombre}: ${item.total_ubicaciones}`}
-                  style={{ fontSize: "0.75rem" }}
-                />
+                  className="flex align-items-center bg-blue-600 border-round pr-2"
+                >
+                  <Tag
+                    severity="info"
+                    value={`${item.bodega_nombre}: ${item.total_ubicaciones} ubic.`}
+                    // style={{ background: "transparent" }}
+                  />
+                  <Button
+                    icon="pi pi-check-circle"
+                    className="p-button-rounded p-button-text p-button-plain text-white p-0 ml-1"
+                    style={{ width: "1.2rem", height: "1.2rem" }}
+                    tooltip="Finalizar esta bodega"
+                    onClick={() =>
+                      finalizarPorBodega(item.bodega_id, item.bodega_nombre)
+                    }
+                  />
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* 3. PICKLIST (SIN CARD INTERNO) */}
+        {/* 3. PICKLIST */}
         <div className="mt-2">
           <PickList
             dataKey="id"
@@ -304,23 +290,16 @@ export default function AsignacionTareas() {
               setDisponibles(e.source);
               setAsignadas(e.target);
             }}
-            itemTemplate={(item) =>
-              itemTemplate(
-                item,
-                asignadas.some((a) => a.id === item.id) ? "target" : "source"
-              )
-            }
+            itemTemplate={itemTemplate}
             sourceHeader="Disponibles"
             targetHeader="Asignadas"
             sourceStyle={{ height: "25rem" }}
             targetStyle={{ height: "25rem" }}
             showSourceControls={false}
             showTargetControls={false}
-            breakpoint="960px"
           />
         </div>
 
-        {/* 4. BOTÓN GUARDAR */}
         <div className="flex justify-content-end mt-4">
           <Button
             label="Guardar Cambios"
