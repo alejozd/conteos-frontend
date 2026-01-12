@@ -19,6 +19,7 @@ import UbicacionesPage from "./admin/UbicacionesPage";
 import ConteosGruposAdmin from "./admin/ConteosGruposAdmin";
 import ComparativaConteos from "./admin/ComparativaConteos";
 import AsignacionTareas from "./admin/AsignacionTareas";
+import SinGrupos from "./components/SinGrupos";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -37,6 +38,14 @@ function App() {
             element={
               <PrivateRoute>
                 <PostLogin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/sin-grupos"
+            element={
+              <PrivateRoute>
+                <SinGrupos />
               </PrivateRoute>
             }
           />
