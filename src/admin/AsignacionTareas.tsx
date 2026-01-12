@@ -8,6 +8,7 @@ import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { Toast } from "primereact/toast";
 import { useAuth } from "../hooks/useAuth";
+import { Tag } from "primereact/tag";
 import api from "../services/api";
 
 // INTERFACES ============================
@@ -35,6 +36,11 @@ interface Bodega {
   nombre: string;
 }
 
+interface ResumenAsignacion {
+  bodega_nombre: string;
+  total_ubicaciones: number;
+}
+
 export default function AsignacionTareas() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -48,6 +54,7 @@ export default function AsignacionTareas() {
   const [bodegaSel, setBodegaSel] = useState<Bodega | null>(null);
   const [disponibles, setDisponibles] = useState<Ubicacion[]>([]);
   const [asignadas, setAsignadas] = useState<Ubicacion[]>([]);
+  const [resumenCarga, setResumenCarga] = useState<ResumenAsignacion[]>([]);
   const { user } = useAuth();
   const toast = useRef<Toast>(null);
 
@@ -116,29 +123,52 @@ export default function AsignacionTareas() {
     setAsignadas([]);
   };
 
+  useEffect(() => {
+    // Definimos una función interna para que React entienda que es un proceso asíncrono controlado
+    const fetchResumen = async () => {
+      if (usuarioSel && grupoSel) {
+        try {
+          const res = await api.get<ResumenAsignacion[]>(
+            `/api/asignacion/admin/resumen-usuario?usuarioId=${usuarioSel.id}&grupoId=${grupoSel.id}`
+          );
+          setResumenCarga(res.data);
+        } catch (err) {
+          console.error("Error al cargar resumen", err);
+        }
+      } else {
+        setResumenCarga([]); // Limpia el resumen si no hay selección
+      }
+    };
+
+    fetchResumen();
+  }, [usuarioSel, grupoSel]);
+
   const handleGuardar = async () => {
     if (!usuarioSel || !grupoSel || !bodegaSel) return;
 
     try {
+      // Usamos el endpoint que ya tienes: guardarMasivoAdmin
       await api.post("/api/asignacion/guardar-masivo", {
         usuario_id: usuarioSel.id,
         conteo_grupo_id: grupoSel.id,
         bodega_id: bodegaSel.id,
         ubicaciones: asignadas.map((u) => u.id),
-        // ENVIAMOS EL EMPRESA_ID desde el usuario logueado
         empresa_id: user?.empresa_id,
       });
 
       toast.current?.show({
         severity: "success",
-        summary: "Éxito",
-        detail: "Asignaciones guardadas correctamente",
+        summary: "Sincronizado",
+        detail: `Tareas de ${usuarioSel.nombre} actualizadas en ${bodegaSel.nombre}`,
       });
+
+      // OPCIONAL: Podrías volver a disparar la carga de ubicaciones
+      // para confirmar que lo que quedó en la DB es lo que ves en pantalla
     } catch (err) {
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "No se pudo guardar, " + String(err),
+        detail: "No se pudo sincronizar la asignación, " + err,
       });
     }
   };
@@ -199,6 +229,34 @@ export default function AsignacionTareas() {
             />
           </div>
         </div>
+
+        {/* Panel de Resumen de Carga */}
+        {usuarioSel && resumenCarga.length > 0 && (
+          <div className="mb-4">
+            <div className="p-3 border-round bg-gray-800 text-white shadow-2">
+              <div className="flex align-items-center mb-2">
+                <i className="pi pi-briefcase mr-2 text-blue-400" />
+                <span className="font-bold">
+                  Distribución de tareas (Bodegas) para {usuarioSel.nombre}:
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {resumenCarga.map((item, index) => (
+                  <Tag
+                    key={index}
+                    severity="info"
+                    value={`${item.bodega_nombre}: ${item.total_ubicaciones} ubicaciones`}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                ))}
+              </div>
+              <small className="block mt-2 text-gray-400 italic">
+                * Selecciona una bodega para editar sus ubicaciones en el
+                PickList.
+              </small>
+            </div>
+          </div>
+        )}
 
         <div className="mt-4">
           <PickList
