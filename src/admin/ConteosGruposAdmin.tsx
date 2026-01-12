@@ -51,11 +51,12 @@ export default function ConteosGruposAdmin() {
     const esDesactivar = row.activo === 1;
 
     confirmDialog({
+      // MENSAJE ACTUALIZADO: Eliminamos la advertencia de que otros se cerrarán
       message: esDesactivar
-        ? `¿Desea desactivar el conteo "${row.descripcion}"?`
-        : `Al activar "${row.descripcion}", se cerrarán automáticamente los demás conteos. ¿Continuar?`,
-      header: esDesactivar ? "Confirmar Bloqueo" : "Confirmar Activación",
-      icon: esDesactivar ? "pi pi-exclamation-triangle" : "pi pi-info-circle",
+        ? `¿Desea desactivar el grupo "${row.descripcion}"?`
+        : `¿Desea activar el grupo "${row.descripcion}" para permitir nuevas asignaciones?`,
+      header: esDesactivar ? "Confirmar Desactivación" : "Confirmar Activación",
+      icon: esDesactivar ? "pi pi-lock" : "pi pi-lock-open",
       acceptLabel: esDesactivar ? "Sí, desactivar" : "Sí, activar",
       rejectLabel: "Cancelar",
       acceptClassName: esDesactivar ? "p-button-danger" : "p-button-success",
@@ -66,9 +67,10 @@ export default function ConteosGruposAdmin() {
           } else {
             await api.put(`/api/admin/conteos-grupos/${row.id}/activar`);
           }
+
           toast.current?.show({
             severity: "success",
-            summary: esDesactivar ? "Desactivado" : "Activado",
+            summary: esDesactivar ? "Inactivado" : "Activado",
             detail: `El grupo fue ${
               esDesactivar ? "desactivado" : "activado"
             } correctamente`,
@@ -76,11 +78,11 @@ export default function ConteosGruposAdmin() {
           });
           cargarGrupos();
         } catch (error) {
-          console.error("Error al desactivar el grupo:", error);
+          console.error("Error al cambiar estado del grupo:", error);
           toast.current?.show({
             severity: "error",
             summary: "Error",
-            detail: "No se pudo desactivar el grupo",
+            detail: "No se pudo cambiar el estado del grupo",
           });
         }
       },
