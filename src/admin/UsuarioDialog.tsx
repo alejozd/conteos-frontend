@@ -1,13 +1,12 @@
-// src/admin/UsuarioDialog.tsx
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-import { useEffect, useRef, useState } from "react";
-import { useContext } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
+import { AxiosError } from "axios";
 
 interface UsuarioRow {
   id?: number;
@@ -33,19 +32,18 @@ export default function UsuarioDialog({
   const toast = useRef<Toast>(null);
   const esEdicion = !!usuario;
 
+  const authContext = useContext(AuthContext);
+  const adminLogueado = authContext?.user;
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
   const [guardando, setGuardando] = useState(false);
 
-  const authContext = useContext(AuthContext);
-  const adminLogueado = authContext?.user;
-
-  // Priorizamos el nombre que venga del registro, si no, el del admin logueado
   const nombreEmpresa =
-    esEdicion && usuario?.empresa
-      ? usuario.empresa
-      : adminLogueado?.empresa_nombre || "Mi Empresa";
+    usuario?.empresa ||
+    adminLogueado?.empresa_nombre ||
+    "Empresa no identificada";
 
   useEffect(() => {
     if (usuario) {
@@ -57,7 +55,7 @@ export default function UsuarioDialog({
       setPassword("");
       setRole("user");
     }
-  }, [usuario, visible]);
+  }, [usuario]);
 
   const guardar = async () => {
     if (!username.trim()) {
@@ -81,29 +79,25 @@ export default function UsuarioDialog({
     try {
       setGuardando(true);
 
-      // Siempre usamos el empresa_id del administrador para nuevos, o el del usuario para edición
-      const idEmpresaFinal = esEdicion
+      const targetEmpresaId = esEdicion
         ? usuario?.empresa_id
         : adminLogueado?.empresa_id;
 
       const payload = {
         role,
-        empresa_id: idEmpresaFinal,
+        empresa_id: targetEmpresaId,
         password: password || undefined,
       };
 
       if (esEdicion) {
         await api.put(`/api/admin/usuarios/${usuario!.id}`, payload);
       } else {
-        await api.post("/api/admin/usuarios", {
-          ...payload,
-          username,
-        });
+        await api.post("/api/admin/usuarios", { ...payload, username });
       }
 
       toast.current?.show({
         severity: "success",
-        summary: "OK",
+        summary: "Éxito",
         detail: esEdicion
           ? "Usuario actualizado"
           : "Usuario creado correctamente",
@@ -111,8 +105,10 @@ export default function UsuarioDialog({
 
       onSuccess();
       onHide();
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Error al guardar";
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      const msg =
+        axiosError.response?.data?.message || "No se pudo guardar el usuario";
       toast.current?.show({ severity: "error", summary: "Error", detail: msg });
     } finally {
       setGuardando(false);
@@ -124,7 +120,8 @@ export default function UsuarioDialog({
       header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
       visible={visible}
       modal
-      style={{ width: "90vw", maxWidth: "500px" }}
+      className="p-fluid"
+      style={{ width: "450px" }}
       onHide={onHide}
       footer={
         <div className="flex justify-content-end gap-2">
@@ -136,6 +133,7 @@ export default function UsuarioDialog({
           />
           <Button
             label="Guardar"
+            icon="pi pi-check"
             loading={guardando}
             onClick={guardar}
             severity="success"
@@ -145,9 +143,9 @@ export default function UsuarioDialog({
     >
       <Toast ref={toast} />
 
-      <div className="grid p-fluid mt-3">
-        {/* Usuario - Ancho completo */}
-        <div className="col-12 mb-4">
+      <div className="grid mt-3">
+        {/* Fila 1: Usuario y Rol */}
+        <div className="col-12 md:col-7 mb-4">
           <span className="p-float-label">
             <InputText
               id="username"
@@ -159,30 +157,13 @@ export default function UsuarioDialog({
           </span>
         </div>
 
-        {/* Contraseña - Ancho completo */}
-        <div className="col-12 mb-4">
-          <span className="p-float-label">
-            <InputText
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={esEdicion ? "Dejar vacío para no cambiar" : ""}
-            />
-            <label htmlFor="password">
-              {esEdicion ? "Nueva contraseña" : "Contraseña"}
-            </label>
-          </span>
-        </div>
-
-        {/* Rol - Mitad de ancho */}
         <div className="col-12 md:col-5 mb-4">
           <span className="p-float-label">
             <Dropdown
               id="role"
               value={role}
               options={[
-                { label: "Administrador", value: "admin" },
+                { label: "Admin", value: "admin" },
                 { label: "Usuario", value: "user" },
               ]}
               onChange={(e) => setRole(e.value)}
@@ -191,25 +172,40 @@ export default function UsuarioDialog({
           </span>
         </div>
 
-        {/* Empresa - Mitad de ancho restante (col-7 para dar más espacio al texto largo) */}
-        <div className="col-12 md:col-7 mb-4">
+        {/* Fila 2: Contraseña */}
+        <div className="col-12 mb-4">
+          <span className="p-float-label">
+            <InputText
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={esEdicion ? "Dejar vacío para mantener actual" : ""}
+            />
+            <label htmlFor="password">
+              {esEdicion ? "Cambiar Contraseña" : "Contraseña"}
+            </label>
+          </span>
+        </div>
+
+        {/* Fila 3: Empresa */}
+        <div className="col-12">
           <label
             htmlFor="empresa"
-            className="block text-sm mb-1 text-700 font-semibold"
+            className="block text-sm font-bold text-700 mb-2"
           >
-            Empresa
+            Empresa Asignada
           </label>
-          <div
-            className="p-2 border-round surface-200 text-800 font-medium"
-            style={{
-              minHeight: "38px",
-              fontSize: "0.9rem",
-              overflowX: "auto",
-              whiteSpace: "nowrap",
-              border: "1px solid #ced4da",
-            }}
-          >
-            {nombreEmpresa}
+          <div className="p-inputgroup">
+            <span className="p-inputgroup-addon bg-blue-50">
+              <i className="pi pi-building text-blue-600"></i>
+            </span>
+            <InputText
+              id="empresa"
+              value={nombreEmpresa}
+              disabled
+              className="p-inputtext-sm text-900 shadow-none"
+            />
           </div>
         </div>
       </div>
