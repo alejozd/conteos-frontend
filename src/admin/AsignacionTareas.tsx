@@ -37,13 +37,13 @@ interface Bodega {
   nombre: string;
 }
 
-// Nota: He añadido 'id' opcional porque a veces el backend envía el ID de la entidad
-// principal como 'id' en lugar de 'bodega_id' en los resultados agrupados.
 interface ResumenAsignacion {
   id?: number;
   bodega_id?: number;
   bodega_nombre: string;
   total_ubicaciones: number;
+  conteo_grupo_id?: number; // <--- Agregamos esto
+  conteo_grupo_nombre?: string; // Opcional, para dar mejores mensajes
 }
 
 interface ApiError {
@@ -107,7 +107,7 @@ export default function AsignacionTareas() {
       const resResumen = await api.get<ResumenAsignacion[]>(
         `/api/asignacion/admin/resumen-usuario?usuarioId=${usuarioSel.id}&grupoId=${grupoSel.id}`
       );
-      console.log("LOG RESUMEN - Datos crudos del servidor:", resResumen.data);
+      //console.log("LOG RESUMEN - Datos crudos del servidor:", resResumen.data);
       setResumenCarga(resResumen.data);
 
       if (bodegaSel) {
@@ -198,6 +198,7 @@ export default function AsignacionTareas() {
 
   const handleGuardar = async () => {
     if (!usuarioSel || !grupoSel || !bodegaSel) return;
+
     try {
       await api.post("/api/asignacion/guardar-masivo", {
         usuario_id: usuarioSel.id,
@@ -206,14 +207,33 @@ export default function AsignacionTareas() {
         ubicaciones: asignadas.map((u) => u.id),
         empresa_id: user?.empresa_id,
       });
+
       toast.current?.show({
         severity: "success",
         summary: "Guardado",
-        detail: "Asignación actualizada",
+        detail: "Asignación actualizada con éxito",
       });
+
       refrescarTodo();
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      // 2. Usamos una técnica de "Type Guarding" para manejar el error sin 'any'
+      let mensajeError = "Error inesperado al guardar";
+
+      if (err && typeof err === "object" && "response" in err) {
+        const apiErr = err as ApiError; // Usamos la interfaz que ya tenías definida arriba
+        mensajeError = apiErr.response?.data?.message || mensajeError;
+      } else if (err instanceof Error) {
+        mensajeError = err.message;
+      }
+
+      toast.current?.show({
+        severity: "error",
+        summary: "Atención",
+        detail: mensajeError,
+        life: 5000,
+      });
+
+      console.error("Error en asignación:", err);
     }
   };
 
@@ -245,6 +265,7 @@ export default function AsignacionTareas() {
               options={grupos}
               onChange={(e) => {
                 setGrupoSel(e.value);
+                setBodegaSel(null);
                 setAsignadas([]);
                 setDisponibles([]);
               }}
@@ -261,6 +282,7 @@ export default function AsignacionTareas() {
               options={usuarios}
               onChange={(e) => {
                 setUsuarioSel(e.value);
+                setBodegaSel(null);
                 setAsignadas([]);
                 setDisponibles([]);
               }}
