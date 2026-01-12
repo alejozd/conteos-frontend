@@ -36,10 +36,22 @@ interface Bodega {
   id: number;
   nombre: string;
 }
+
+// Nota: He añadido 'id' opcional porque a veces el backend envía el ID de la entidad
+// principal como 'id' en lugar de 'bodega_id' en los resultados agrupados.
 interface ResumenAsignacion {
-  bodega_id: number;
+  id?: number;
+  bodega_id?: number;
   bodega_nombre: string;
   total_ubicaciones: number;
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
 }
 
 export default function AsignacionTareas() {
@@ -74,6 +86,7 @@ export default function AsignacionTareas() {
         setUsuarios(listaUsuarios);
         setGrupos(resGrupos.data);
         setBodegas(resBodegas.data);
+
         if (grupoIdUrl) {
           const encontrado = resGrupos.data.find(
             (g) => String(g.id) === grupoIdUrl
@@ -94,6 +107,7 @@ export default function AsignacionTareas() {
       const resResumen = await api.get<ResumenAsignacion[]>(
         `/api/asignacion/admin/resumen-usuario?usuarioId=${usuarioSel.id}&grupoId=${grupoSel.id}`
       );
+      console.log("LOG RESUMEN - Datos crudos del servidor:", resResumen.data);
       setResumenCarga(resResumen.data);
 
       if (bodegaSel) {
@@ -121,21 +135,24 @@ export default function AsignacionTareas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bodegaSel?.id, usuarioSel?.id, grupoSel?.id]);
 
-  // 3. Finalizar por BODEGA (lo que está en el resumen)
-  const finalizarPorBodega = (bodegaId: number, bodegaNombre: string) => {
-    // 1. Verificación detallada para saber qué falta
-    if (!usuarioSel?.id || !grupoSel?.id || !bodegaId) {
-      console.error("DEBUG - Faltan datos:", {
-        usuario: usuarioSel?.id,
-        grupo: grupoSel?.id,
-        bodega: bodegaId,
-      });
+  // 3. Finalizar por BODEGA
+  const finalizarPorBodega = (
+    idParaFinalizar: number,
+    bodegaNombre: string
+  ) => {
+    // LOG DE VALIDACIÓN
+    console.log("INTENTO FINALIZAR:", {
+      usuario: usuarioSel?.id,
+      grupo: grupoSel?.id,
+      bodegaIdRecibido: idParaFinalizar,
+      bodegaNombre: bodegaNombre,
+    });
 
+    if (!usuarioSel?.id || !grupoSel?.id || !idParaFinalizar) {
       toast.current?.show({
         severity: "warn",
         summary: "Atención",
-        detail:
-          "Seleccione primero un Grupo y un Operario en los selectores superiores.",
+        detail: "No se identificó el ID de la bodega. Verifique consola.",
       });
       return;
     }
@@ -147,15 +164,10 @@ export default function AsignacionTareas() {
       acceptClassName: "p-button-danger",
       accept: async () => {
         try {
-          // Tipado explícito para evitar 'any'
-          const payload: {
-            usuarioId: number;
-            grupoId: number;
-            bodegaId: number;
-          } = {
+          const payload = {
             usuarioId: Number(usuarioSel.id),
             grupoId: Number(grupoSel.id),
-            bodegaId: Number(bodegaId),
+            bodegaId: Number(idParaFinalizar),
           };
 
           await api.put("/api/asignacion/admin/finalizar-bodega", payload);
@@ -163,26 +175,21 @@ export default function AsignacionTareas() {
           toast.current?.show({
             severity: "success",
             summary: "Éxito",
-            detail: `Bodega ${bodegaNombre} finalizada correctamente.`,
+            detail: `Bodega ${bodegaNombre} finalizada.`,
           });
 
-          // Limpiar el panel derecho si es la bodega que estamos editando actualmente
-          if (bodegaSel?.id === bodegaId) {
+          if (bodegaSel?.id === idParaFinalizar) {
             setAsignadas([]);
           }
 
-          // Refrescar los tags azules y las listas
           await refrescarTodo();
         } catch (err: unknown) {
-          // Manejo de errores sin 'any'
-          const error = err as { response?: { data?: { message?: string } } };
-          const mensaje =
-            error.response?.data?.message || "Error desconocido en el servidor";
-
+          const error = err as ApiError;
           toast.current?.show({
             severity: "error",
             summary: "Error",
-            detail: mensaje,
+            detail:
+              error.response?.data?.message || "Error al procesar la solicitud",
           });
         }
       },
@@ -229,7 +236,7 @@ export default function AsignacionTareas() {
         title="Gestión de Asignaciones (Administrador)"
         className="shadow-4"
       >
-        {/* 1. SELECTORES */}
+        {/* SELECTORES */}
         <div className="grid mb-3">
           <div className="col-12 md:col-4 flex flex-column gap-1">
             <label className="font-bold text-sm">Grupo de Conteo</label>
@@ -281,7 +288,7 @@ export default function AsignacionTareas() {
           </div>
         </div>
 
-        {/* 2. RESUMEN AZUL CON BOTÓN DE FINALIZAR */}
+        {/* RESUMEN DE CARGA (Ajustado) */}
         {usuarioSel && resumenCarga.length > 0 && (
           <div className="mb-3 p-3 border-round bg-gray-800 text-white shadow-2">
             <div className="flex align-items-center mb-2">
@@ -291,32 +298,51 @@ export default function AsignacionTareas() {
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {resumenCarga.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex align-items-center bg-blue-600 border-round pr-2"
-                >
-                  <Tag
-                    severity="info"
-                    value={`${item.bodega_nombre}: ${item.total_ubicaciones} ubic.`}
-                    // style={{ background: "transparent" }}
-                  />
-                  <Button
-                    icon="pi pi-check-circle"
-                    className="p-button-rounded p-button-text p-button-plain text-white p-0 ml-1"
-                    style={{ width: "1.2rem", height: "1.2rem" }}
-                    tooltip="Finalizar esta bodega"
-                    onClick={() =>
-                      finalizarPorBodega(item.bodega_id, item.bodega_nombre)
-                    }
-                  />
-                </div>
-              ))}
+              {resumenCarga.map((item, index) => {
+                // BUSQUEDA DE EMERGENCIA: Como el backend no manda el ID, lo buscamos por nombre
+                // en la lista de bodegas que cargamos al inicio.
+                const bodegaEncontrada = bodegas.find(
+                  (b) => b.nombre === item.bodega_nombre
+                );
+
+                // Si viene el ID del backend lo usa, si no, usa el encontrado por nombre
+                const idReal =
+                  item.bodega_id || item.id || bodegaEncontrada?.id;
+
+                return (
+                  <div
+                    key={index}
+                    className="flex align-items-center bg-blue-600 border-round pr-2"
+                  >
+                    <Tag
+                      severity="info"
+                      value={`${item.bodega_nombre}: ${item.total_ubicaciones} ubic.`}
+                    />
+                    <Button
+                      icon="pi pi-check-circle"
+                      className="p-button-rounded p-button-text p-button-plain text-white p-0 ml-1"
+                      style={{ width: "1.2rem", height: "1.2rem" }}
+                      tooltip="Finalizar esta bodega"
+                      onClick={() => {
+                        if (!idReal) {
+                          toast.current?.show({
+                            severity: "error",
+                            summary: "Error",
+                            detail: `No se encontró el ID para la bodega: ${item.bodega_nombre}`,
+                          });
+                          return;
+                        }
+                        finalizarPorBodega(Number(idReal), item.bodega_nombre);
+                      }}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* 3. PICKLIST */}
+        {/* PICKLIST */}
         <div className="mt-2">
           <PickList
             dataKey="id"
