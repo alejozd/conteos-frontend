@@ -59,6 +59,9 @@ export default function DashboardSaldos() {
 
           // Si hay uno activo lo seleccionamos, si no, tomamos el primero por defecto
           setGrupoSeleccionado(grupoActivo || data[0]);
+        } else {
+          // IMPORTANTE: Si no hay grupos, apagamos el loading aquí
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error cargando grupos:", error);
@@ -69,7 +72,7 @@ export default function DashboardSaldos() {
   }, []);
 
   useEffect(() => {
-    if (!grupoSeleccionado) return;
+    if (grupos.length === 0 || !grupoSeleccionado) return;
 
     cargarDatos();
 
@@ -80,7 +83,7 @@ export default function DashboardSaldos() {
     }, 60_000);
 
     return () => clearInterval(interval);
-  }, [detalleVisible, grupoSeleccionado]);
+  }, [detalleVisible, grupoSeleccionado, grupos.length]);
 
   const cargarDatos = async (): Promise<void> => {
     if (!grupoSeleccionado) return;
@@ -387,6 +390,13 @@ export default function DashboardSaldos() {
 
   return (
     <div className="card">
+      {grupos.length === 0 && !loading && (
+        <div className="p-3 mb-3 border-round bg-orange-100 text-orange-700 border-1 border-orange-200">
+          <i className="pi pi-exclamation-circle mr-2"></i>
+          No has creado ningún <strong>Grupo de Conteo</strong> todavía. Ve a la
+          sección de configuración para crear uno y empezar a ver saldos.
+        </div>
+      )}
       <DataTable
         value={dataFiltrada}
         loading={loading}
