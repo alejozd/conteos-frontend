@@ -12,6 +12,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import api from "../services/api";
 import "../styles/DashboardSaldos.css";
+import { useNavigate } from "react-router-dom";
 
 interface SaldoRow {
   id: number;
@@ -43,6 +44,7 @@ export default function DashboardSaldos() {
   const [grupoSeleccionado, setGrupoSeleccionado] =
     useState<ConteoGrupo | null>(null);
   const [totalRegistros, setTotalRegistros] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const cargarGrupos = async () => {
@@ -316,7 +318,10 @@ export default function DashboardSaldos() {
 
         {/* REGISTROS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 border-registros">
+          <div
+            className="kpi-card shadow-1 border-registros cursor-pointer"
+            onClick={toggleSoloConteos}
+          >
             <div className="flex align-items-center gap-2 mb-1">
               <i className="pi pi-clone color-registros text-xs"></i>
               <span className="kpi-label color-registros">Registros</span>
@@ -332,7 +337,14 @@ export default function DashboardSaldos() {
 
         {/* ANULADOS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 border-anulados">
+          <div
+            className="kpi-card shadow-1 border-anulados cursor-pointer"
+            onClick={() =>
+              navigate("/admin/conteos-anulados", {
+                state: { grupoId: grupoSeleccionado?.id },
+              })
+            }
+          >
             <div className="flex align-items-center gap-2 mb-1">
               <i className="pi pi-trash color-anulados text-xs"></i>
               <span className="kpi-label color-anulados">Anulados</span>
