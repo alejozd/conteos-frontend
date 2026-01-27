@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -35,17 +36,29 @@ export default function ConteosAnulados() {
   const [grupoSeleccionado, setGrupoSeleccionado] =
     useState<ConteoGrupo | null>(null);
 
+  const location = useLocation();
+
   useEffect(() => {
     const cargarGrupos = async () => {
       try {
         const res = await api.get("/api/admin/conteos-grupos");
         const lista = res.data || [];
         setGrupos(lista);
+
         if (lista.length > 0) {
-          // BUSCAR EL ACTIVO:
-          const activo = lista.find((g: ConteoGrupo) => g.activo === 1);
-          // Si existe el activo, seleccionarlo. Si no, el primero.
-          setGrupoSeleccionado(activo || lista[0]);
+          // 1. Prioridad: ¿Viene un ID desde el Dashboard (location.state)?
+          const idDesdeDashboard = location.state?.grupoId;
+          const grupoPrevio = lista.find(
+            (g: ConteoGrupo) => g.id === idDesdeDashboard,
+          );
+
+          if (grupoPrevio) {
+            setGrupoSeleccionado(grupoPrevio);
+          } else {
+            // 2. Si no viene nada, buscar el activo
+            const activo = lista.find((g: ConteoGrupo) => g.activo === 1);
+            setGrupoSeleccionado(activo || lista[0]);
+          }
         }
       } catch (error) {
         console.error("Error cargando grupos:", error);
@@ -65,7 +78,7 @@ export default function ConteosAnulados() {
     setLoading(true);
     try {
       const res = await api.get(
-        `/api/admin/conteos-anulados?conteo_grupo_id=${grupoSeleccionado.id}`
+        `/api/admin/conteos-anulados?conteo_grupo_id=${grupoSeleccionado.id}`,
       );
       setData(res.data || []);
     } catch (error) {
@@ -152,7 +165,7 @@ export default function ConteosAnulados() {
     });
     saveAs(
       blob,
-      `anulados_${grupoSeleccionado?.descripcion}_${Date.now()}.xlsx`
+      `anulados_${grupoSeleccionado?.descripcion}_${Date.now()}.xlsx`,
     );
   };
 
