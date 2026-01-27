@@ -5,7 +5,7 @@ import api from "../services/api";
 interface User {
   id: number;
   username: string;
-  role: "admin" | "user";
+  role: "admin" | "user" | "superadmin";
   empresa_id: number;
   empresa_nombre: string;
 }
@@ -25,22 +25,23 @@ interface AuthContextValue {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(
     localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user")!)
-      : null
+      : null,
   );
 
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
+    localStorage.getItem("token"),
   );
   const [grupoActivo, setGrupoActivo] = useState<ConteoGrupo | null>(null);
 
@@ -62,12 +63,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("empresa_seleccionada_id");
+    localStorage.removeItem("empresa_seleccionada_nombre");
     setToken(null);
     setUser(null);
     setGrupoActivo(null);
   };
 
   const isAdmin = user?.role === "admin";
+  const isSuperAdmin = user?.role === "superadmin";
 
   return (
     <AuthContext.Provider
@@ -77,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         isAdmin,
+        isSuperAdmin,
         grupoActivo,
         setGrupoActivo,
       }}

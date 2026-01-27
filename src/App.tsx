@@ -21,6 +21,8 @@ import ComparativaConteos from "./admin/ComparativaConteos";
 import AsignacionTareas from "./admin/AsignacionTareas";
 import SinGrupos from "./components/SinGrupos";
 
+import SeleccionarEmpresa from "./components/SeleccionarEmpresa";
+
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -65,6 +67,15 @@ function App() {
             element={
               <PrivateRoute>
                 <ConteoOperario />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/seleccionar-empresa"
+            element={
+              <PrivateRoute>
+                <SeleccionarEmpresa />
               </PrivateRoute>
             }
           />

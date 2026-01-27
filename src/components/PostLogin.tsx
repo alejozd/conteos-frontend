@@ -18,6 +18,12 @@ export default function PostLogin() {
       try {
         const role = user.role;
 
+        // 0. NUEVO: Si es superadmin, debe elegir empresa primero
+        if (role === "superadmin") {
+          navigate("/seleccionar-empresa"); // Esta ruta la crearemos ahora
+          return;
+        }
+
         // 1. Si es admin, va directo al panel de control
         if (role === "admin") {
           navigate("/admin");

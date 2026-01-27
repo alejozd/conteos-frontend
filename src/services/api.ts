@@ -11,9 +11,17 @@ const api = axios.create({
 // 👉 Interceptor para enviar token automáticamente
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
+  const empresaIdSeleccionada = localStorage.getItem("empresa_seleccionada_id");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Si existe una empresa seleccionada, la enviamos en un header personalizado
+  if (empresaIdSeleccionada) {
+    config.headers["x-empresa-id"] = empresaIdSeleccionada;
+  }
+  
   return config;
 });
 
