@@ -61,49 +61,55 @@ export default function SeleccionarEmpresa() {
       style={{ minHeight: "100vh" }}
     >
       <div className="text-center mb-6">
-        <div className="text-900 text-5xl font-bold mb-3">
+        <h1 className="text-900 text-5xl font-bold mb-3">
           Panel de SuperAdmin
-        </div>
+        </h1>
         <p className="text-700 text-2xl">
           Selecciona una empresa para gestionar su inventario
         </p>
       </div>
 
-      <div className="grid justify-content-center">
+      <div className="grid justify-content-center max-w-7xl mx-auto">
         {empresas.map((empresa) => (
           <div key={empresa.id} className="col-12 md:col-6 lg:col-4 p-3 flex">
             <Card
-              className="shadow-3 hover:shadow-6 transition-duration-200 border-round-xl border-top-3 border-blue-500 flex flex-column w-full"
-              style={{ display: "flex", flexDirection: "column" }}
+              className="shadow-3 hover:shadow-6 transition-duration-200 border-round-xl border-top-3 border-blue-500 w-full flex flex-column"
+              // LA CLAVE ESTÁ AQUÍ: Forzamos al body de la card a ser un flexbox que ocupe todo el espacio
+              pt={{
+                body: {
+                  className: "flex-grow-1 flex flex-column p-0", // p-0 para controlar nosotros el padding
+                },
+                content: {
+                  className: "flex-grow-1 p-4 flex flex-column", // Esto empuja lo que esté debajo
+                },
+              }}
             >
-              {/* Contenedor Superior */}
-              <div className="flex-grow-1">
-                <div className="flex align-items-center justify-content-between mb-3">
-                  <span className="text-xl font-bold text-900">
-                    {empresa.nombre}
-                  </span>
-                  <i className="pi pi-building text-blue-500 text-2xl"></i>
-                </div>
+              {/* Contenido Superior (Título e Icono) */}
+              <div className="flex align-items-center justify-content-between mb-3">
+                <span className="text-xl font-bold text-900 leading-tight uppercase">
+                  {empresa.nombre}
+                </span>
+                <i className="pi pi-building text-blue-500 text-2xl"></i>
+              </div>
 
-                <div className="text-600 mb-4">
-                  <div className="mb-2">
-                    <span className="font-semibold">NIT:</span> {empresa.nit}
-                  </div>
-                  <div
-                    className="line-height-3 italic"
-                    style={{ minHeight: "3rem" }}
-                  >
-                    {empresa.descripcion || "Sin descripción detallada."}
-                  </div>
+              {/* Información Intermedia */}
+              <div className="text-600 mb-4 flex-grow-1">
+                <div className="mb-2">
+                  <span className="font-semibold text-700">NIT:</span>{" "}
+                  {empresa.nit}
+                </div>
+                <div className="line-height-3 italic text-sm">
+                  {empresa.descripcion ||
+                    "Sin descripción detallada disponible."}
                 </div>
               </div>
 
-              {/* Botón siempre al final */}
-              <div className="mt-auto">
+              {/* Contenedor del Botón: mt-auto asegura que siempre se vaya al fondo */}
+              <div className="mt-auto p-4 pt-0">
                 <Button
                   label="Entrar a Gestión"
                   icon="pi pi-sign-in"
-                  className="w-full p-button-outlined"
+                  className="w-full p-button-outlined font-bold"
                   onClick={() => handleSeleccionar(empresa)}
                 />
               </div>

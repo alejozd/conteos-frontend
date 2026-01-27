@@ -6,6 +6,7 @@ import { Button } from "primereact/button";
 export default function AdminLayout() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const nombreEmpresa = localStorage.getItem("empresa_seleccionada_nombre");
 
   const items = [
     {
@@ -73,13 +74,19 @@ export default function AdminLayout() {
     },
   ];
 
-  // Parte izquierda: Logo
   const start = (
-    <div className="flex align-items-center gap-2 px-2">
+    <div className="flex align-items-center gap-2 px-1 md:px-2">
       <i className="pi pi-box text-primary text-xl"></i>
-      <span className="text-xl font-bold text-white tracking-tight hidden sm:inline">
+      <span className="text-lg md:text-xl font-bold text-white tracking-tight hidden lg:inline">
         STOCK<span className="text-primary">APP</span>
       </span>
+      {nombreEmpresa && (
+        <div className="flex align-items-center border-left-1 border-gray-700 pl-2 md:pl-3 ml-1">
+          <span className="text-xs md:text-sm font-medium text-blue-400 uppercase tracking-wider line-clamp-1 max-w-10rem md:max-w-none">
+            {nombreEmpresa}
+          </span>
+        </div>
+      )}
     </div>
   );
 
@@ -100,26 +107,33 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen flex flex-column bg-gray-950">
       <style>{`
-        /* FORZAR ORDEN: Botón hamburguesa primero, luego el logo */
-        .p-menubar .p-menubar-button {
-            order: -1;
-            margin-right: 1rem;
-            color: white;
-        }
-        
-        /* Evitar que el menú se rompa tan rápido */
-        @media screen and (max-width: 960px) {
-            .p-menubar-root-list {
-                background: #111827 !important; /* bg-gray-900 */
-                border: 1px solid #1f2937 !important;
-                padding: 1rem !important;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+        /* 1. Forzar que el menú se colapse a hamburguesa a los 1100px en lugar de 960px */
+        @media screen and (max-width: 1100px) {
+            .p-menubar .p-menubar-root-list {
+                display: none;
+            }
+            .p-menubar .p-menubar-button {
+                display: flex;
             }
         }
 
-        /* Ajuste de los textos del menú para que no se amontonen */
+        /* 2. Estetica del botón hamburguesa */
+        .p-menubar .p-menubar-button {
+            order: -1;
+            margin-right: 0.5rem;
+            color: white;
+        }
+
+        /* 3. Ocultar iconos en pantallas medianas para ahorrar espacio */
+        @media screen and (max-width: 1250px) {
+            .p-menuitem-icon {
+                display: none !important;
+            }
+        }
+        
         .p-menuitem-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
       `}</style>
 
@@ -127,7 +141,7 @@ export default function AdminLayout() {
         model={items}
         start={start}
         end={end}
-        className="px-3 border-none border-bottom-1 border-gray-800 bg-gray-900 shadow-8"
+        className="px-2 md:px-3 border-none border-bottom-1 border-gray-800 bg-gray-900 shadow-8"
         style={{ borderRadius: 0 }}
       />
 
