@@ -11,8 +11,7 @@ import { Button } from "primereact/button";
 import api from "../services/api";
 
 interface ProductoRow {
-  codigo: number;
-  subcodigo: number;
+  id: number;
   nombre: string;
   referencia: string;
 }
@@ -113,7 +112,7 @@ export default function ProductosListado() {
         stripedRows
         showGridlines
         globalFilter={globalFilter}
-        globalFilterFields={["codigo", "subcodigo", "nombre", "referencia"]}
+        globalFilterFields={["id", "nombre", "referencia"]}
         emptyMessage="No hay productos para mostrar"
         header={header}
         filterDisplay="menu"
@@ -121,18 +120,7 @@ export default function ProductosListado() {
           global: { value: globalFilter, matchMode: FilterMatchMode.CONTAINS },
         }}
       >
-        <Column
-          field="codigo"
-          header="Código"
-          sortable
-          style={{ width: "10%" }}
-        />
-        <Column
-          field="subcodigo"
-          header="Subcódigo"
-          sortable
-          style={{ width: "10%" }}
-        />
+        <Column field="id" header="id" sortable style={{ width: "10%" }} />
         <Column field="nombre" header="Nombre" sortable />
         <Column
           field="referencia"
