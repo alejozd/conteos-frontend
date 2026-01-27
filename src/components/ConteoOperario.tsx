@@ -27,8 +27,7 @@ import "../styles/overlay.css";
 
 // TIPOS ============================
 interface Producto {
-  codigo: string | number;
-  subcodigo: string | number;
+  id: string | number;
   nombre: string;
   referencia: string;
   saldo_sistema: string | number;
@@ -56,7 +55,7 @@ export default function ConteoOperario() {
   // ESTADOS =========================
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
   const [resultadosProductos, setResultadosProductos] = useState<Producto[]>(
-    []
+    [],
   );
   const [productoSeleccionado, setProductoSeleccionado] =
     useState<Producto | null>(null);
@@ -67,7 +66,7 @@ export default function ConteoOperario() {
   const [loading, setLoading] = useState(false);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(
-    null
+    null,
   );
 
   // 0. Recuperar grupoActivo si está en null al recargar ==================
@@ -135,7 +134,7 @@ export default function ConteoOperario() {
       try {
         // USAMOS EL NUEVO ENDPOINT DE ASIGNACIONES
         const res = await api.get(
-          `/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`
+          `/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`,
         );
 
         const data: Ubicacion[] = res.data || [];
@@ -170,7 +169,7 @@ export default function ConteoOperario() {
       }
 
       const res = await api.get(
-        `/api/productos/buscar?texto=${encodeURIComponent(q)}`
+        `/api/productos/buscar?texto=${encodeURIComponent(q)}`,
       );
       setResultadosProductos(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
@@ -285,8 +284,7 @@ export default function ConteoOperario() {
     try {
       setLoading(true);
       await api.post("/api/conteos/guardar", {
-        codigo: productoSeleccionado.codigo,
-        subcodigo: productoSeleccionado.subcodigo,
+        id: productoSeleccionado.id,
         ubicacion_id: ubicacionSeleccionada.id,
         cantidad,
         conteo_grupo_id: Number(grupoId),
