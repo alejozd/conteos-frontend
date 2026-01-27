@@ -22,8 +22,7 @@ interface ConteoDetalle {
 interface Props {
   visible: boolean;
   onHide: () => void;
-  codigo: number;
-  subcodigo: number;
+  id: number;
   nombre: string;
   conteo_grupo_id: number;
   onConteoAnulado: () => Promise<void>;
@@ -32,8 +31,7 @@ interface Props {
 export default function DetalleConteosDialog({
   visible,
   onHide,
-  codigo,
-  subcodigo,
+  id,
   nombre,
   conteo_grupo_id,
   onConteoAnulado,
@@ -48,10 +46,11 @@ export default function DetalleConteosDialog({
   const [conteoInfo, setConteoInfo] = useState<ConteoDetalle | null>(null);
 
   const cargarDetalle = async () => {
+    if (!id) return; // Seguridad
     setLoading(true);
     try {
       const res = await api.get("/api/admin/conteos-detalle", {
-        params: { codigo, subcodigo, conteo_grupo_id },
+        params: { producto_id: id, conteo_grupo_id },
       });
       setData(res.data || []);
     } catch (error) {
@@ -108,7 +107,7 @@ export default function DetalleConteosDialog({
         `/api/admin/conteos/${conteoId}/anular?conteo_grupo_id=${conteo_grupo_id}`,
         {
           motivo: motivoAnulacion,
-        }
+        },
       );
 
       toast.current?.show({

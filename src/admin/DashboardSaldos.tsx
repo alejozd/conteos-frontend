@@ -14,8 +14,7 @@ import api from "../services/api";
 import "../styles/DashboardSaldos.css";
 
 interface SaldoRow {
-  codigo: number;
-  subcodigo: number;
+  id: number;
   nombre: string;
   referencia: string;
   saldo_sistema: string;
@@ -113,7 +112,7 @@ export default function DashboardSaldos() {
   };
 
   const productosContados = data.filter(
-    (r) => Number(r.conteo_total) > 0
+    (r) => Number(r.conteo_total) > 0,
   ).length;
   const porcentajeAvance =
     data.length > 0 ? Math.round((productosContados / data.length) * 100) : 0;
@@ -150,7 +149,7 @@ export default function DashboardSaldos() {
 
   // Cálculos para indicadores
   const totalDiferencias = data.filter(
-    (r) => Number(r.diferencia) !== 0
+    (r) => Number(r.diferencia) !== 0,
   ).length;
 
   const diferenciaTemplate = (row: SaldoRow) => {
@@ -187,7 +186,7 @@ export default function DashboardSaldos() {
 
     saveAs(
       blob,
-      `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`
+      `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`,
     );
   };
 
@@ -462,8 +461,7 @@ export default function DashboardSaldos() {
         <DetalleConteosDialog
           visible={detalleVisible}
           onHide={() => setDetalleVisible(false)}
-          codigo={productoSeleccionado.codigo}
-          subcodigo={productoSeleccionado.subcodigo}
+          id={productoSeleccionado.id}
           nombre={productoSeleccionado.nombre}
           conteo_grupo_id={grupoSeleccionado!.id}
           onConteoAnulado={cargarDatos}
