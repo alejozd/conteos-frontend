@@ -23,14 +23,10 @@ const TIPOS_IMPORTACION: { label: string; value: TipoImportacion }[] = [
 
 const GUIA_IMPORTACION = {
   productos: [
-    { campo: "CODIGO", requerido: true, desc: "Código del producto" },
-    { campo: "SUBCODIGO", requerido: true, desc: "Subcódigo del producto" },
     { campo: "NOMBRE", requerido: true, desc: "Nombre del producto" },
     { campo: "REFERENCIA", requerido: true, desc: "Referencia opcional" },
   ],
   saldos: [
-    { campo: "CODIGO", requerido: true, desc: "Código del producto" },
-    { campo: "SUBCODIGO", requerido: true, desc: "Subcódigo del producto" },
     { campo: "REFERENCIA", requerido: true, desc: "Referencia opcional" },
     { campo: "SALDO", requerido: true, desc: "Cantidad numérica" },
   ],
