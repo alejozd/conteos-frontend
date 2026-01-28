@@ -1,4 +1,5 @@
 // src/App.tsx
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth";
@@ -22,10 +23,13 @@ import AsignacionTareas from "./admin/AsignacionTareas";
 import SinGrupos from "./components/SinGrupos";
 
 import SeleccionarEmpresa from "./components/SeleccionarEmpresa";
+import EmpresasAdmin from "./admin/EmpresasAdmin";
 
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  console.log("PrivateRoute - Usuario:", user);
+
   return user ? children : <Navigate to="/" />;
 }
 
@@ -101,6 +105,7 @@ function App() {
             <Route path="importar" element={<ImportarSaldos />} />
             <Route path="productos" element={<ProductosListado />} />
             <Route path="usuarios" element={<UsuariosAdmin />} />
+            <Route path="empresas" element={<EmpresasAdmin />} />
             <Route path="bodegas" element={<BodegasPage />} />
             <Route path="ubicaciones" element={<UbicacionesPage />} />
             <Route path="conteos-grupos" element={<ConteosGruposAdmin />} />
