@@ -81,7 +81,7 @@ export default function AdminLayout() {
 
   const start = (
     <div
-      className="flex align-items-center gap-2 px-2 cursor-pointer"
+      className="flex align-items-center gap-2 px-2 cursor-pointer flex-shrink-0"
       onClick={() => navigate("/admin")}
     >
       <i className="pi pi-box text-primary text-2xl"></i>
@@ -92,19 +92,22 @@ export default function AdminLayout() {
   );
 
   const end = (
-    <div className="flex align-items-center gap-2 md:gap-4">
+    <div className="flex align-items-center gap-2 md:gap-3 flex-shrink-0">
       {nombreEmpresa && (
-        <div className="hidden lg:flex flex-column align-items-end border-right-1 border-gray-700 pr-3">
-          <span className="text-xs text-gray-500 font-semibold uppercase">
+        <div className="hidden xl:flex flex-column align-items-end border-right-1 border-gray-700 pr-3">
+          <span
+            className="text-xs text-gray-500 font-semibold uppercase"
+            style={{ fontSize: "0.65rem" }}
+          >
             Empresa
           </span>
-          <span className="text-sm font-bold text-blue-400 leading-tight">
+          <span className="text-sm font-bold text-blue-400 leading-tight max-w-15rem white-space-nowrap overflow-hidden text-overflow-ellipsis">
             {nombreEmpresa}
           </span>
         </div>
       )}
 
-      <div className="flex align-items-center gap-2">
+      <div className="flex align-items-center gap-1">
         {isSuperAdmin && (
           <Button
             icon="pi pi-sync"
@@ -132,30 +135,37 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen flex flex-column bg-gray-950">
       <style>{`
-        /* 1. Mover botón hamburguesa al inicio */
-        .p-menubar .p-menubar-button {
-            order: -1; /* Esto lo manda al puro principio del flexbox */
-            margin-right: 0.5rem;
-            color: white !important;
-        }
-            @media screen and (max-width: 960px) {
-      .p-menubar-start {
-          margin-right: auto; 
-      }
-  }
-
-        /* 2. Estilo de los iconos del menú */
-        .p-menuitem-icon {
-            color: #3B82F6 !important; 
-            margin-right: 0.5rem !important;
-        }
-
-        /* 3. Estética general del Menubar */
+        /* 1. Forzar una sola línea y reordenar */
         .p-menubar {
+            display: flex !important;
+            flex-wrap: nowrap !important; /* Evita que salte a la siguiente línea */
+            align-items: center !important;
             padding: 0.5rem 1rem !important;
             background: #111827 !important;
             border-color: #1f2937 !important;
             border-radius: 0;
+            justify-content: space-between;
+        }
+
+        .p-menubar .p-menubar-button {
+            order: -1;
+            margin-right: 0.5rem;
+            color: white !important;
+        }
+
+        /* 2. Ajustar la lista de items para que no empuje el final */
+        .p-menubar-root-list {
+            flex-grow: 1;
+            justify-content: center; /* Centra los items si hay espacio */
+        }
+
+        .p-menuitem-link {
+            padding: 0.5rem 0.75rem !important; /* Reducimos padding lateral */
+        }
+
+        .p-menuitem-icon {
+            color: #3B82F6 !important; 
+            margin-right: 0.4rem !important;
         }
 
         .p-menuitem-text {
@@ -163,12 +173,27 @@ export default function AdminLayout() {
             color: #e5e7eb;
         }
 
-        /* 4. Asegurar que el menú desplegable en móvil se vea bien sobre el fondo oscuro */
+        /* 3. Manejo de responsividad */
+        @media screen and (max-width: 1200px) {
+            /* En pantallas intermedias, si el menú es muy largo, ocultamos el nombre de empresa */
+            .p-menubar-root-list {
+                justify-content: flex-start;
+            }
+        }
+
         @media screen and (max-width: 960px) {
+            .p-menubar-start {
+                margin-right: auto; 
+            }
             .p-menubar-root-list {
                 background: #111827 !important;
                 border: 1px solid #1f2937 !important;
                 padding: 1rem !important;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                z-index: 1000;
             }
         }
       `}</style>
