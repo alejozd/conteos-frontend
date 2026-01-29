@@ -286,6 +286,7 @@ export default function UsuariosAdmin() {
           usuario={usuarioEditando}
           onHide={() => setDialogVisible(false)}
           onSuccess={cargarUsuarios}
+          toastRef={toast}
         />
       )}
     </div>

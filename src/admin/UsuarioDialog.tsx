@@ -28,6 +28,7 @@ interface Props {
   usuario: UsuarioRow | null;
   onHide: () => void;
   onSuccess: () => void;
+  toastRef: React.RefObject<Toast | null>;
 }
 
 export default function UsuarioDialog({
@@ -35,6 +36,7 @@ export default function UsuarioDialog({
   usuario,
   onHide,
   onSuccess,
+  toastRef,
 }: Props) {
   const toast = useRef<Toast>(null);
   const authContext = useContext(AuthContext);
@@ -115,10 +117,10 @@ export default function UsuarioDialog({
         await api.post("/api/admin/usuarios", payload);
       }
 
-      toast.current?.show({
+      toastRef.current?.show({
         severity: "success",
         summary: "Éxito",
-        detail: "Usuario guardado",
+        detail: "Usuario guardado correctamente",
       });
       onSuccess();
       onHide();
