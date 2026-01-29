@@ -3,6 +3,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { Password } from "primereact/password";
 import { useEffect, useRef, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
@@ -164,11 +165,12 @@ export default function UsuarioDialog({
           <label htmlFor="password">
             {esEdicion ? "Cambiar Contraseña (opcional)" : "Contraseña"}
           </label>
-          <InputText
+          <Password
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            toggleMask
           />
         </div>
 
