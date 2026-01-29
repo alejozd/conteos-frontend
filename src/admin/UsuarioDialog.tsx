@@ -91,6 +91,15 @@ export default function UsuarioDialog({
       return;
     }
 
+    if (password !== confirmPassword) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Las contraseñas no coinciden",
+      });
+      return;
+    }
+
     try {
       setGuardando(true);
       const payload = {
