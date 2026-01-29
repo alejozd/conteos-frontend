@@ -46,7 +46,7 @@ export default function UsuariosAdmin() {
     { label: string; value: number | null }[]
   >([]);
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState<number | null>(
-    null,
+    0,
   );
 
   const toast = useRef<Toast>(null);
@@ -65,7 +65,8 @@ export default function UsuariosAdmin() {
         label: e.nombre,
         value: e.id,
       }));
-      setEmpresas([{ label: "Todas las empresas", value: null }, ...listado]);
+      // Usamos 0 para el valor de "Todas"
+      setEmpresas([{ label: "Todas las empresas", value: 0 }, ...listado]);
     } catch (error) {
       console.error("Error cargando empresas para filtro:", error);
     }
@@ -93,7 +94,8 @@ export default function UsuariosAdmin() {
 
   // Filtrado por empresa en el cliente
   const usuariosFiltrados = useMemo(() => {
-    if (empresaSeleccionada === null) return data;
+    if (!empresaSeleccionada) return data;
+
     return data.filter((u) => u.empresa_id === empresaSeleccionada);
   }, [data, empresaSeleccionada]);
 
@@ -198,7 +200,7 @@ export default function UsuariosAdmin() {
             onChange={(e) => setEmpresaSeleccionada(e.value)}
             placeholder="Filtrar por Empresa"
             className="w-full md:w-20rem p-inputtext-sm"
-            showClear={empresaSeleccionada !== null}
+            // showClear
           />
         )}
       </div>
