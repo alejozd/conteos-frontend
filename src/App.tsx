@@ -28,8 +28,6 @@ import EmpresasAdmin from "./admin/EmpresasAdmin";
 // function PrivateRoute({ children }: { children: JSX.Element }) {
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  console.log("PrivateRoute - Usuario:", user);
-
   return user ? children : <Navigate to="/" />;
 }
 

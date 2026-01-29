@@ -7,7 +7,6 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const nombreEmpresa = localStorage.getItem("empresa_seleccionada_nombre");
-  console.log("USUARIO EN REACT CONTEXT:", user);
   const isSuperAdmin = user?.role === "superadmin";
 
   const menuItems = [
