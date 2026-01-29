@@ -43,6 +43,7 @@ export default function UsuarioDialog({
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"admin" | "user" | "superadmin">("user");
   const [empresaId, setEmpresaId] = useState<number | null>(null);
   const [empresas, setEmpresas] = useState<EmpresaOption[]>([]);
@@ -59,9 +60,11 @@ export default function UsuarioDialog({
       setRole(usuario.role);
       setEmpresaId(usuario.empresa_id || null);
       setPassword("");
+      setConfirmPassword("");
     } else {
       setUsername("");
       setPassword("");
+      setConfirmPassword("");
       setRole("user");
       // Si soy admin normal, heredo mi empresa. Si soy superadmin, empiezo en null.
       setEmpresaId(me?.role === "superadmin" ? null : me?.empresa_id || null);
@@ -124,27 +127,50 @@ export default function UsuarioDialog({
 
   return (
     <Dialog
-      header={esEdicion ? "Editar usuario" : "Nuevo usuario"}
+      header={esEdicion ? "Editar Usuario" : "Nuevo Usuario"}
       visible={visible}
       modal
       className="p-fluid"
-      style={{ width: "450px" }}
+      style={{ width: "500px" }} // Un poco más ancho para el doble campo
       onHide={onHide}
+      footer={
+        <div className="flex justify-content-end gap-2 mt-3">
+          <Button
+            label="Cancelar"
+            className="p-button-text"
+            onClick={onHide}
+            severity="danger"
+          />
+          <Button
+            label="Guardar"
+            icon="pi pi-check"
+            loading={guardando}
+            onClick={guardar}
+            severity="success"
+          />
+        </div>
+      }
     >
       <Toast ref={toast} />
-      <div className="grid mt-3">
-        <div className="col-12 md:col-7 mb-4">
-          <label htmlFor="username">Usuario</label>
+      <div className="grid mt-2">
+        {/* Usuario y Rol */}
+        <div className="col-12 md:col-7 field">
+          <label htmlFor="username" className="font-bold block mb-2">
+            Usuario
+          </label>
           <InputText
             id="username"
             value={username}
             disabled={esEdicion}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder="Ej: daniel.perez"
           />
         </div>
 
-        <div className="col-12 md:col-5 mb-4">
-          <label htmlFor="role">Rol</label>
+        <div className="col-12 md:col-5 field">
+          <label htmlFor="role" className="font-bold block mb-2">
+            Rol
+          </label>
           <Dropdown
             id="role"
             value={role}
@@ -161,21 +187,41 @@ export default function UsuarioDialog({
           />
         </div>
 
-        <div className="col-12 mb-4">
-          <label htmlFor="password">
-            {esEdicion ? "Cambiar Contraseña (opcional)" : "Contraseña"}
+        {/* Contraseña */}
+        <div className="col-12 md:col-6 field">
+          <label
+            htmlFor="password"
+            title={esEdicion ? "Dejar vacío para no cambiar" : ""}
+            className="font-bold block mb-2"
+          >
+            {esEdicion ? "Nueva Contraseña" : "Contraseña"}
           </label>
           <Password
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             toggleMask
+            placeholder="******"
           />
         </div>
 
-        <div className="col-12">
-          <label className="block text-sm font-bold mb-2">
+        {/* Confirmar Contraseña */}
+        <div className="col-12 md:col-6 field">
+          <label htmlFor="confirmPassword" className="font-bold block mb-2">
+            Confirmar
+          </label>
+          <Password
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            toggleMask
+            placeholder="******"
+          />
+        </div>
+
+        {/* Empresa */}
+        <div className="col-12 field">
+          <label className="font-bold block mb-2 text-primary">
             Empresa Asignada
           </label>
           {me?.role === "superadmin" && role !== "superadmin" ? (
@@ -185,13 +231,14 @@ export default function UsuarioDialog({
               optionLabel="nombre"
               optionValue="id"
               onChange={(e) => setEmpresaId(e.value)}
-              placeholder="Seleccionar empresa..."
+              placeholder="Seleccionar empresa para el usuario..."
               filter
+              className="border-primary"
             />
           ) : (
             <div className="p-inputgroup">
-              <span className="p-inputgroup-addon">
-                <i className="pi pi-building"></i>
+              <span className="p-inputgroup-addon bg-blue-50">
+                <i className="pi pi-building text-primary"></i>
               </span>
               <InputText
                 value={
@@ -200,25 +247,10 @@ export default function UsuarioDialog({
                     : usuario?.empresa || me?.empresa_nombre || ""
                 }
                 disabled
+                className="bg-gray-100"
               />
             </div>
           )}
-        </div>
-
-        <div className="col-12 flex justify-content-end gap-2 mt-3">
-          <Button
-            label="Cancelar"
-            className="p-button-text"
-            onClick={onHide}
-            severity="danger"
-          />
-          <Button
-            label="Guardar"
-            icon="pi pi-check"
-            loading={guardando}
-            onClick={guardar}
-            severity="success"
-          />
         </div>
       </div>
     </Dialog>
