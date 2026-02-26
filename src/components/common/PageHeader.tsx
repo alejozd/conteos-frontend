@@ -18,24 +18,25 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   actions,
 }) => {
   return (
-    <div className="flex flex-column gap-3 mb-4 animate-fadeinup">
+    <div className="flex flex-column gap-3 mb-2 animate-fadeinup">
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
         <div className="flex align-items-center gap-3">
-          {icon && <i className={`${icon} text-primary text-3xl`} />}
+          {icon && <i className={`${icon} text-gray-400 text-3xl`} />}
           <div className="flex flex-column">
             <h2 className="m-0 text-3xl font-bold text-gray-100 tracking-tight">
               {title}
             </h2>
-            {subtitle && <small className="text-gray-500">{subtitle}</small>}
+            {subtitle && <small className="text-gray-500 font-medium">{subtitle}</small>}
           </div>
           {count !== undefined && (
             <Tag
               value={count}
-              severity="success"
-              className="text-lg px-3 py-1 shadow-1"
+              className="text-lg px-3 py-1 shadow-2"
               style={{
-                borderRadius: "20px",
-                background: "linear-gradient(45deg, #3B82F6, #2563EB)",
+                borderRadius: "12px",
+                background: "#1e293b",
+                color: "#3b82f6",
+                border: "1px solid #334155"
               }}
             />
           )}

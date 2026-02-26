@@ -11,28 +11,49 @@ html, body, #root {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #161616;
+  background-color: #0f172a; /* Dark blue-ish background from production */
   color: #ffffff;
   min-height: 100vh;
 }
 
+/* Custom Table Styling */
 .p-datatable-header {
-  padding: 1.25rem !important;
+  padding: 0.75rem 1rem !important; /* Slightly more compact */
   background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-bottom: none !important;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
 
-.p-column-title {
+.p-datatable .p-datatable-thead > tr > th {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+  font-size: 0.8rem; /* Smaller font */
   font-weight: 600;
-  color: #94a3b8;
+  padding: 0.75rem 1rem !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: #1e293b !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #151f33 !important;
 }
 
 /* Custom Menubar Styling */
 .p-menubar {
   border: none !important;
-  border-bottom: 1px solid #1f2937 !important;
-  background: #111827 !important;
+  border-bottom: 1px solid #1e293b !important;
+  background: #0f172a !important;
   padding: 0.5rem 1rem !important;
   display: flex !important;
   align-items: center !important;
@@ -40,49 +61,11 @@ body {
   border-radius: 0 !important;
 }
 
-.p-menubar .p-menubar-button {
-  order: -1 !important;
-  margin-right: 0.5rem !important;
-  color: white !important;
-}
-
-.p-menubar-root-list {
-  flex-grow: 1 !important;
-  justify-content: center !important;
-}
-
-.p-menuitem-link {
-  padding: 0.5rem 0.75rem !important;
-}
-
-.p-menuitem-icon {
-  color: #3B82F6 !important;
-  margin-right: 0.4rem !important;
-}
-
-.p-menuitem-text {
-  font-size: 0.85rem !important;
-  color: #e5e7eb !important;
-}
-
-@media screen and (max-width: 960px) {
-  .p-menubar-root-list {
-    background: #111827 !important;
-    border: 1px solid #1f2937 !important;
-    padding: 1rem !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    width: 100% !important;
-    z-index: 1000 !important;
-  }
-}
-
-/* Base Animations */
+/* Animations */
 @keyframes fadeinup {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -91,64 +74,65 @@ body {
 }
 
 .animate-fadeinup {
-  animation: fadeinup 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeinup 0.4s ease-out forwards;
 }
 
 /* KPI Custom Styles */
 .stat-card-base {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: all 0.2s ease-in-out !important;
+  background-color: #151f33 !important; /* Slightly darker than header */
+  border-left-width: 10px !important; /* Much thicker like production */
+  border-radius: 10px;
 }
 
 .stat-card-base:hover {
-  transform: translateY(-5px) scale(1.02);
+  transform: translateY(-3px);
   background-color: #1e293b !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Blue Card */
-.stat-card-blue {
-  border-left: 6px solid #3b82f6 !important;
-}
-.stat-card-blue:hover {
-  border: 1px solid #3b82f6 !important;
-  border-left: 6px solid #3b82f6 !important;
-}
+/* Color Classes (Modern Palette) */
+.color-blue { color: #3b82f6 !important; }
+.color-red { color: #ef4444 !important; }
+.color-green { color: #10b981 !important; }
+.color-orange { color: #f59e0b !important; }
 
-/* Orange Card */
-.stat-card-orange {
-  border-left: 6px solid #f59e0b !important;
-}
-.stat-card-orange:hover {
-  border: 1px solid #f59e0b !important;
-  border-left: 6px solid #f59e0b !important;
-}
+/* Stat Card Specific Border/Hover Styles */
+.stat-card-blue { border-left: 10px solid #3b82f6 !important; border-color: transparent; }
+.stat-card-blue:hover { border-color: #3b82f6 !important; }
 
-/* Green Card */
-.stat-card-green {
-  border-left: 6px solid #10b981 !important;
-}
-.stat-card-green:hover {
-  border: 1px solid #10b981 !important;
-  border-left: 6px solid #10b981 !important;
-}
+.stat-card-red { border-left: 10px solid #ef4444 !important; border-color: transparent; }
+.stat-card-red:hover { border-color: #ef4444 !important; }
 
-/* Red Card */
-.stat-card-red {
-  border-left: 6px solid #ef4444 !important;
-}
-.stat-card-red:hover {
-  border: 1px solid #ef4444 !important;
-  border-left: 6px solid #ef4444 !important;
-}
+.stat-card-green { border-left: 10px solid #10b981 !important; border-color: transparent; }
+.stat-card-green:hover { border-color: #10b981 !important; }
 
-/* Text Colors */
-.color-blue { color: #60a5fa !important; }
-.color-orange { color: #fbbf24 !important; }
-.color-green { color: #4ade80 !important; }
-.color-red { color: #f87171 !important; }
+.stat-card-orange { border-left: 10px solid #f59e0b !important; border-color: transparent; }
+.stat-card-orange:hover { border-color: #f59e0b !important; }
 
-/* Backgrounds */
+/* Progress Backgrounds */
 .bg-blue { background-color: #3b82f6 !important; }
-.bg-orange { background-color: #f59e0b !important; }
-.bg-green { background-color: #10b981 !important; }
 .bg-red { background-color: #ef4444 !important; }
+.bg-green { background-color: #10b981 !important; }
+.bg-orange { background-color: #f59e0b !important; }
+
+/* Difference Column Template */
+.diff-neutral { color: #94a3b8; font-weight: 500; }
+.diff-positive { color: #10b981; font-weight: 600; }
+.diff-negative { color: #ef4444; font-weight: 600; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

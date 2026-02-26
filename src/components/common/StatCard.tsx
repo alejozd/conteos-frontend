@@ -10,6 +10,8 @@ interface StatCardProps {
   borderColorClass?: string;
   onClick?: () => void;
   children?: React.ReactNode;
+  sideSubtext?: boolean;
+  compact?: boolean;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -21,22 +23,37 @@ export const StatCard: React.FC<StatCardProps> = ({
   borderColorClass,
   onClick,
   children,
+  sideSubtext = false,
+  compact = false,
 }) => {
   return (
     <div
-      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full animate-fadeinup stat-card-base ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
+      className={`${compact ? "p-2" : "p-3"} border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 animate-fadeinup stat-card-base ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
       onClick={onClick}
     >
-      <div className="flex align-items-center gap-2 mb-2">
-        <i className={`${icon} ${colorClass} text-xl`}></i>
-        <span className={`text-sm font-bold uppercase tracking-wider ${colorClass}`}>
+      <div className="flex align-items-center gap-2 mb-1">
+        <i className={`${icon} ${colorClass} text-base md:text-lg`}></i>
+        <span className={`text-xs font-bold uppercase tracking-wider ${colorClass}`}>
           {label}
         </span>
       </div>
       <div className="flex flex-column">
-        <span className="text-3xl font-bold text-gray-100">{value}</span>
-        {subtext && <span className="text-xs text-gray-500 mt-1 font-medium">{subtext}</span>}
-        {children && <div className="mt-3">{children}</div>}
+        {sideSubtext ? (
+          <div className="flex align-items-baseline justify-content-between gap-2">
+            <span className="text-2xl md:text-3xl font-bold text-gray-100 leading-tight">{value}</span>
+            {subtext && (
+              <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{subtext}</span>
+            )}
+          </div>
+        ) : (
+          <>
+            <span className="text-2xl md:text-3xl font-bold text-gray-100 leading-tight">{value}</span>
+            {subtext && (
+              <span className="text-xs text-gray-400 font-medium mt-0.5">{subtext}</span>
+            )}
+          </>
+        )}
+        {children && <div className="mt-1">{children}</div>}
       </div>
     </div>
   );
