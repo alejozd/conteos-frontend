@@ -10,12 +10,12 @@
   overflow: hidden;
   display: block;
   /* Asegura que el navegador optimice el movimiento */
-  will-change: transform; 
+  will-change: transform;
 }
 
 .stat-card-base:hover {
   /* El efecto de subida */
-  transform: translateY(-8px) !important; 
+  transform: translateY(-8px) !important;
   background-color: #1c2841 !important;
   z-index: 50; /* Que se superponga claramente */
 }
