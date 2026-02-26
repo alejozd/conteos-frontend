@@ -95,16 +95,59 @@ body {
 }
 
 /* KPI Custom Styles */
-.stat-card-blue { border-left: 4px solid #3b82f6 !important; }
-.stat-card-orange { border-left: 4px solid #f59e0b !important; }
-.stat-card-green { border-left: 4px solid #10b981 !important; }
-.stat-card-red { border-left: 4px solid #ef4444 !important; }
+.stat-card-base {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
 
+.stat-card-base:hover {
+  transform: translateY(-5px) scale(1.02);
+  background-color: #1e293b !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Blue Card */
+.stat-card-blue {
+  border-left: 6px solid #3b82f6 !important;
+}
+.stat-card-blue:hover {
+  border: 1px solid #3b82f6 !important;
+  border-left: 6px solid #3b82f6 !important;
+}
+
+/* Orange Card */
+.stat-card-orange {
+  border-left: 6px solid #f59e0b !important;
+}
+.stat-card-orange:hover {
+  border: 1px solid #f59e0b !important;
+  border-left: 6px solid #f59e0b !important;
+}
+
+/* Green Card */
+.stat-card-green {
+  border-left: 6px solid #10b981 !important;
+}
+.stat-card-green:hover {
+  border: 1px solid #10b981 !important;
+  border-left: 6px solid #10b981 !important;
+}
+
+/* Red Card */
+.stat-card-red {
+  border-left: 6px solid #ef4444 !important;
+}
+.stat-card-red:hover {
+  border: 1px solid #ef4444 !important;
+  border-left: 6px solid #ef4444 !important;
+}
+
+/* Text Colors */
 .color-blue { color: #60a5fa !important; }
 .color-orange { color: #fbbf24 !important; }
 .color-green { color: #4ade80 !important; }
 .color-red { color: #f87171 !important; }
 
+/* Backgrounds */
 .bg-blue { background-color: #3b82f6 !important; }
 .bg-orange { background-color: #f59e0b !important; }
 .bg-green { background-color: #10b981 !important; }

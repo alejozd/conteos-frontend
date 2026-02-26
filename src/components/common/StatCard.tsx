@@ -24,7 +24,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full transition-all transition-duration-300 hover:bg-gray-800 animate-fadeinup ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
+      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full animate-fadeinup stat-card-base ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
       onClick={onClick}
     >
       <div className="flex align-items-center gap-2 mb-2">
