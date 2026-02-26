@@ -14,6 +14,7 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
+import "../styles/Dashboard.css";
 
 interface SaldoRow {
   id: number;

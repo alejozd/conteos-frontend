@@ -1,0 +1,18 @@
+/* src/styles/Dashboard.css */
+.dashboard-container {
+  padding: 1rem;
+  background-color: #0f172a;
+  min-height: 100vh;
+}
+
+.diff-neutral { color: #94a3b8; font-weight: 500; }
+.diff-positive { color: #10b981; font-weight: 600; }
+.diff-negative { color: #ef4444; font-weight: 600; }
+
+.p-datatable-sm .p-datatable-thead > tr > th {
+  padding: 0.5rem 0.75rem !important;
+}
+
+.p-datatable-sm .p-datatable-tbody > tr > td {
+  padding: 0.5rem 0.75rem !important;
+}

@@ -1,5 +1,6 @@
 // src/components/common/StatCard.tsx
 import React from "react";
+import "../../styles/StatCard.css";
 
 interface StatCardProps {
   label: string;
@@ -28,7 +29,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`${compact ? "p-2" : "p-3"} border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 animate-fadeinup stat-card-base ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
+      className={`${compact ? "p-2" : "p-3"} stat-card-base animate-fadeinup ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
       onClick={onClick}
     >
       <div className="flex align-items-center gap-2 mb-1">
@@ -40,14 +41,18 @@ export const StatCard: React.FC<StatCardProps> = ({
       <div className="flex flex-column">
         {sideSubtext ? (
           <div className="flex align-items-baseline justify-content-between gap-2">
-            <span className="text-2xl md:text-3xl font-bold text-gray-100 leading-tight">{value}</span>
+            <span className={`stat-value text-2xl md:text-3xl font-bold leading-tight ${colorClass}`}>
+              {value}
+            </span>
             {subtext && (
               <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{subtext}</span>
             )}
           </div>
         ) : (
           <>
-            <span className="text-2xl md:text-3xl font-bold text-gray-100 leading-tight">{value}</span>
+            <span className={`stat-value text-2xl md:text-3xl font-bold leading-tight ${colorClass}`}>
+              {value}
+            </span>
             {subtext && (
               <span className="text-xs text-gray-400 font-medium mt-0.5">{subtext}</span>
             )}

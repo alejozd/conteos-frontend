@@ -1,4 +1,6 @@
 /* src/index.css */
+@import "./styles/common.css";
+
 * {
   box-sizing: border-box;
 }
@@ -18,7 +20,7 @@ body {
 
 /* Custom Table Styling */
 .p-datatable-header {
-  padding: 0.75rem 1rem !important; /* Slightly more compact */
+  padding: 0.75rem 1rem !important;
   background-color: #1e293b !important;
   border: 1px solid #334155 !important;
   border-bottom: none !important;
@@ -30,7 +32,7 @@ body {
   background: #1e293b !important;
   color: #94a3b8 !important;
   border-color: #334155 !important;
-  font-size: 0.8rem; /* Smaller font */
+  font-size: 0.8rem;
   font-weight: 600;
   padding: 0.75rem 1rem !important;
 }
@@ -60,66 +62,6 @@ body {
   justify-content: space-between !important;
   border-radius: 0 !important;
 }
-
-/* Animations */
-@keyframes fadeinup {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeinup {
-  animation: fadeinup 0.4s ease-out forwards;
-}
-
-/* KPI Custom Styles */
-.stat-card-base {
-  transition: all 0.2s ease-in-out !important;
-  background-color: #151f33 !important; /* Slightly darker than header */
-  border-left-width: 10px !important; /* Much thicker like production */
-  border-radius: 10px;
-}
-
-.stat-card-base:hover {
-  transform: translateY(-3px);
-  background-color: #1e293b !important;
-  box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.5) !important;
-}
-
-/* Color Classes (Modern Palette) */
-.color-blue { color: #3b82f6 !important; }
-.color-red { color: #ef4444 !important; }
-.color-green { color: #10b981 !important; }
-.color-orange { color: #f59e0b !important; }
-
-/* Stat Card Specific Border/Hover Styles */
-.stat-card-blue { border-left: 10px solid #3b82f6 !important; border-color: transparent; }
-.stat-card-blue:hover { border-color: #3b82f6 !important; }
-
-.stat-card-red { border-left: 10px solid #ef4444 !important; border-color: transparent; }
-.stat-card-red:hover { border-color: #ef4444 !important; }
-
-.stat-card-green { border-left: 10px solid #10b981 !important; border-color: transparent; }
-.stat-card-green:hover { border-color: #10b981 !important; }
-
-.stat-card-orange { border-left: 10px solid #f59e0b !important; border-color: transparent; }
-.stat-card-orange:hover { border-color: #f59e0b !important; }
-
-/* Progress Backgrounds */
-.bg-blue { background-color: #3b82f6 !important; }
-.bg-red { background-color: #ef4444 !important; }
-.bg-green { background-color: #10b981 !important; }
-.bg-orange { background-color: #f59e0b !important; }
-
-/* Difference Column Template */
-.diff-neutral { color: #94a3b8; font-weight: 500; }
-.diff-positive { color: #10b981; font-weight: 600; }
-.diff-negative { color: #ef4444; font-weight: 600; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

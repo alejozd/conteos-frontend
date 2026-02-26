@@ -1,0 +1,28 @@
+/* src/styles/common.css */
+/* Color Classes (Modern Palette) */
+.color-blue { color: #3b82f6 !important; }
+.color-red { color: #ef4444 !important; }
+.color-green { color: #10b981 !important; }
+.color-orange { color: #f59e0b !important; }
+
+/* Backgrounds */
+.bg-blue { background-color: #3b82f6 !important; }
+.bg-red { background-color: #ef4444 !important; }
+.bg-green { background-color: #10b981 !important; }
+.bg-orange { background-color: #f59e0b !important; }
+
+/* Animations */
+@keyframes fadeinup {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeinup {
+  animation: fadeinup 0.4s ease-out forwards;
+}
