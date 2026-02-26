@@ -283,6 +283,8 @@ export default function ConteoOperario() {
                 inputClassName="text-center text-4xl font-bold p-4 bg-gray-900 border-gray-700 text-white"
                 inputStyle={{ height: '5rem' }}
                 min={0}
+                minFractionDigits={0}
+                maxFractionDigits={5}
                 useGrouping={false}
               />
             </div>
