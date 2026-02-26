@@ -1,13 +1,10 @@
 // src/components/ConteoOperario.tsx
-
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../hooks/useAuth";
-
 import { Card } from "primereact/card";
 import { InputNumber } from "primereact/inputnumber";
-import { useNavigate } from "react-router-dom";
 import {
   AutoComplete,
   type AutoCompleteChangeEvent,
@@ -19,11 +16,7 @@ import axios from "axios";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { confirmDialog } from "primereact/confirmdialog";
-import { ConfirmDialog } from "primereact/confirmdialog";
-
-import "../styles/ConteoOperario.css";
-import "../styles/overlay.css";
+import { confirmDialog, ConfirmDialog } from "primereact/confirmdialog";
 
 // TIPOS ============================
 interface Producto {
@@ -47,82 +40,55 @@ export default function ConteoOperario() {
   const { grupoActivo, setGrupoActivo, logout } = useAuth();
   const toast = useRef<Toast>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const params = new URLSearchParams(location.search);
   const grupoId = params.get("grupo");
-  const navigate = useNavigate();
 
   // ESTADOS =========================
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
-  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>(
-    [],
-  );
-  const [productoSeleccionado, setProductoSeleccionado] =
-    useState<Producto | null>(null);
+  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>([]);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] =
-    useState<Ubicacion | null>(null);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
   const [cantidad, setCantidad] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
-  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(
-    null,
-  );
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
 
-  // 0. Recuperar grupoActivo si está en null al recargar ==================
+  // 0. Recuperar grupoActivo
   useEffect(() => {
-    // si ya tenemos grupoActivo no necesitamos hacer nada
-    if (grupoActivo) return;
-
-    // si no viene el id en la URL tampoco podemos recuperar
-    if (!grupoId) return;
+    if (grupoActivo || !grupoId) return;
 
     const fetchGrupoById = async () => {
       try {
         const res = await api.get("/api/conteos/grupos/activos");
         const grupos = Array.isArray(res.data) ? res.data : [];
-
-        const g = grupos.find((x) => String(x.id) === String(grupoId));
-        if (g) {
-          setGrupoActivo(g); // recupera el grupo en memoria
-        } else {
-          console.warn("El grupo no está dentro de los grupos activos.");
-          // Aquí podrías redirigir a SeleccionarGrupo si quieres
-          // navigate("/seleccionar-grupo");
-        }
+        const g = grupos.find((x: any) => String(x.id) === String(grupoId));
+        if (g) setGrupoActivo(g);
       } catch (error) {
-        console.error("Error recuperando grupo por id:", error);
+        console.error("Error recuperando grupo:", error);
       }
     };
-
     fetchGrupoById();
   }, [grupoId, grupoActivo, setGrupoActivo]);
 
-  // 1. Cargar ubicaciones =========================
+  // 1. Cargar bodegas
   useEffect(() => {
-    const fetchBodegasAsignadas = async () => {
+    const fetchBodegas = async () => {
       try {
-        // CAMBIO: Ahora llamamos a /api/asignacion/mis-bodegas
         const res = await api.get("/api/asignacion/mis-bodegas");
         const data = res.data || [];
         setBodegas(data);
-
-        // OPCIONAL: Si solo tiene una bodega asignada, seleccionarla de una vez
-        if (data.length === 1) {
-          setBodegaSeleccionada(data[0]);
-        }
+        if (data.length === 1) setBodegaSeleccionada(data[0]);
       } catch {
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: "No se pudieron cargar tus bodegas asignadas",
-        });
+        toast.current?.show({ severity: "error", summary: "Error", detail: "No se pudieron cargar bodegas" });
       }
     };
-
-    fetchBodegasAsignadas();
+    fetchBodegas();
   }, []);
 
+  // 2. Cargar ubicaciones cuando cambia bodega
   useEffect(() => {
     if (!bodegaSeleccionada) {
       setUbicaciones([]);
@@ -130,156 +96,32 @@ export default function ConteoOperario() {
       return;
     }
 
-    const fetchUbicacionesAsignadas = async () => {
+    const fetchUbicaciones = async () => {
       try {
-        // USAMOS EL NUEVO ENDPOINT DE ASIGNACIONES
-        const res = await api.get(
-          `/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`,
-        );
-
-        const data: Ubicacion[] = res.data || [];
+        const res = await api.get(`/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`);
+        const data = res.data || [];
         setUbicaciones(data);
-
-        // Si solo tiene una ubicación en esta bodega, se la seleccionamos automáticamente
-        if (data.length === 1) {
-          setUbicacionSeleccionada(data[0]);
-        } else {
-          setUbicacionSeleccionada(null);
-        }
+        if (data.length === 1) setUbicacionSeleccionada(data[0]);
       } catch (error) {
-        console.error("Error cargando ubicaciones asignadas:", error);
-        toast.current?.show({
-          severity: "error",
-          summary: "Error",
-          detail: "No se pudieron cargar tus ubicaciones asignadas",
-        });
+        console.error("Error cargando ubicaciones:", error);
       }
     };
-
-    fetchUbicacionesAsignadas();
+    fetchUbicaciones();
   }, [bodegaSeleccionada]);
 
-  // 2. Buscar productos =========================
   const buscarProductos = async (e: AutoCompleteCompleteEvent) => {
+    const q = (e.query ?? "").trim();
+    if (q.length < 2) return;
     try {
-      const q = (e.query ?? "").trim();
-      if (q.length < 2) {
-        setResultadosProductos([]);
-        return;
-      }
-
-      const res = await api.get(
-        `/api/productos/buscar?texto=${encodeURIComponent(q)}`,
-      );
+      const res = await api.get(`/api/productos/buscar?texto=${encodeURIComponent(q)}`);
       setResultadosProductos(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
     }
   };
 
-  // 3. Guardar conteo =========================
-  const esFormularioValido = (): boolean => {
-    if (!productoSeleccionado) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Producto requerido",
-        detail: "Debes seleccionar un producto antes de continuar",
-      });
-      return false;
-    }
-
-    if (!bodegaSeleccionada) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Bodega requerida",
-        detail: "Selecciona una bodega",
-      });
-      return false;
-    }
-
-    if (!ubicacionSeleccionada) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Ubicación requerida",
-        detail: "Selecciona una ubicación",
-      });
-      return false;
-    }
-
-    if (cantidad === null || cantidad <= 0) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Cantidad inválida",
-        detail: "La cantidad debe ser mayor a 0",
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const confirmarGuardado = () => {
-    if (!esFormularioValido()) {
-      return; // 🚫 NO se abre el ConfirmDialog
-    }
-
-    confirmDialog({
-      header: "Confirmar conteo",
-      message: (
-        <div className="confirm-conteo">
-          <div className="fila">
-            <span className="label">Producto:</span>
-            <span className="valor wrap">{productoSeleccionado?.nombre}</span>
-          </div>
-
-          <div className="fila">
-            <span className="label">Referencia:</span>
-            <span className="valor">{productoSeleccionado?.referencia}</span>
-          </div>
-
-          <div className="fila">
-            <span className="label">Bodega:</span>
-            <span className="valor">{bodegaSeleccionada?.nombre}</span>
-          </div>
-
-          <div className="fila">
-            <span className="label">Ubicación:</span>
-            <span className="valor">{ubicacionSeleccionada?.nombre}</span>
-          </div>
-
-          <div className="fila">
-            <span className="label">Cantidad:</span>
-            <span className="valor">{cantidad}</span>
-          </div>
-        </div>
-      ),
-
-      icon: "pi pi-exclamation-triangle",
-      acceptLabel: "Sí, guardar",
-      rejectLabel: "Cancelar",
-      acceptClassName: "p-button-success",
-      rejectClassName: "p-button-danger p-button-text",
-      defaultFocus: "accept",
-      accept: guardar,
-    });
-  };
-
   const guardar = async () => {
-    // VALIDACIONES INTERNAS
-    if (
-      !productoSeleccionado ||
-      !bodegaSeleccionada ||
-      !ubicacionSeleccionada ||
-      cantidad === null ||
-      cantidad <= 0
-    ) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Faltan datos",
-        detail: "Completa el formulario correctamente",
-      });
-      return;
-    }
+    if (!productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0) return;
 
     try {
       setLoading(true);
@@ -290,32 +132,16 @@ export default function ConteoOperario() {
         conteo_grupo_id: Number(grupoId),
       });
 
-      toast.current?.show({
-        severity: "success",
-        summary: "Guardado",
-        detail: "Conteo registrado correctamente",
-      });
-
+      toast.current?.show({ severity: "success", summary: "Guardado", detail: "Conteo registrado" });
       setProductoSeleccionado(null);
       setCantidad(null);
       setUbicacionSeleccionada(null);
       setTextoBusqueda("");
-      setResultadosProductos([]);
     } catch (error) {
-      let msg = "No se pudo guardar el conteo";
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 403) {
-          msg = error.response.data.message || "El conteo ya no está activo.";
-          toast.current?.show({
-            severity: "error",
-            summary: "Conteo Inactivo",
-            detail: msg,
-            life: 5000,
-          });
-          setTimeout(() => navigate("/post-login"), 3000);
-          return;
-        }
-        msg = error.response?.data?.message || msg;
+      let msg = "No se pudo guardar";
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
+        navigate("/post-login");
+        return;
       }
       toast.current?.show({ severity: "error", summary: "Error", detail: msg });
     } finally {
@@ -323,144 +149,139 @@ export default function ConteoOperario() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const confirmarGuardado = () => {
+    if (!productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0) {
+      toast.current?.show({ severity: "warn", summary: "Datos incompletos", detail: "Completa todos los campos" });
+      return;
+    }
+
+    confirmDialog({
+      header: "Confirmar conteo",
+      message: (
+        <div className="flex flex-col gap-2 py-2">
+          <p><strong>Producto:</strong> {productoSeleccionado.nombre}</p>
+          <p><strong>Referencia:</strong> {productoSeleccionado.referencia}</p>
+          <p><strong>Ubicación:</strong> {bodegaSeleccionada.nombre} - {ubicacionSeleccionada.nombre}</p>
+          <p className="text-xl mt-2"><strong>Cantidad:</strong> <span className="text-blue-500 font-bold">{cantidad}</span></p>
+        </div>
+      ),
+      icon: "pi pi-exclamation-triangle",
+      acceptLabel: "Confirmar",
+      rejectLabel: "Cancelar",
+      acceptClassName: "p-button-success",
+      accept: guardar,
+    });
   };
 
   return (
-    <div className="conteo-container">
+    <div className="min-h-screen bg-gray-950 flex flex-col items-center p-4">
       <ConfirmDialog />
+      <Toast ref={toast} />
+
       {loading && (
-        <div className="overlay-mask-spinner">
-          <ProgressSpinner
-            style={{ width: "80px", height: "80px" }}
-            strokeWidth="6"
-          />
-          <p>Guardando...</p>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+          <ProgressSpinner />
+          <p className="text-white mt-4 font-bold">Guardando conteo...</p>
         </div>
       )}
 
-      <Toast ref={toast} />
-
-      <Card className="conteo-card shadow-4 border-round-xl">
-        <div className="logout-container">
-          <Button
-            label="Salir"
-            icon="pi pi-sign-out"
-            className="p-button-danger p-button-sm"
-            text
-            onClick={handleLogout}
-          />
+      <div className="w-full max-w-lg">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-3">
+             <i className="pi pi-box text-blue-500 text-3xl"></i>
+             <h1 className="text-2xl font-bold text-white m-0">Captura</h1>
+          </div>
+          <Button icon="pi pi-sign-out" label="Salir" text severity="danger" onClick={() => { logout(); navigate("/login"); }} />
         </div>
-        <h2 className="conteo-titulo">Conteo: {grupoActivo?.descripcion}</h2>
-        <p className="conteo-fecha">
-          Fecha: <strong>{grupoActivo?.fecha}</strong>
-        </p>
 
-        {/* BUSCADOR DE PRODUCTO */}
-        <div className="form-section">
-          <label className="label">Buscar producto</label>
+        <Card className="bg-gray-900 border-gray-800 text-white shadow-xl rounded-2xl">
+          <div className="mb-6 border-b border-gray-800 pb-4">
+             <h2 className="text-xl font-bold text-blue-400 m-0">{grupoActivo?.descripcion || "Cargando..."}</h2>
+             <p className="text-gray-500 text-sm mt-1">Fecha: {grupoActivo?.fecha}</p>
+          </div>
 
-          <AutoComplete
-            value={textoBusqueda}
-            suggestions={resultadosProductos}
-            completeMethod={buscarProductos}
-            dropdown
-            field="nombre"
-            placeholder="Escribe referencia o nombre..."
-            className={`w-full ${!productoSeleccionado ? "p-invalid" : ""}`}
-            onChange={(e: AutoCompleteChangeEvent<string | Producto>) => {
-              const v = e.value;
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-400">Producto</label>
+              <AutoComplete
+                value={textoBusqueda}
+                suggestions={resultadosProductos}
+                completeMethod={buscarProductos}
+                dropdown
+                field="nombre"
+                placeholder="Nombre o referencia..."
+                className="w-full"
+                inputClassName="w-full bg-gray-800 border-gray-700 text-white"
+                onChange={(e: AutoCompleteChangeEvent) => setTextoBusqueda(e.value)}
+                onSelect={(e: AutoCompleteSelectEvent) => {
+                  setProductoSeleccionado(e.value);
+                  setTextoBusqueda(e.value.nombre);
+                }}
+                itemTemplate={(item: Producto) => (
+                  <div className="flex flex-col">
+                    <span className="font-bold">{item.nombre}</span>
+                    <small className="text-gray-500">{item.referencia}</small>
+                  </div>
+                )}
+              />
+            </div>
 
-              if (typeof v === "string") {
-                setTextoBusqueda(v);
-              } else if (v) {
-                const prod = v as Producto;
-                setTextoBusqueda(prod.nombre);
-                setProductoSeleccionado(prod);
-              }
-            }}
-            onSelect={(e: AutoCompleteSelectEvent) => {
-              const prod = e.value as Producto;
-              setProductoSeleccionado(prod);
-              setTextoBusqueda(prod.nombre);
-            }}
-            itemTemplate={(item: Producto) => (
-              <div className="item-producto">
-                <div className="nombre">{item.nombre}</div>
-                <div className="referencia">{item.referencia}</div>
+            {productoSeleccionado && (
+              <div className="bg-blue-900/20 border border-blue-800/50 p-3 rounded-lg">
+                 <p className="m-0 text-blue-400 font-bold">{productoSeleccionado.nombre}</p>
+                 <p className="m-0 text-gray-500 text-xs mt-1">Ref: {productoSeleccionado.referencia}</p>
               </div>
             )}
-          />
-        </div>
 
-        {/* INFO DEL PRODUCTO */}
-        {productoSeleccionado && (
-          <Card title={productoSeleccionado.nombre} className="producto-info">
-            <p className="ref">Ref: {productoSeleccionado.referencia}</p>
-          </Card>
-        )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-400">Bodega</label>
+                <Dropdown
+                  value={bodegaSeleccionada}
+                  options={bodegas}
+                  optionLabel="nombre"
+                  placeholder="Bodega"
+                  className="w-full bg-gray-800 border-gray-700 text-white"
+                  onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-400">Ubicación</label>
+                <Dropdown
+                  value={ubicacionSeleccionada}
+                  options={ubicaciones}
+                  optionLabel="nombre"
+                  placeholder="Ubicación"
+                  disabled={!bodegaSeleccionada}
+                  className="w-full bg-gray-800 border-gray-700 text-white"
+                  onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
+                />
+              </div>
+            </div>
 
-        {/* BODEGA */}
-        <div className="form-section">
-          <label className="label">Bodega</label>
-          <Dropdown
-            value={bodegaSeleccionada}
-            options={bodegas}
-            optionLabel="nombre"
-            placeholder="Selecciona bodega"
-            className={`w-full ${!bodegaSeleccionada ? "p-invalid" : ""}`}
-            onChange={(e: DropdownChangeEvent) => {
-              setBodegaSeleccionada(e.value as Bodega);
-              setUbicacionSeleccionada(null);
-            }}
-          />
-        </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-400">Cantidad</label>
+              <InputNumber
+                value={cantidad}
+                onValueChange={(e) => setCantidad(e.value ?? null)}
+                placeholder="0.00"
+                className="w-full"
+                inputClassName="w-full bg-gray-800 border-gray-700 text-white text-2xl font-bold py-3"
+                min={0}
+                minFractionDigits={2}
+              />
+            </div>
 
-        {/* UBICACIÓN */}
-        <div className="form-section">
-          <label className="label">Ubicación</label>
-          <Dropdown
-            value={ubicacionSeleccionada}
-            options={ubicaciones}
-            optionLabel="nombre"
-            placeholder={
-              bodegaSeleccionada
-                ? "Selecciona ubicación"
-                : "Primero selecciona una bodega"
-            }
-            disabled={!bodegaSeleccionada}
-            className={`w-full ${!ubicacionSeleccionada ? "p-invalid" : ""}`}
-            onChange={(e: DropdownChangeEvent) =>
-              setUbicacionSeleccionada(e.value as Ubicacion)
-            }
-          />
-        </div>
-
-        {/* CANTIDAD */}
-        <div className="form-section">
-          <label className="label">Cantidad</label>
-          <InputNumber
-            value={cantidad}
-            onValueChange={(e) => setCantidad(e.value ?? null)}
-            className={`w-full ${
-              cantidad !== null && cantidad <= 0 ? "p-invalid" : ""
-            }`}
-            min={0}
-            minFractionDigits={2}
-            maxFractionDigits={5}
-          />
-        </div>
-
-        <Button
-          label="Guardar conteo"
-          icon="pi pi-check"
-          className="w-full mt-3"
-          onClick={confirmarGuardado}
-          loading={loading}
-        />
-      </Card>
+            <Button
+              label="Guardar Conteo"
+              icon="pi pi-check"
+              className="w-full py-4 text-xl font-bold shadow-lg shadow-blue-900/20 mt-2"
+              onClick={confirmarGuardado}
+              disabled={loading}
+            />
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

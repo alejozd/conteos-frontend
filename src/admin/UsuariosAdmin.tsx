@@ -13,6 +13,7 @@ import { Dropdown } from "primereact/dropdown"; // Importante para el filtro
 import api from "../services/api";
 import UsuarioDialog from "./UsuarioDialog";
 import { AuthContext } from "../context/AuthContext"; // Importamos el contexto
+import { PageHeader } from "../components/common/PageHeader";
 
 interface UsuarioRow {
   id: number;
@@ -149,35 +150,23 @@ export default function UsuariosAdmin() {
 
   const header = (
     <div className="flex flex-column gap-3">
-      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
-        <div className="flex align-items-center gap-3">
-          <i className="pi pi-users text-primary text-3xl" />
-          <h2 className="m-0 text-3xl font-bold text-900 tracking-tight">
-            Administración de Usuarios
-          </h2>
-          <Tag
-            value={usuariosFiltrados.length}
+      <PageHeader
+        title="Administración de Usuarios"
+        icon="pi pi-users"
+        count={usuariosFiltrados.length}
+        actions={
+          <Button
+            label="Nuevo Usuario"
+            icon="pi pi-user-plus"
             severity="success"
-            className="text-lg px-3 py-1 shadow-1"
-            style={{
-              borderRadius: "20px",
-              background: "linear-gradient(45deg, #22c55e, #16a34a)",
+            className="p-button-sm shadow-2"
+            onClick={() => {
+              setUsuarioEditando(null);
+              setDialogVisible(true);
             }}
-            icon="pi pi-user-check"
           />
-        </div>
-
-        <Button
-          label="Nuevo Usuario"
-          icon="pi pi-user-plus"
-          severity="success"
-          className="p-button-sm shadow-2"
-          onClick={() => {
-            setUsuarioEditando(null);
-            setDialogVisible(true);
-          }}
-        />
-      </div>
+        }
+      />
 
       <div className="flex flex-column md:flex-row align-items-center bg-gray-900 p-3 border-round border-1 border-gray-800 gap-3">
         <div className="flex-1 w-full">

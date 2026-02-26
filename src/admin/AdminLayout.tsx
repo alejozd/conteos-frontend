@@ -83,9 +83,9 @@ export default function AdminLayout() {
       className="flex align-items-center gap-2 px-2 cursor-pointer flex-shrink-0"
       onClick={() => navigate("/admin")}
     >
-      <i className="pi pi-box text-primary text-2xl"></i>
+      <i className="pi pi-box text-blue-500 text-2xl"></i>
       <span className="text-xl font-bold text-white tracking-tight hidden sm:inline">
-        STOCK<span className="text-primary">APP</span>
+        STOCK<span className="text-blue-500">APP</span>
       </span>
     </div>
   );
@@ -96,7 +96,7 @@ export default function AdminLayout() {
         <div className="hidden xl:flex flex-column align-items-end border-right-1 border-gray-700 pr-3">
           <span
             className="text-xs text-gray-500 font-semibold uppercase"
-            style={{ fontSize: "0.65rem" }}
+            style={{ fontSize: '0.65rem' }}
           >
             Empresa
           </span>
@@ -133,75 +133,11 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex flex-column bg-gray-950">
-      <style>{`
-        /* 1. Forzar una sola línea y reordenar */
-        .p-menubar {
-            display: flex !important;
-            flex-wrap: nowrap !important; /* Evita que salte a la siguiente línea */
-            align-items: center !important;
-            padding: 0.5rem 1rem !important;
-            background: #111827 !important;
-            border-color: #1f2937 !important;
-            border-radius: 0;
-            justify-content: space-between;
-        }
-
-        .p-menubar .p-menubar-button {
-            order: -1;
-            margin-right: 0.5rem;
-            color: white !important;
-        }
-
-        /* 2. Ajustar la lista de items para que no empuje el final */
-        .p-menubar-root-list {
-            flex-grow: 1;
-            justify-content: center; /* Centra los items si hay espacio */
-        }
-
-        .p-menuitem-link {
-            padding: 0.5rem 0.75rem !important; /* Reducimos padding lateral */
-        }
-
-        .p-menuitem-icon {
-            color: #3B82F6 !important; 
-            margin-right: 0.4rem !important;
-        }
-
-        .p-menuitem-text {
-            font-size: 0.85rem;
-            color: #e5e7eb;
-        }
-
-        /* 3. Manejo de responsividad */
-        @media screen and (max-width: 1200px) {
-            /* En pantallas intermedias, si el menú es muy largo, ocultamos el nombre de empresa */
-            .p-menubar-root-list {
-                justify-content: flex-start;
-            }
-        }
-
-        @media screen and (max-width: 960px) {
-            .p-menubar-start {
-                margin-right: auto; 
-            }
-            .p-menubar-root-list {
-                background: #111827 !important;
-                border: 1px solid #1f2937 !important;
-                padding: 1rem !important;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                z-index: 1000;
-            }
-        }
-      `}</style>
-
       <Menubar
         model={menuItems}
         start={start}
         end={end}
-        className="border-none border-bottom-1 shadow-8"
+        className="shadow-8"
       />
 
       <main className="p-3 md:p-4 flex-1 overflow-auto">

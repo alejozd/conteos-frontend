@@ -11,8 +11,9 @@ import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import api from "../services/api";
-import "../styles/DashboardSaldos.css";
 import { useNavigate } from "react-router-dom";
+import { PageHeader } from "../components/common/PageHeader";
+import { StatCard } from "../components/common/StatCard";
 
 interface SaldoRow {
   id: number;
@@ -251,113 +252,72 @@ export default function DashboardSaldos() {
 
   const header = (
     <div className="flex flex-column gap-3">
-      {/* FILA 1: Título y Selector de Grupo */}
-      <div className="flex flex-column md:flex-row justify-content-between align-items-center gap-3">
-        <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
-        <Dropdown
-          value={grupoSeleccionado}
-          options={grupos}
-          optionLabel="descripcion"
-          placeholder="Seleccionar conteo"
-          itemTemplate={grupoOptionTemplate}
-          valueTemplate={grupoValueTemplate}
-          className="p-inputtext-sm w-full md:w-20rem"
-          onChange={(e) => setGrupoSeleccionado(e.value)}
-        />
-      </div>
+      <PageHeader
+        title="Saldos vs Conteos"
+        icon="pi pi-chart-line"
+        actions={
+          <Dropdown
+            value={grupoSeleccionado}
+            options={grupos}
+            optionLabel="descripcion"
+            placeholder="Seleccionar conteo"
+            itemTemplate={grupoOptionTemplate}
+            valueTemplate={grupoValueTemplate}
+            className="p-inputtext-sm w-full md:w-20rem"
+            onChange={(e) => setGrupoSeleccionado(e.value)}
+          />
+        }
+      />
 
-      {/* FILA 2: Indicadores Rápidos (KPIs) Compactos */}
       <div className="grid mt-1">
-        {/* AVANCE */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 border-avance">
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-chart-bar color-avance text-xs"></i>
-              <span className="kpi-label color-avance">Avance General</span>
-            </div>
-            <div className="flex justify-content-between align-items-end">
-              <span className="kpi-value color-avance">
-                {porcentajeAvance}%
-              </span>
-              <span className="kpi-subtext mb-1">
-                {productosContados} / {data.length}
-              </span>
-            </div>
-            <div
-              className="w-full bg-gray-800 border-round mt-2"
-              style={{ height: "4px" }}
-            >
-              <div
-                className="bg-blue-500 border-round"
-                style={{ width: `${porcentajeAvance}%`, height: "100%" }}
-              ></div>
-            </div>
-          </div>
+          <StatCard
+            label="Avance General"
+            value={`${porcentajeAvance}%`}
+            subtext={`${productosContados} / ${data.length} productos`}
+            icon="pi pi-chart-bar"
+            colorClass="text-blue-500"
+          />
         </div>
 
-        {/* DIFERENCIAS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div
-            className="kpi-card shadow-1 border-diferencias cursor-pointer"
+          <StatCard
+            label="Con Diferencia"
+            value={totalDiferencias}
+            subtext="Pendientes de revisión"
+            icon="pi pi-exclamation-triangle"
+            colorClass="text-orange-500"
             onClick={toggleDiferencias}
-          >
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-exclamation-triangle color-diferencias text-xs"></i>
-              <span className="kpi-label color-diferencias">
-                Con Diferencia
-              </span>
-            </div>
-            <div className="flex flex-column">
-              <span className="kpi-value color-diferencias">
-                {totalDiferencias}
-              </span>
-              <span className="kpi-subtext">Pendientes de revisión</span>
-            </div>
-          </div>
+          />
         </div>
 
-        {/* REGISTROS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div
-            className="kpi-card shadow-1 border-registros cursor-pointer"
+          <StatCard
+            label="Registros"
+            value={totalRegistros}
+            subtext="Operaciones guardadas"
+            icon="pi pi-clone"
+            colorClass="text-green-500"
             onClick={toggleSoloConteos}
-          >
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-clone color-registros text-xs"></i>
-              <span className="kpi-label color-registros">Registros</span>
-            </div>
-            <div className="flex flex-column">
-              <span className="kpi-value color-registros">
-                {totalRegistros}
-              </span>
-              <span className="kpi-subtext">Operaciones guardadas</span>
-            </div>
-          </div>
+          />
         </div>
 
-        {/* ANULADOS */}
         <div className="col-12 sm:col-6 md:col-3">
-          <div
-            className="kpi-card shadow-1 border-anulados cursor-pointer"
+          <StatCard
+            label="Anulados"
+            value={totalAnulados}
+            subtext="Correcciones realizadas"
+            icon="pi pi-trash"
+            colorClass="text-red-500"
             onClick={() =>
               navigate("/admin/conteos-anulados", {
                 state: { grupoId: grupoSeleccionado?.id },
               })
             }
-          >
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-trash color-anulados text-xs"></i>
-              <span className="kpi-label color-anulados">Anulados</span>
-            </div>
-            <div className="flex flex-column">
-              <span className="kpi-value color-anulados">{totalAnulados}</span>
-              <span className="kpi-subtext">Correcciones realizadas</span>
-            </div>
-          </div>
+          />
         </div>
       </div>
 
-      {/* FILA 3: Botones de Acción y Buscador */}
       <div className="flex flex-wrap lg:justify-content-between align-items-center gap-2">
         <div className="flex flex-wrap gap-2">
           <Button

@@ -11,6 +11,7 @@ import { InputText } from "primereact/inputtext";
 import * as XLSX from "xlsx"; // Importar para Excel
 import { saveAs } from "file-saver";
 import api from "../services/api";
+import { PageHeader } from "../components/common/PageHeader";
 
 interface Grupo {
   id: number;
@@ -147,63 +148,56 @@ export default function ComparativaConteos() {
   ];
 
   const header = (
-    <div className="flex flex-column gap-2 ">
-      {/* FILA 1: Título y Buscador (Más compacto) */}
-      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-2">
-        <div className="flex align-items-center gap-2">
-          <i className="pi pi-chart-bar text-primary text-xl"></i>
-          <h2 className="m-0 text-white text-lg md:text-xl font-semibold">
-            Análisis Comparativo
-          </h2>
-        </div>
-
-        <div className="flex flex-row align-items-center gap-2 w-full md:w-auto">
-          <IconField iconPosition="left" className="flex-1 md:w-15rem">
-            <InputIcon className="pi pi-search" />
-            <InputText
-              type="search"
-              placeholder="Buscar..."
-              className="w-full p-inputtext-sm"
-              onInput={(e) =>
-                setGlobalFilter((e.target as HTMLInputElement).value)
-              }
+    <div className="flex flex-column gap-2">
+      <PageHeader
+        title="Análisis Comparativo"
+        icon="pi pi-chart-bar"
+        actions={
+          <div className="flex flex-row align-items-center gap-2 w-full md:w-auto">
+            <IconField iconPosition="left" className="flex-1 md:w-15rem">
+              <InputIcon className="pi pi-search" />
+              <InputText
+                type="search"
+                placeholder="Buscar..."
+                className="w-full p-inputtext-sm"
+                onInput={(e) =>
+                  setGlobalFilter((e.target as HTMLInputElement).value)
+                }
+              />
+            </IconField>
+            <Button
+              icon="pi pi-file-excel"
+              label="Excel"
+              className="p-button-success p-button-sm px-3"
+              onClick={exportarExcel}
+              disabled={!datos.length}
             />
-          </IconField>
-          <Button
-            icon="pi pi-file-excel"
-            label="Excel"
-            className="p-button-success p-button-sm px-3"
-            onClick={exportarExcel}
-            disabled={!datos.length}
-          />
-        </div>
-      </div>
+          </div>
+        }
+      />
 
-      {/* FILA 2: Controles de Selección (Layout Inteligente) */}
-      <div className="flex flex-column lg:flex-row gap-2  border-gray-700">
-        {/* Panel Izquierdo: Grupos */}
-        <div className="flex-1 flex flex-column gap-1 kpi-card">
-          <label className="text-xs font-bold text-blue-300 uppercase ml-1">
-            <i className="pi pi-filter mr-1"></i> Grupos
+      <div className="flex flex-column lg:flex-row gap-2">
+        <div className="flex-1 flex flex-column gap-1 p-3 bg-gray-900 border-1 border-gray-800 rounded-lg shadow-sm">
+          <label className="text-xs font-bold text-blue-400 uppercase ml-1">
+            <i className="pi pi-filter mr-1"></i> Grupos de Conteo
           </label>
           <MultiSelect
             value={seleccionados}
             options={grupos}
             onChange={(e) => setSeleccionados(e.value)}
             optionLabel="descripcion"
-            placeholder="Seleccionar..."
+            placeholder="Seleccionar grupos..."
             display="chip"
-            className="w-full p-multiselect-sm "
+            className="w-full p-multiselect-sm"
             maxSelectedLabels={1}
             selectedItemsLabel="{0} grupos seleccionados"
           />
         </div>
 
-        {/* Panel Derecho: Cálculo (Solo si hay grupos) */}
         {seleccionados.length > 0 && (
-          <div className="flex-1 flex flex-column gap-2 kpi-card">
-            <label className="text-xs font-bold uppercase ml-1">
-              <i className="pi pi-calculator mr-1"></i> Cálculo (A - B)
+          <div className="flex-1 flex flex-column gap-2 p-3 bg-gray-900 border-1 border-gray-800 rounded-lg shadow-sm">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">
+              <i className="pi pi-calculator mr-1"></i> Comparar (A - B)
             </label>
             <div className="flex align-items-center gap-2">
               <Dropdown
@@ -214,7 +208,7 @@ export default function ComparativaConteos() {
                   setDatos([...datos]);
                 }}
                 placeholder="A"
-                className="flex-1 p-inputtext-sm "
+                className="flex-1 p-inputtext-sm"
               />
               <span className="text-xs font-bold text-gray-500">vs</span>
               <Dropdown
@@ -225,16 +219,15 @@ export default function ComparativaConteos() {
                   setDatos([...datos]);
                 }}
                 placeholder="B"
-                className="flex-1 p-inputtext-sm "
+                className="flex-1 p-inputtext-sm"
               />
             </div>
           </div>
         )}
       </div>
 
-      {/* Indicador de comparación actual más sutil */}
       {compararA && compararB && (
-        <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 kpi-card">
+        <div className="flex flex-row flex-wrap align-items-center gap-2 mb-3 px-3 py-2 bg-gray-900/50 border-1 border-gray-800 rounded-lg">
           <i className="pi pi-info-circle text-xs text-blue-400"></i>
           <small className="text-gray-400 mr-1">Análisis:</small>
           <Tag
