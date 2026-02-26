@@ -18,7 +18,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   actions,
 }) => {
   return (
-    <div className="flex flex-column gap-3 mb-4">
+    <div className="flex flex-column gap-3 mb-4 animate-fadeinup">
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
         <div className="flex align-items-center gap-3">
           {icon && <i className={`${icon} text-primary text-3xl`} />}

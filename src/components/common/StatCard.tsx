@@ -7,8 +7,9 @@ interface StatCardProps {
   subtext?: string;
   icon: string;
   colorClass: string;
+  borderColor?: string;
   onClick?: () => void;
-  loading?: boolean;
+  children?: React.ReactNode;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -17,11 +18,13 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtext,
   icon,
   colorClass,
+  borderColor,
   onClick,
+  children,
 }) => {
   return (
     <div
-      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full cursor-pointer hover:bg-gray-800 transition-colors transition-duration-200 ${onClick ? "cursor-pointer" : ""}`}
+      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full transition-all transition-duration-300 hover:bg-gray-800 animate-fadeinup ${onClick ? "cursor-pointer" : ""} ${borderColor ? `border-left-3 ${borderColor}` : ""}`}
       onClick={onClick}
     >
       <div className="flex align-items-center gap-2 mb-2">
@@ -33,6 +36,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       <div className="flex flex-column">
         <span className="text-2xl font-bold text-gray-100">{value}</span>
         {subtext && <span className="text-xs text-gray-500 mt-1">{subtext}</span>}
+        {children && <div className="mt-3">{children}</div>}
       </div>
     </div>
   );

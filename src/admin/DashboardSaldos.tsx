@@ -276,8 +276,16 @@ export default function DashboardSaldos() {
             value={`${porcentajeAvance}%`}
             subtext={`${productosContados} / ${data.length} productos`}
             icon="pi pi-chart-bar"
-            colorClass="text-blue-500"
-          />
+            colorClass="text-blue-400"
+            borderColor="border-blue-500"
+          >
+            <div className="w-full bg-gray-800 border-round overflow-hidden" style={{ height: "6px" }}>
+               <div
+                 className="bg-blue-500 transition-all transition-duration-500"
+                 style={{ width: `${porcentajeAvance}%`, height: "100%" }}
+               />
+            </div>
+          </StatCard>
         </div>
 
         <div className="col-12 sm:col-6 md:col-3">
@@ -286,7 +294,8 @@ export default function DashboardSaldos() {
             value={totalDiferencias}
             subtext="Pendientes de revisión"
             icon="pi pi-exclamation-triangle"
-            colorClass="text-orange-500"
+            colorClass="text-orange-400"
+            borderColor="border-orange-500"
             onClick={toggleDiferencias}
           />
         </div>
@@ -297,7 +306,8 @@ export default function DashboardSaldos() {
             value={totalRegistros}
             subtext="Operaciones guardadas"
             icon="pi pi-clone"
-            colorClass="text-green-500"
+            colorClass="text-green-400"
+            borderColor="border-green-500"
             onClick={toggleSoloConteos}
           />
         </div>
@@ -308,7 +318,8 @@ export default function DashboardSaldos() {
             value={totalAnulados}
             subtext="Correcciones realizadas"
             icon="pi pi-trash"
-            colorClass="text-red-500"
+            colorClass="text-red-400"
+            borderColor="border-red-500"
             onClick={() =>
               navigate("/admin/conteos-anulados", {
                 state: { grupoId: grupoSeleccionado?.id },

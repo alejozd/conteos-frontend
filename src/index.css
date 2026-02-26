@@ -76,3 +76,19 @@ body {
     z-index: 1000 !important;
   }
 }
+
+/* Base Animations */
+@keyframes fadeinup {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeinup {
+  animation: fadeinup 0.5s ease-out forwards;
+}
