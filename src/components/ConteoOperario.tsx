@@ -158,7 +158,7 @@ export default function ConteoOperario() {
     confirmDialog({
       header: "Confirmar conteo",
       message: (
-        <div className="flex flex-col gap-2 py-2">
+        <div className="flex flex-column gap-2 py-2">
           <p><strong>Producto:</strong> {productoSeleccionado.nombre}</p>
           <p><strong>Referencia:</strong> {productoSeleccionado.referencia}</p>
           <p><strong>Ubicación:</strong> {bodegaSeleccionada.nombre} - {ubicacionSeleccionada.nombre}</p>
@@ -174,54 +174,59 @@ export default function ConteoOperario() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center p-4">
+    <div className="min-h-screen flex flex-column align-items-center p-4" style={{ backgroundColor: '#0f172a' }}>
       <ConfirmDialog />
       <Toast ref={toast} />
 
       {loading && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div
+          className="fixed top-0 left-0 w-full h-full z-5 flex flex-column align-items-center justify-content-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+        >
           <ProgressSpinner />
           <p className="text-white mt-4 font-bold">Guardando conteo...</p>
         </div>
       )}
 
-      <div className="w-full max-w-lg">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
+      <div className="w-full" style={{ maxWidth: '500px' }}>
+        <div className="flex justify-content-between align-items-center mb-5">
+          <div className="flex align-items-center gap-2">
              <i className="pi pi-box text-blue-500 text-3xl"></i>
-             <h1 className="text-2xl font-bold text-white m-0">Captura</h1>
+             <span className="text-2xl font-bold text-white uppercase tracking-tight">Captura</span>
           </div>
           <Button icon="pi pi-sign-out" label="Salir" text severity="danger" onClick={() => { logout(); navigate("/login"); }} />
         </div>
 
-        <Card className="bg-gray-900 border-gray-800 text-white shadow-xl rounded-2xl">
-          <div className="mb-6 border-b border-gray-800 pb-4">
-             <h2 className="text-2xl font-bold text-white m-0">Conteo: {grupoActivo?.descripcion || "..."}</h2>
-             <p className="text-gray-400 text-sm mt-2 flex items-center gap-2">
-                <span className="font-semibold">Fecha:</span> {grupoActivo?.fecha || "..."}
+        <Card
+          className="shadow-8 border-round-2xl text-white p-fluid"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
+        >
+          <div className="mb-5 border-bottom-1 border-gray-700 pb-3">
+             <h2 className="text-xl font-bold text-white m-0">{grupoActivo?.descripcion || "Conteo de Inventario"}</h2>
+             <p className="text-gray-400 text-sm mt-1">
+                Fecha: {grupoActivo?.fecha || "---"}
              </p>
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-gray-200">Buscar producto</label>
+          <div className="flex flex-column gap-4">
+            <div className="field flex flex-column gap-2">
+              <label className="font-bold text-gray-300">Buscar producto</label>
               <AutoComplete
                 value={textoBusqueda}
                 suggestions={resultadosProductos}
                 completeMethod={buscarProductos}
                 dropdown
                 field="nombre"
-                placeholder="Escribe referencia o nombre..."
+                placeholder="Referencia o nombre..."
+                inputClassName="p-4 text-lg bg-gray-900 border-gray-700 text-white"
                 className="w-full"
-                inputClassName="w-full bg-gray-800 border-gray-700 text-white p-4 text-lg"
-                panelClassName="bg-gray-800 border-gray-700 text-white"
                 onChange={(e: AutoCompleteChangeEvent) => setTextoBusqueda(e.value)}
                 onSelect={(e: AutoCompleteSelectEvent) => {
                   setProductoSeleccionado(e.value);
                   setTextoBusqueda(e.value.nombre);
                 }}
                 itemTemplate={(item: Producto) => (
-                  <div className="flex flex-col p-1">
+                  <div className="flex flex-column p-1">
                     <span className="font-bold text-blue-400">{item.nombre}</span>
                     <small className="text-gray-400">{item.referencia}</small>
                   </div>
@@ -230,60 +235,62 @@ export default function ConteoOperario() {
             </div>
 
             {productoSeleccionado && (
-              <div className="bg-gray-800/40 border border-gray-700 p-4 rounded-xl">
-                 <div className="flex items-center gap-3 mb-1">
-                    <i className="pi pi-tag text-blue-500"></i>
-                    <p className="m-0 text-blue-400 font-bold text-lg">{productoSeleccionado.nombre}</p>
+              <div
+                className="border-round-xl p-3 mb-2"
+                style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
+              >
+                 <div className="flex align-items-center gap-2">
+                    <i className="pi pi-tag text-blue-400"></i>
+                    <span className="font-bold text-blue-100">{productoSeleccionado.nombre}</span>
                  </div>
-                 <p className="m-0 text-gray-500 text-sm ml-7">Ref: {productoSeleccionado.referencia}</p>
+                 <div className="text-gray-400 text-xs ml-4 mt-1">REF: {productoSeleccionado.referencia}</div>
               </div>
             )}
 
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-gray-200">Bodega</label>
-                <Dropdown
-                  value={bodegaSeleccionada}
-                  options={bodegas}
-                  optionLabel="nombre"
-                  placeholder="Selecciona bodega"
-                  className="w-full bg-gray-800 border-gray-700 text-white h-14 flex items-center"
-                  onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-gray-200">Ubicación</label>
-                <Dropdown
-                  value={ubicacionSeleccionada}
-                  options={ubicaciones}
-                  optionLabel="nombre"
-                  placeholder={bodegaSeleccionada ? "Selecciona ubicación" : "Primero selecciona una bodega"}
-                  disabled={!bodegaSeleccionada}
-                  className="w-full bg-gray-800 border-gray-700 text-white h-14 flex items-center"
-                  onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
-                />
-              </div>
+            <div className="field flex flex-column gap-2">
+              <label className="font-bold text-gray-300">Bodega</label>
+              <Dropdown
+                value={bodegaSeleccionada}
+                options={bodegas}
+                optionLabel="nombre"
+                placeholder="Seleccione bodega"
+                className="bg-gray-900 border-gray-700 text-white"
+                style={{ height: '3.5rem' }}
+                onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
+              />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-gray-200">Cantidad</label>
+            <div className="field flex flex-column gap-2">
+              <label className="font-bold text-gray-300">Ubicación</label>
+              <Dropdown
+                value={ubicacionSeleccionada}
+                options={ubicaciones}
+                optionLabel="nombre"
+                placeholder="Seleccione ubicación"
+                disabled={!bodegaSeleccionada}
+                className="bg-gray-900 border-gray-700 text-white"
+                style={{ height: '3.5rem' }}
+                onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
+              />
+            </div>
+
+            <div className="field flex flex-column gap-2">
+              <label className="font-bold text-gray-300">Cantidad</label>
               <InputNumber
                 value={cantidad}
                 onValueChange={(e) => setCantidad(e.value ?? null)}
                 placeholder="0"
-                className="w-full"
-                inputClassName="w-full bg-gray-800 border-gray-700 text-white text-3xl font-bold p-4 h-16"
+                inputClassName="text-center text-4xl font-bold p-4 bg-gray-900 border-gray-700 text-white"
+                inputStyle={{ height: '5rem' }}
                 min={0}
-                minFractionDigits={0}
-                maxFractionDigits={5}
                 useGrouping={false}
               />
             </div>
 
             <Button
-              label="Guardar conteo"
+              label="GUARDAR CONTEO"
               icon="pi pi-check"
-              className="w-full py-5 text-xl font-bold shadow-lg shadow-blue-900/20 mt-4"
+              className="p-4 text-xl font-bold mt-2 shadow-4"
               onClick={confirmarGuardado}
               loading={loading}
               disabled={loading}
