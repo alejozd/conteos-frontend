@@ -1,52 +1,42 @@
 /* src/styles/StatCard.css */
 .stat-card-base {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  /* Quitamos el !important del transform para que no choque con animaciones de entrada */
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease, background-color 0.3s ease;
   background-color: #151f33 !important;
-  border-left-width: 12px !important; /* Double thickness */
-  border-radius: 12px;
+  border-left-width: 6px !important;
+  border-radius: 8px;
   border: 1px solid #1e293b;
   position: relative;
   overflow: hidden;
+  display: block;
+  /* Asegura que el navegador optimice el movimiento */
+  will-change: transform; 
 }
 
 .stat-card-base:hover {
-  transform: translateY(-8px) scale(1.01) !important;
-  background-color: #1e293b !important;
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 15px 0 rgba(59, 130, 246, 0.1) !important;
-  z-index: 10;
+  /* El efecto de subida */
+  transform: translateY(-8px) !important; 
+  background-color: #1c2841 !important;
+  z-index: 50; /* Que se superponga claramente */
 }
 
-/* Color specific borders and hover effects */
+/* Colores y sombras (Glow effect) */
 .stat-card-blue { border-left-color: #3b82f6 !important; }
 .stat-card-blue:hover {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 12px 20px -10px rgba(59, 130, 246, 0.5) !important;
 }
 
 .stat-card-red { border-left-color: #ef4444 !important; }
 .stat-card-red:hover {
-  border-color: #ef4444 !important;
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(239, 68, 68, 0.4) !important;
+  box-shadow: 0 12px 20px -10px rgba(239, 68, 68, 0.5) !important;
 }
 
 .stat-card-green { border-left-color: #10b981 !important; }
 .stat-card-green:hover {
-  border-color: #10b981 !important;
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 12px 20px -10px rgba(16, 185, 129, 0.5) !important;
 }
 
 .stat-card-orange { border-left-color: #f59e0b !important; }
 .stat-card-orange:hover {
-  border-color: #f59e0b !important;
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 12px 20px -10px rgba(245, 158, 11, 0.5) !important;
 }
-
-/* Text colors within cards */
-.stat-card-base .stat-value {
-  transition: color 0.3s ease;
-}
-
-.stat-card-blue:hover .stat-value { color: #60a5fa !important; }
-.stat-card-red:hover .stat-value { color: #f87171 !important; }
-.stat-card-green:hover .stat-value { color: #4ade80 !important; }
-.stat-card-orange:hover .stat-value { color: #fbbf24 !important; }

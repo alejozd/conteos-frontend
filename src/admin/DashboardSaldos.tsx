@@ -165,21 +165,44 @@ export default function DashboardSaldos() {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Saldos");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(blob, `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    saveAs(
+      blob,
+      `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    );
   };
 
   const grupoOptionTemplate = (option: ConteoGrupo) => {
     return (
-      <div className="flex align-items-center justify-content-between w-full" style={{ minWidth: "14rem" }}>
-        <span style={{ color: option.activo === 0 ? "#94a3b8" : "#f8fafc", fontWeight: option.activo === 1 ? "500" : "normal" }}>
+      <div
+        className="flex align-items-center justify-content-between w-full"
+        style={{ minWidth: "14rem" }}
+      >
+        <span
+          style={{
+            color: option.activo === 0 ? "#94a3b8" : "#f8fafc",
+            fontWeight: option.activo === 1 ? "500" : "normal",
+          }}
+        >
           {option.descripcion}
-          {option.activo === 0 && <small className="ml-2 font-italic" style={{ opacity: 0.7 }}>(Inactivo)</small>}
+          {option.activo === 0 && (
+            <small className="ml-2 font-italic" style={{ opacity: 0.7 }}>
+              (Inactivo)
+            </small>
+          )}
         </span>
-        {option.activo === 1 && <i className="pi pi-circle-fill" style={{ fontSize: "0.5rem", color: "#22c55e", marginLeft: "10px" }}></i>}
+        {option.activo === 1 && (
+          <i
+            className="pi pi-circle-fill"
+            style={{ fontSize: "0.5rem", color: "#22c55e", marginLeft: "10px" }}
+          ></i>
+        )}
       </div>
     );
   };
@@ -188,8 +211,20 @@ export default function DashboardSaldos() {
     if (!option) return <span>{props.placeholder}</span>;
     return (
       <div className="flex align-items-center gap-2">
-        <span style={{ color: "#f8fafc", fontWeight: option.activo === 1 ? "600" : "400" }}>{option.descripcion}</span>
-        {option.activo === 1 && <i className="pi pi-circle-fill" style={{ fontSize: "0.5rem", color: "#22c55e" }} />}
+        <span
+          style={{
+            color: "#f8fafc",
+            fontWeight: option.activo === 1 ? "600" : "400",
+          }}
+        >
+          {option.descripcion}
+        </span>
+        {option.activo === 1 && (
+          <i
+            className="pi pi-circle-fill"
+            style={{ fontSize: "0.5rem", color: "#22c55e" }}
+          />
+        )}
       </div>
     );
   };
@@ -213,7 +248,7 @@ export default function DashboardSaldos() {
         }
       />
 
-      <div className="grid mt-1 mb-2 px-1">
+      <div className="grid mt-1 mb-2 px-1 pt-4">
         <div className="col-12 sm:col-6 md:col-3 p-1">
           <StatCard
             label="Avance General"
@@ -225,8 +260,14 @@ export default function DashboardSaldos() {
             sideSubtext
             compact
           >
-            <div className="w-full bg-gray-800 border-round overflow-hidden mt-1" style={{ height: "6px" }}>
-               <div className="bg-blue transition-all transition-duration-500" style={{ width: `${porcentajeAvance}%`, height: "100%" }} />
+            <div
+              className="w-full bg-gray-800 border-round overflow-hidden mt-1"
+              style={{ height: "6px" }}
+            >
+              <div
+                className="bg-blue transition-all transition-duration-500"
+                style={{ width: `${porcentajeAvance}%`, height: "100%" }}
+              />
             </div>
           </StatCard>
         </div>
@@ -265,7 +306,11 @@ export default function DashboardSaldos() {
             icon="pi pi-trash"
             colorClass="color-orange"
             borderColorClass="stat-card-orange"
-            onClick={() => navigate("/admin/conteos-anulados", { state: { grupoId: grupoSeleccionado?.id } })}
+            onClick={() =>
+              navigate("/admin/conteos-anulados", {
+                state: { grupoId: grupoSeleccionado?.id },
+              })
+            }
             compact
           />
         </div>
@@ -278,9 +323,9 @@ export default function DashboardSaldos() {
             icon="pi pi-filter"
             className={`p-button-sm ${soloConDiferencia ? "" : "p-button-outlined"}`}
             style={{
-              borderColor: '#3b82f6',
-              backgroundColor: soloConDiferencia ? '#3b82f6' : 'transparent',
-              color: soloConDiferencia ? 'white' : '#3b82f6'
+              borderColor: "#3b82f6",
+              backgroundColor: soloConDiferencia ? "#3b82f6" : "transparent",
+              color: soloConDiferencia ? "white" : "#3b82f6",
             }}
             onClick={toggleDiferencias}
             disabled={loading}
@@ -290,9 +335,9 @@ export default function DashboardSaldos() {
             icon="pi pi-box"
             className={`p-button-sm ${soloConConteo ? "" : "p-button-outlined"}`}
             style={{
-              borderColor: '#3b82f6',
-              backgroundColor: soloConConteo ? '#3b82f6' : 'transparent',
-              color: soloConConteo ? 'white' : '#3b82f6'
+              borderColor: "#3b82f6",
+              backgroundColor: soloConConteo ? "#3b82f6" : "transparent",
+              color: soloConConteo ? "white" : "#3b82f6",
             }}
             onClick={toggleSoloConteos}
             disabled={loading}
@@ -341,10 +386,29 @@ export default function DashboardSaldos() {
       >
         <Column field="nombre" header="Producto" sortable />
         <Column field="referencia" header="Referencia" sortable />
-        <Column field="saldo_sistema" header="Saldo sistema" sortable body={(row) => Number(row.saldo_sistema).toFixed(2)} style={{ textAlign: "right" }} />
-        <Column field="conteo_total" header="Conteo" sortable body={(row) => Number(row.conteo_total).toFixed(2)} style={{ textAlign: "right" }} />
-        <Column header="Diferencia" body={diferenciaTemplate} sortable style={{ textAlign: "right" }} />
-        <Column header="Detalle" body={(row: SaldoRow) => {
+        <Column
+          field="saldo_sistema"
+          header="Saldo sistema"
+          sortable
+          body={(row) => Number(row.saldo_sistema).toFixed(2)}
+          style={{ textAlign: "right" }}
+        />
+        <Column
+          field="conteo_total"
+          header="Conteo"
+          sortable
+          body={(row) => Number(row.conteo_total).toFixed(2)}
+          style={{ textAlign: "right" }}
+        />
+        <Column
+          header="Diferencia"
+          body={diferenciaTemplate}
+          sortable
+          style={{ textAlign: "right" }}
+        />
+        <Column
+          header="Detalle"
+          body={(row: SaldoRow) => {
             const tieneDetalle = Number(row.conteo_total) > 0;
             return (
               <Button
