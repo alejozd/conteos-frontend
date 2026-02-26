@@ -7,7 +7,7 @@ interface StatCardProps {
   subtext?: string;
   icon: string;
   colorClass: string;
-  borderColor?: string;
+  borderColorClass?: string;
   onClick?: () => void;
   children?: React.ReactNode;
 }
@@ -18,24 +18,24 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtext,
   icon,
   colorClass,
-  borderColor,
+  borderColorClass,
   onClick,
   children,
 }) => {
   return (
     <div
-      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full transition-all transition-duration-300 hover:bg-gray-800 animate-fadeinup ${onClick ? "cursor-pointer" : ""} ${borderColor ? `border-left-3 ${borderColor}` : ""}`}
+      className={`p-3 border-round-xl bg-gray-900 border-1 border-gray-800 shadow-4 h-full transition-all transition-duration-300 hover:bg-gray-800 animate-fadeinup ${onClick ? "cursor-pointer" : ""} ${borderColorClass || ""}`}
       onClick={onClick}
     >
       <div className="flex align-items-center gap-2 mb-2">
         <i className={`${icon} ${colorClass} text-xl`}></i>
-        <span className={`text-sm font-semibold uppercase tracking-wider ${colorClass}`}>
+        <span className={`text-sm font-bold uppercase tracking-wider ${colorClass}`}>
           {label}
         </span>
       </div>
       <div className="flex flex-column">
-        <span className="text-2xl font-bold text-gray-100">{value}</span>
-        {subtext && <span className="text-xs text-gray-500 mt-1">{subtext}</span>}
+        <span className="text-3xl font-bold text-gray-100">{value}</span>
+        {subtext && <span className="text-xs text-gray-500 mt-1 font-medium">{subtext}</span>}
         {children && <div className="mt-3">{children}</div>}
       </div>
     </div>
