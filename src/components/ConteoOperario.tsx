@@ -196,87 +196,96 @@ export default function ConteoOperario() {
 
         <Card className="bg-gray-900 border-gray-800 text-white shadow-xl rounded-2xl">
           <div className="mb-6 border-b border-gray-800 pb-4">
-             <h2 className="text-xl font-bold text-blue-400 m-0">{grupoActivo?.descripcion || "Cargando..."}</h2>
-             <p className="text-gray-500 text-sm mt-1">Fecha: {grupoActivo?.fecha}</p>
+             <h2 className="text-2xl font-bold text-white m-0">Conteo: {grupoActivo?.descripcion || "..."}</h2>
+             <p className="text-gray-400 text-sm mt-2 flex items-center gap-2">
+                <span className="font-semibold">Fecha:</span> {grupoActivo?.fecha || "..."}
+             </p>
           </div>
 
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-400">Producto</label>
+              <label className="text-sm font-bold text-gray-200">Buscar producto</label>
               <AutoComplete
                 value={textoBusqueda}
                 suggestions={resultadosProductos}
                 completeMethod={buscarProductos}
                 dropdown
                 field="nombre"
-                placeholder="Nombre o referencia..."
+                placeholder="Escribe referencia o nombre..."
                 className="w-full"
-                inputClassName="w-full bg-gray-800 border-gray-700 text-white"
+                inputClassName="w-full bg-gray-800 border-gray-700 text-white p-4 text-lg"
+                panelClassName="bg-gray-800 border-gray-700 text-white"
                 onChange={(e: AutoCompleteChangeEvent) => setTextoBusqueda(e.value)}
                 onSelect={(e: AutoCompleteSelectEvent) => {
                   setProductoSeleccionado(e.value);
                   setTextoBusqueda(e.value.nombre);
                 }}
                 itemTemplate={(item: Producto) => (
-                  <div className="flex flex-col">
-                    <span className="font-bold">{item.nombre}</span>
-                    <small className="text-gray-500">{item.referencia}</small>
+                  <div className="flex flex-col p-1">
+                    <span className="font-bold text-blue-400">{item.nombre}</span>
+                    <small className="text-gray-400">{item.referencia}</small>
                   </div>
                 )}
               />
             </div>
 
             {productoSeleccionado && (
-              <div className="bg-blue-900/20 border border-blue-800/50 p-3 rounded-lg">
-                 <p className="m-0 text-blue-400 font-bold">{productoSeleccionado.nombre}</p>
-                 <p className="m-0 text-gray-500 text-xs mt-1">Ref: {productoSeleccionado.referencia}</p>
+              <div className="bg-gray-800/40 border border-gray-700 p-4 rounded-xl">
+                 <div className="flex items-center gap-3 mb-1">
+                    <i className="pi pi-tag text-blue-500"></i>
+                    <p className="m-0 text-blue-400 font-bold text-lg">{productoSeleccionado.nombre}</p>
+                 </div>
+                 <p className="m-0 text-gray-500 text-sm ml-7">Ref: {productoSeleccionado.referencia}</p>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-400">Bodega</label>
+                <label className="text-sm font-bold text-gray-200">Bodega</label>
                 <Dropdown
                   value={bodegaSeleccionada}
                   options={bodegas}
                   optionLabel="nombre"
-                  placeholder="Bodega"
-                  className="w-full bg-gray-800 border-gray-700 text-white"
+                  placeholder="Selecciona bodega"
+                  className="w-full bg-gray-800 border-gray-700 text-white h-14 flex items-center"
                   onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-400">Ubicación</label>
+                <label className="text-sm font-bold text-gray-200">Ubicación</label>
                 <Dropdown
                   value={ubicacionSeleccionada}
                   options={ubicaciones}
                   optionLabel="nombre"
-                  placeholder="Ubicación"
+                  placeholder={bodegaSeleccionada ? "Selecciona ubicación" : "Primero selecciona una bodega"}
                   disabled={!bodegaSeleccionada}
-                  className="w-full bg-gray-800 border-gray-700 text-white"
+                  className="w-full bg-gray-800 border-gray-700 text-white h-14 flex items-center"
                   onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
                 />
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-400">Cantidad</label>
+              <label className="text-sm font-bold text-gray-200">Cantidad</label>
               <InputNumber
                 value={cantidad}
                 onValueChange={(e) => setCantidad(e.value ?? null)}
-                placeholder="0.00"
+                placeholder="0"
                 className="w-full"
-                inputClassName="w-full bg-gray-800 border-gray-700 text-white text-2xl font-bold py-3"
+                inputClassName="w-full bg-gray-800 border-gray-700 text-white text-3xl font-bold p-4 h-16"
                 min={0}
-                minFractionDigits={2}
+                minFractionDigits={0}
+                maxFractionDigits={5}
+                useGrouping={false}
               />
             </div>
 
             <Button
-              label="Guardar Conteo"
+              label="Guardar conteo"
               icon="pi pi-check"
-              className="w-full py-4 text-xl font-bold shadow-lg shadow-blue-900/20 mt-2"
+              className="w-full py-5 text-xl font-bold shadow-lg shadow-blue-900/20 mt-4"
               onClick={confirmarGuardado}
+              loading={loading}
               disabled={loading}
             />
           </div>
