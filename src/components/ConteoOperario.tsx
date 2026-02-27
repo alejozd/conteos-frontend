@@ -55,14 +55,20 @@ export default function ConteoOperario() {
 
   // ESTADOS =========================
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
-  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>([]);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
+  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>(
+    [],
+  );
+  const [productoSeleccionado, setProductoSeleccionado] =
+    useState<Producto | null>(null);
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] =
+    useState<Ubicacion | null>(null);
   const [cantidad, setCantidad] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
-  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(
+    null,
+  );
   const [intentoSometido, setIntentoSometido] = useState(false);
 
   // 0. Recuperar grupoActivo
@@ -72,7 +78,9 @@ export default function ConteoOperario() {
     const fetchGrupoById = async () => {
       try {
         const res = await api.get("/api/conteos/grupos/activos");
-        const grupos = (Array.isArray(res.data) ? res.data : []) as ConteoGrupo[];
+        const grupos = (
+          Array.isArray(res.data) ? res.data : []
+        ) as ConteoGrupo[];
         const g = grupos.find((x) => String(x.id) === String(grupoId));
         if (g) setGrupoActivo(g);
       } catch (error) {
@@ -91,7 +99,11 @@ export default function ConteoOperario() {
         setBodegas(data);
         if (data.length === 1) setBodegaSeleccionada(data[0]);
       } catch {
-        toast.current?.show({ severity: "error", summary: "Error", detail: "No se pudieron cargar bodegas" });
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "No se pudieron cargar bodegas",
+        });
       }
     };
     fetchBodegas();
@@ -107,7 +119,9 @@ export default function ConteoOperario() {
 
     const fetchUbicaciones = async () => {
       try {
-        const res = await api.get(`/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`);
+        const res = await api.get(
+          `/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`,
+        );
         const data = res.data || [];
         setUbicaciones(data);
         if (data.length === 1) setUbicacionSeleccionada(data[0]);
@@ -120,17 +134,33 @@ export default function ConteoOperario() {
 
   const buscarProductos = async (e: AutoCompleteCompleteEvent) => {
     const q = (e.query ?? "").trim();
-    if (q.length < 2) return;
+
+    // Si la consulta es muy corta, limpiamos resultados y salimos
+    if (q.length < 2) {
+      setResultadosProductos([]);
+      return;
+    }
+
     try {
-      const res = await api.get(`/api/productos/buscar?texto=${encodeURIComponent(q)}`);
+      const res = await api.get(
+        `/api/productos/buscar?texto=${encodeURIComponent(q)}`,
+      );
       setResultadosProductos(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
+      setResultadosProductos([]);
     }
   };
 
   const guardar = async () => {
-    if (!productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0) return;
+    if (
+      !productoSeleccionado ||
+      !bodegaSeleccionada ||
+      !ubicacionSeleccionada ||
+      !cantidad ||
+      cantidad <= 0
+    )
+      return;
 
     try {
       setLoading(true);
@@ -141,14 +171,18 @@ export default function ConteoOperario() {
         conteo_grupo_id: Number(grupoId),
       });
 
-      toast.current?.show({ severity: "success", summary: "Guardado", detail: "Conteo registrado" });
+      toast.current?.show({
+        severity: "success",
+        summary: "Guardado",
+        detail: "Conteo registrado",
+      });
       setProductoSeleccionado(null);
       setCantidad(null);
       setUbicacionSeleccionada(null);
       setTextoBusqueda("");
       setIntentoSometido(false);
     } catch (error) {
-      let msg = "No se pudo guardar";
+      const msg = "No se pudo guardar";
       if (axios.isAxiosError(error) && error.response?.status === 403) {
         navigate("/post-login");
         return;
@@ -161,25 +195,69 @@ export default function ConteoOperario() {
 
   const confirmarGuardado = () => {
     setIntentoSometido(true);
-    if (!productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0) {
-      toast.current?.show({ severity: "warn", summary: "Datos incompletos", detail: "Completa todos los campos" });
+    if (
+      !productoSeleccionado ||
+      !bodegaSeleccionada ||
+      !ubicacionSeleccionada ||
+      !cantidad ||
+      cantidad <= 0
+    ) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Datos incompletos",
+        detail: "Completa todos los campos",
+      });
       return;
     }
 
     confirmDialog({
-      header: "Confirmar conteo",
+      header: "Verificar Información",
+      className: "confirm-capture-dialog w-11 md:w-30rem",
+      closable: false,
       message: (
-        <div className="flex flex-column gap-2 py-2">
-          <p><strong>Producto:</strong> {productoSeleccionado.nombre}</p>
-          <p><strong>Referencia:</strong> {productoSeleccionado.referencia}</p>
-          <p><strong>Ubicación:</strong> {bodegaSeleccionada.nombre} - {ubicacionSeleccionada.nombre}</p>
-          <p className="text-xl mt-2"><strong>Cantidad:</strong> <span className="text-blue-500 font-bold">{cantidad}</span></p>
+        <div className="flex flex-column gap-3 mt-3">
+          {/* Caja Producto */}
+          <div className="info-box">
+            <div className="text-highlight">
+              <i className="pi pi-box"></i> PRODUCTO
+            </div>
+            <div className="text-lg font-bold line-height-3">
+              {productoSeleccionado.nombre}
+            </div>
+            <div className="text-sm text-gray-400 mt-1 font-mono">
+              REF: {productoSeleccionado.referencia}
+            </div>
+          </div>
+
+          {/* Caja Ubicación */}
+          <div className="info-box">
+            <div className="text-highlight">
+              <i className="pi pi-map-marker"></i> UBICACIÓN
+            </div>
+            <div className="text-base font-semibold">
+              {bodegaSeleccionada.nombre}{" "}
+              <i className="pi pi-chevron-right text-xs mx-1 opacity-50"></i>{" "}
+              {ubicacionSeleccionada.nombre}
+            </div>
+          </div>
+
+          {/* Caja Cantidad */}
+          <div className="quantity-box mt-2">
+            <span className="font-bold text-lg">CANTIDAD TOTAL</span>
+            <span className="text-4xl font-black">{cantidad}</span>
+          </div>
+
+          <p className="text-center text-lg italic">
+            ¿Confirmas que los datos son correctos?
+          </p>
         </div>
       ),
-      icon: "pi pi-exclamation-triangle",
-      acceptLabel: "Confirmar",
-      rejectLabel: "Cancelar",
-      acceptClassName: "p-button-success",
+      icon: "hidden",
+      acceptLabel: "Sí, Guardar",
+      rejectLabel: "Corregir",
+      acceptClassName: "p-button-success p-button-lg w-full md:w-auto",
+      rejectClassName:
+        "p-button-text p-button-warning p-button-lg w-full md:w-auto",
       accept: guardar,
     });
   };
@@ -199,18 +277,31 @@ export default function ConteoOperario() {
       <div className="capture-content">
         <div className="flex justify-content-between align-items-center mb-2">
           <div className="flex align-items-center gap-2">
-             <i className="pi pi-box text-blue-500 text-3xl"></i>
-             <span className="text-2xl font-bold text-white uppercase tracking-tight">Captura</span>
+            <i className="pi pi-box text-blue-500 text-3xl"></i>
+            <span className="text-2xl font-bold text-white uppercase tracking-tight">
+              Captura
+            </span>
           </div>
-          <Button icon="pi pi-sign-out" label="Salir" text severity="danger" onClick={() => { logout(); navigate("/login"); }} />
+          <Button
+            icon="pi pi-sign-out"
+            label="Salir"
+            text
+            severity="danger"
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          />
         </div>
 
         <Card className="shadow-8 border-round-2xl text-white p-fluid capture-card">
           <div className="mb-3 border-bottom-1 border-gray-700 pb-2">
-             <h2 className="text-xl font-bold text-white m-0">{grupoActivo?.descripcion || "Conteo de Inventario"}</h2>
-             <p className="text-gray-400 text-sm mt-1">
-                Fecha: {grupoActivo?.fecha || "---"}
-             </p>
+            <h2 className="text-xl font-bold text-white m-0">
+              {grupoActivo?.descripcion || "Conteo de Inventario"}
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              Fecha: {grupoActivo?.fecha || "---"}
+            </p>
           </div>
 
           <div className="flex flex-column gap-2">
@@ -223,17 +314,29 @@ export default function ConteoOperario() {
                 dropdown
                 field="nombre"
                 placeholder="Referencia o nombre..."
+                // MENSAJE CUANDO NO HAY RESULTADOS O TEXTO CORTO
+                emptyMessage={
+                  textoBusqueda.trim().length < 2
+                    ? "Escribe al menos 2 caracteres para buscar"
+                    : "No se encontraron productos"
+                }
                 inputClassName="p-3 text-lg bg-gray-900 border-gray-700 text-white"
                 className="w-full"
                 invalid={intentoSometido && !productoSeleccionado}
-                onChange={(e: AutoCompleteChangeEvent) => setTextoBusqueda(e.value)}
+                onChange={(e: AutoCompleteChangeEvent) => {
+                  setTextoBusqueda(e.value);
+                  // Si el usuario borra el texto, deseleccionamos el producto
+                  if (!e.value) setProductoSeleccionado(null);
+                }}
                 onSelect={(e: AutoCompleteSelectEvent) => {
                   setProductoSeleccionado(e.value);
                   setTextoBusqueda(e.value.nombre);
                 }}
                 itemTemplate={(item: Producto) => (
                   <div className="flex flex-column p-1">
-                    <span className="font-bold text-blue-400">{item.nombre}</span>
+                    <span className="font-bold text-blue-400">
+                      {item.nombre}
+                    </span>
                     <small className="text-gray-400">{item.referencia}</small>
                   </div>
                 )}
@@ -242,11 +345,15 @@ export default function ConteoOperario() {
 
             {productoSeleccionado && (
               <div className="border-round-xl p-2 mb-1 capture-product-info">
-                 <div className="flex align-items-center gap-2">
-                    <i className="pi pi-tag text-blue-400"></i>
-                    <span className="font-bold text-blue-100">{productoSeleccionado.nombre}</span>
-                 </div>
-                 <div className="text-gray-400 text-xs ml-4 mt-1">REF: {productoSeleccionado.referencia}</div>
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-tag text-blue-400"></i>
+                  <span className="font-bold text-blue-100">
+                    {productoSeleccionado.nombre}
+                  </span>
+                </div>
+                <div className="text-gray-400 text-xs ml-4 mt-1">
+                  REF: {productoSeleccionado.referencia}
+                </div>
               </div>
             )}
 
@@ -258,7 +365,9 @@ export default function ConteoOperario() {
                 optionLabel="nombre"
                 placeholder="Seleccione bodega"
                 className="bg-gray-900 border-gray-700 text-white capture-dropdown"
-                onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
+                onChange={(e: DropdownChangeEvent) =>
+                  setBodegaSeleccionada(e.value)
+                }
                 invalid={intentoSometido && !bodegaSeleccionada}
               />
             </div>
@@ -272,7 +381,9 @@ export default function ConteoOperario() {
                 placeholder="Seleccione ubicación"
                 disabled={!bodegaSeleccionada}
                 className="bg-gray-900 border-gray-700 text-white capture-dropdown"
-                onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
+                onChange={(e: DropdownChangeEvent) =>
+                  setUbicacionSeleccionada(e.value)
+                }
                 invalid={intentoSometido && !ubicacionSeleccionada}
               />
             </div>
