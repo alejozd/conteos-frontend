@@ -174,7 +174,7 @@ export default function ConteoOperario() {
   };
 
   return (
-    <div className="min-h-screen flex flex-column align-items-center p-4" style={{ backgroundColor: '#0f172a' }}>
+    <div className="min-h-screen flex flex-column align-items-center p-2" style={{ backgroundColor: '#0f172a' }}>
       <ConfirmDialog />
       <Toast ref={toast} />
 
@@ -189,7 +189,7 @@ export default function ConteoOperario() {
       )}
 
       <div className="w-full" style={{ maxWidth: '500px' }}>
-        <div className="flex justify-content-between align-items-center mb-5">
+        <div className="flex justify-content-between align-items-center mb-2">
           <div className="flex align-items-center gap-2">
              <i className="pi pi-box text-blue-500 text-3xl"></i>
              <span className="text-2xl font-bold text-white uppercase tracking-tight">Captura</span>
@@ -201,14 +201,14 @@ export default function ConteoOperario() {
           className="shadow-8 border-round-2xl text-white p-fluid"
           style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
         >
-          <div className="mb-5 border-bottom-1 border-gray-700 pb-3">
+          <div className="mb-3 border-bottom-1 border-gray-700 pb-2">
              <h2 className="text-xl font-bold text-white m-0">{grupoActivo?.descripcion || "Conteo de Inventario"}</h2>
              <p className="text-gray-400 text-sm mt-1">
                 Fecha: {grupoActivo?.fecha || "---"}
              </p>
           </div>
 
-          <div className="flex flex-column gap-4">
+          <div className="flex flex-column gap-2">
             <div className="field flex flex-column gap-2">
               <label className="font-bold text-gray-300">Buscar producto</label>
               <AutoComplete
@@ -218,7 +218,7 @@ export default function ConteoOperario() {
                 dropdown
                 field="nombre"
                 placeholder="Referencia o nombre..."
-                inputClassName="p-4 text-lg bg-gray-900 border-gray-700 text-white"
+                inputClassName="p-3 text-lg bg-gray-900 border-gray-700 text-white"
                 className="w-full"
                 onChange={(e: AutoCompleteChangeEvent) => setTextoBusqueda(e.value)}
                 onSelect={(e: AutoCompleteSelectEvent) => {
@@ -236,7 +236,7 @@ export default function ConteoOperario() {
 
             {productoSeleccionado && (
               <div
-                className="border-round-xl p-3 mb-2"
+                className="border-round-xl p-2 mb-1"
                 style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
               >
                  <div className="flex align-items-center gap-2">
@@ -255,7 +255,7 @@ export default function ConteoOperario() {
                 optionLabel="nombre"
                 placeholder="Seleccione bodega"
                 className="bg-gray-900 border-gray-700 text-white"
-                style={{ height: '3.5rem' }}
+                style={{ height: '3rem' }}
                 onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
               />
             </div>
@@ -269,7 +269,7 @@ export default function ConteoOperario() {
                 placeholder="Seleccione ubicación"
                 disabled={!bodegaSeleccionada}
                 className="bg-gray-900 border-gray-700 text-white"
-                style={{ height: '3.5rem' }}
+                style={{ height: '3rem' }}
                 onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
               />
             </div>
@@ -280,8 +280,8 @@ export default function ConteoOperario() {
                 value={cantidad}
                 onValueChange={(e) => setCantidad(e.value ?? null)}
                 placeholder="0"
-                inputClassName="text-center text-4xl font-bold p-4 bg-gray-900 border-gray-700 text-white"
-                inputStyle={{ height: '5rem' }}
+                inputClassName="text-center text-4xl font-bold p-2 bg-gray-900 border-gray-700 text-white"
+                inputStyle={{ height: '4rem' }}
                 min={0}
                 minFractionDigits={0}
                 maxFractionDigits={5}
@@ -292,7 +292,7 @@ export default function ConteoOperario() {
             <Button
               label="GUARDAR CONTEO"
               icon="pi pi-check"
-              className="p-4 text-xl font-bold mt-2 shadow-4"
+              className="p-3 text-xl font-bold mt-1 shadow-4"
               onClick={confirmarGuardado}
               loading={loading}
               disabled={loading}
