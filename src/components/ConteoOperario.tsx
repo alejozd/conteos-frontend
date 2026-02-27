@@ -55,16 +55,27 @@ export default function ConteoOperario() {
 
   // ESTADOS =========================
   const [textoBusqueda, setTextoBusqueda] = useState<string>("");
-  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>([]);
-  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
+  const [resultadosProductos, setResultadosProductos] = useState<Producto[]>(
+    [],
+  );
+  const [productoSeleccionado, setProductoSeleccionado] =
+    useState<Producto | null>(null);
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] = useState<Ubicacion | null>(null);
+  const [ubicacionSeleccionada, setUbicacionSeleccionada] =
+    useState<Ubicacion | null>(null);
   const [cantidad, setCantidad] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
-  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(
+    null,
+  );
 
-  const isFormInvalid = !productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0;
+  const isFormInvalid =
+    !productoSeleccionado ||
+    !bodegaSeleccionada ||
+    !ubicacionSeleccionada ||
+    !cantidad ||
+    cantidad <= 0;
 
   // 0. Recuperar grupoActivo
   useEffect(() => {
@@ -73,7 +84,9 @@ export default function ConteoOperario() {
     const fetchGrupoById = async () => {
       try {
         const res = await api.get("/api/conteos/grupos/activos");
-        const grupos = (Array.isArray(res.data) ? res.data : []) as ConteoGrupo[];
+        const grupos = (
+          Array.isArray(res.data) ? res.data : []
+        ) as ConteoGrupo[];
         const g = grupos.find((x) => String(x.id) === String(grupoId));
         if (g) setGrupoActivo(g);
       } catch (error) {
@@ -92,7 +105,11 @@ export default function ConteoOperario() {
         setBodegas(data);
         if (data.length === 1) setBodegaSeleccionada(data[0]);
       } catch {
-        toast.current?.show({ severity: "error", summary: "Error", detail: "No se pudieron cargar bodegas" });
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "No se pudieron cargar bodegas",
+        });
       }
     };
     fetchBodegas();
@@ -108,7 +125,9 @@ export default function ConteoOperario() {
 
     const fetchUbicaciones = async () => {
       try {
-        const res = await api.get(`/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`);
+        const res = await api.get(
+          `/api/asignacion/mis-ubicaciones?bodegaId=${bodegaSeleccionada.id}`,
+        );
         const data = res.data || [];
         setUbicaciones(data);
         if (data.length === 1) setUbicacionSeleccionada(data[0]);
@@ -123,7 +142,9 @@ export default function ConteoOperario() {
     const q = (e.query ?? "").trim();
     if (q.length < 2) return;
     try {
-      const res = await api.get(`/api/productos/buscar?texto=${encodeURIComponent(q)}`);
+      const res = await api.get(
+        `/api/productos/buscar?texto=${encodeURIComponent(q)}`,
+      );
       setResultadosProductos(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
@@ -131,7 +152,14 @@ export default function ConteoOperario() {
   };
 
   const guardar = async () => {
-    if (!productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0) return;
+    if (
+      !productoSeleccionado ||
+      !bodegaSeleccionada ||
+      !ubicacionSeleccionada ||
+      !cantidad ||
+      cantidad <= 0
+    )
+      return;
 
     try {
       setLoading(true);
@@ -142,13 +170,17 @@ export default function ConteoOperario() {
         conteo_grupo_id: Number(grupoId),
       });
 
-      toast.current?.show({ severity: "success", summary: "Guardado", detail: "Conteo registrado" });
+      toast.current?.show({
+        severity: "success",
+        summary: "Guardado",
+        detail: "Conteo registrado",
+      });
       setProductoSeleccionado(null);
       setCantidad(null);
       setUbicacionSeleccionada(null);
       setTextoBusqueda("");
     } catch (error) {
-      let msg = "No se pudo guardar";
+      const msg = "No se pudo guardar";
       if (axios.isAxiosError(error) && error.response?.status === 403) {
         navigate("/post-login");
         return;
@@ -160,8 +192,18 @@ export default function ConteoOperario() {
   };
 
   const confirmarGuardado = () => {
-    if (!productoSeleccionado || !bodegaSeleccionada || !ubicacionSeleccionada || !cantidad || cantidad <= 0) {
-      toast.current?.show({ severity: "warn", summary: "Datos incompletos", detail: "Completa todos los campos" });
+    if (
+      !productoSeleccionado ||
+      !bodegaSeleccionada ||
+      !ubicacionSeleccionada ||
+      !cantidad ||
+      cantidad <= 0
+    ) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Datos incompletos",
+        detail: "Completa todos los campos",
+      });
       return;
     }
 
@@ -169,10 +211,20 @@ export default function ConteoOperario() {
       header: "Confirmar conteo",
       message: (
         <div className="flex flex-column gap-2 py-2">
-          <p><strong>Producto:</strong> {productoSeleccionado.nombre}</p>
-          <p><strong>Referencia:</strong> {productoSeleccionado.referencia}</p>
-          <p><strong>Ubicación:</strong> {bodegaSeleccionada.nombre} - {ubicacionSeleccionada.nombre}</p>
-          <p className="text-xl mt-2"><strong>Cantidad:</strong> <span className="text-blue-500 font-bold">{cantidad}</span></p>
+          <p>
+            <strong>Producto:</strong> {productoSeleccionado.nombre}
+          </p>
+          <p>
+            <strong>Referencia:</strong> {productoSeleccionado.referencia}
+          </p>
+          <p>
+            <strong>Ubicación:</strong> {bodegaSeleccionada.nombre} -{" "}
+            {ubicacionSeleccionada.nombre}
+          </p>
+          <p className="text-xl mt-2">
+            <strong>Cantidad:</strong>{" "}
+            <span className="text-blue-500 font-bold">{cantidad}</span>
+          </p>
         </div>
       ),
       icon: "pi pi-exclamation-triangle",
@@ -198,18 +250,31 @@ export default function ConteoOperario() {
       <div className="capture-content">
         <div className="flex justify-content-between align-items-center mb-2">
           <div className="flex align-items-center gap-2">
-             <i className="pi pi-box text-blue-500 text-3xl"></i>
-             <span className="text-2xl font-bold text-white uppercase tracking-tight">Captura</span>
+            <i className="pi pi-box text-blue-500 text-3xl"></i>
+            <span className="text-2xl font-bold text-white uppercase tracking-tight">
+              Captura
+            </span>
           </div>
-          <Button icon="pi pi-sign-out" label="Salir" text severity="danger" onClick={() => { logout(); navigate("/login"); }} />
+          <Button
+            icon="pi pi-sign-out"
+            label="Salir"
+            text
+            severity="danger"
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          />
         </div>
 
         <Card className="shadow-8 border-round-2xl text-white p-fluid capture-card">
           <div className="mb-3 border-bottom-1 border-gray-700 pb-2">
-             <h2 className="text-xl font-bold text-white m-0">{grupoActivo?.descripcion || "Conteo de Inventario"}</h2>
-             <p className="text-gray-400 text-sm mt-1">
-                Fecha: {grupoActivo?.fecha || "---"}
-             </p>
+            <h2 className="text-xl font-bold text-white m-0">
+              {grupoActivo?.descripcion || "Conteo de Inventario"}
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              Fecha: {grupoActivo?.fecha || "---"}
+            </p>
           </div>
 
           <div className="flex flex-column gap-2">
@@ -225,14 +290,18 @@ export default function ConteoOperario() {
                 inputClassName="p-3 text-lg bg-gray-900 border-gray-700 text-white"
                 className="w-full"
                 invalid={!productoSeleccionado && !!textoBusqueda}
-                onChange={(e: AutoCompleteChangeEvent) => setTextoBusqueda(e.value)}
+                onChange={(e: AutoCompleteChangeEvent) =>
+                  setTextoBusqueda(e.value)
+                }
                 onSelect={(e: AutoCompleteSelectEvent) => {
                   setProductoSeleccionado(e.value);
                   setTextoBusqueda(e.value.nombre);
                 }}
                 itemTemplate={(item: Producto) => (
                   <div className="flex flex-column p-1">
-                    <span className="font-bold text-blue-400">{item.nombre}</span>
+                    <span className="font-bold text-blue-400">
+                      {item.nombre}
+                    </span>
                     <small className="text-gray-400">{item.referencia}</small>
                   </div>
                 )}
@@ -241,11 +310,15 @@ export default function ConteoOperario() {
 
             {productoSeleccionado && (
               <div className="border-round-xl p-2 mb-1 capture-product-info">
-                 <div className="flex align-items-center gap-2">
-                    <i className="pi pi-tag text-blue-400"></i>
-                    <span className="font-bold text-blue-100">{productoSeleccionado.nombre}</span>
-                 </div>
-                 <div className="text-gray-400 text-xs ml-4 mt-1">REF: {productoSeleccionado.referencia}</div>
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-tag text-blue-400"></i>
+                  <span className="font-bold text-blue-100">
+                    {productoSeleccionado.nombre}
+                  </span>
+                </div>
+                <div className="text-gray-400 text-xs ml-4 mt-1">
+                  REF: {productoSeleccionado.referencia}
+                </div>
               </div>
             )}
 
@@ -257,7 +330,9 @@ export default function ConteoOperario() {
                 optionLabel="nombre"
                 placeholder="Seleccione bodega"
                 className="bg-gray-900 border-gray-700 text-white capture-dropdown"
-                onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
+                onChange={(e: DropdownChangeEvent) =>
+                  setBodegaSeleccionada(e.value)
+                }
                 invalid={!bodegaSeleccionada}
               />
             </div>
@@ -271,7 +346,9 @@ export default function ConteoOperario() {
                 placeholder="Seleccione ubicación"
                 disabled={!bodegaSeleccionada}
                 className="bg-gray-900 border-gray-700 text-white capture-dropdown"
-                onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
+                onChange={(e: DropdownChangeEvent) =>
+                  setUbicacionSeleccionada(e.value)
+                }
                 invalid={!ubicacionSeleccionada && !!bodegaSeleccionada}
               />
             </div>
