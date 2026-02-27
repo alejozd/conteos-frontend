@@ -17,6 +17,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { confirmDialog, ConfirmDialog } from "primereact/confirmdialog";
+import "../styles/Capture.css";
 
 // TIPOS ============================
 interface Producto {
@@ -34,6 +35,13 @@ interface Ubicacion {
 interface Bodega {
   id: number;
   nombre: string;
+}
+
+interface ConteoGrupo {
+  id: number;
+  fecha: string;
+  descripcion: string;
+  activo: number;
 }
 
 export default function ConteoOperario() {
@@ -63,8 +71,8 @@ export default function ConteoOperario() {
     const fetchGrupoById = async () => {
       try {
         const res = await api.get("/api/conteos/grupos/activos");
-        const grupos = Array.isArray(res.data) ? res.data : [];
-        const g = grupos.find((x: any) => String(x.id) === String(grupoId));
+        const grupos = (Array.isArray(res.data) ? res.data : []) as ConteoGrupo[];
+        const g = grupos.find((x) => String(x.id) === String(grupoId));
         if (g) setGrupoActivo(g);
       } catch (error) {
         console.error("Error recuperando grupo:", error);
@@ -174,21 +182,18 @@ export default function ConteoOperario() {
   };
 
   return (
-    <div className="min-h-screen flex flex-column align-items-center p-2" style={{ backgroundColor: '#0f172a' }}>
+    <div className="capture-container flex flex-column align-items-center p-2">
       <ConfirmDialog />
       <Toast ref={toast} />
 
       {loading && (
-        <div
-          className="fixed top-0 left-0 w-full h-full z-5 flex flex-column align-items-center justify-content-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-        >
+        <div className="fixed top-0 left-0 w-full h-full z-5 flex flex-column align-items-center justify-content-center capture-loading-overlay">
           <ProgressSpinner />
           <p className="text-white mt-4 font-bold">Guardando conteo...</p>
         </div>
       )}
 
-      <div className="w-full" style={{ maxWidth: '500px' }}>
+      <div className="capture-content">
         <div className="flex justify-content-between align-items-center mb-2">
           <div className="flex align-items-center gap-2">
              <i className="pi pi-box text-blue-500 text-3xl"></i>
@@ -197,10 +202,7 @@ export default function ConteoOperario() {
           <Button icon="pi pi-sign-out" label="Salir" text severity="danger" onClick={() => { logout(); navigate("/login"); }} />
         </div>
 
-        <Card
-          className="shadow-8 border-round-2xl text-white p-fluid"
-          style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-        >
+        <Card className="shadow-8 border-round-2xl text-white p-fluid capture-card">
           <div className="mb-3 border-bottom-1 border-gray-700 pb-2">
              <h2 className="text-xl font-bold text-white m-0">{grupoActivo?.descripcion || "Conteo de Inventario"}</h2>
              <p className="text-gray-400 text-sm mt-1">
@@ -235,10 +237,7 @@ export default function ConteoOperario() {
             </div>
 
             {productoSeleccionado && (
-              <div
-                className="border-round-xl p-2 mb-1"
-                style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
-              >
+              <div className="border-round-xl p-2 mb-1 capture-product-info">
                  <div className="flex align-items-center gap-2">
                     <i className="pi pi-tag text-blue-400"></i>
                     <span className="font-bold text-blue-100">{productoSeleccionado.nombre}</span>
@@ -254,8 +253,7 @@ export default function ConteoOperario() {
                 options={bodegas}
                 optionLabel="nombre"
                 placeholder="Seleccione bodega"
-                className="bg-gray-900 border-gray-700 text-white"
-                style={{ height: '3rem' }}
+                className="bg-gray-900 border-gray-700 text-white capture-dropdown"
                 onChange={(e: DropdownChangeEvent) => setBodegaSeleccionada(e.value)}
               />
             </div>
@@ -268,8 +266,7 @@ export default function ConteoOperario() {
                 optionLabel="nombre"
                 placeholder="Seleccione ubicación"
                 disabled={!bodegaSeleccionada}
-                className="bg-gray-900 border-gray-700 text-white"
-                style={{ height: '3rem' }}
+                className="bg-gray-900 border-gray-700 text-white capture-dropdown"
                 onChange={(e: DropdownChangeEvent) => setUbicacionSeleccionada(e.value)}
               />
             </div>
@@ -280,8 +277,7 @@ export default function ConteoOperario() {
                 value={cantidad}
                 onValueChange={(e) => setCantidad(e.value ?? null)}
                 placeholder="0"
-                inputClassName="text-center text-4xl font-bold p-2 bg-gray-900 border-gray-700 text-white"
-                inputStyle={{ height: '4rem' }}
+                inputClassName="text-center text-4xl font-bold p-2 bg-gray-900 border-gray-700 text-white capture-input-number-input"
                 min={0}
                 minFractionDigits={0}
                 maxFractionDigits={5}
