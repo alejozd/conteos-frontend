@@ -184,38 +184,41 @@ export default function EmpresasAdmin() {
         emptyMessage="No se encontraron empresas registradas."
         stripedRows
         showGridlines
-        responsiveLayout="stack"
-        breakpoint="960px"
+        // CAMBIOS AQUÍ:
+        responsiveLayout="scroll"
+        scrollable
+        scrollHeight="flex"
       >
+        {/* Ajustamos los anchos para que no se colapsen en pantallas medianas */}
         <Column
           field="nit"
           header="NIT"
           sortable
-          style={{ width: "15%" }}
+          style={{ minWidth: "120px" }}
           className="font-mono"
         />
         <Column
           field="nombre"
           header="Nombre"
           sortable
-          style={{ width: "30%" }}
+          style={{ minWidth: "200px" }}
         />
         <Column
           field="descripcion"
           header="Descripción"
-          style={{ width: "35%" }}
+          style={{ minWidth: "250px" }}
         />
         <Column
           field="activo"
           header="Estado"
           body={statusBodyTemplate}
           sortable
-          style={{ width: "10%" }}
+          style={{ minWidth: "100px" }}
         />
         <Column
           body={actionBodyTemplate}
           header="Acciones"
-          style={{ width: "10%" }}
+          style={{ minWidth: "80px" }}
         />
       </DataTable>
 
