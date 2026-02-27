@@ -5,11 +5,14 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
+import { Tag } from "primereact/tag";
 import api from "../services/api";
+import "../styles/Details.css";
 
 interface ConteoDetalle {
   id: number;
   usuario: string;
+  bodega?: string;
   ubicacion: string;
   cantidad: number;
   timestamp: string;
@@ -46,7 +49,7 @@ export default function DetalleConteosDialog({
   const [conteoInfo, setConteoInfo] = useState<ConteoDetalle | null>(null);
 
   const cargarDetalle = async () => {
-    if (!id) return; // Seguridad
+    if (!id) return;
     setLoading(true);
     try {
       const res = await api.get("/api/admin/conteos-detalle", {
@@ -54,54 +57,29 @@ export default function DetalleConteosDialog({
       });
       setData(res.data || []);
     } catch (error) {
-      console.error("Error cargando detalle de conteos:", error);
+      console.error("Error cargando detalle:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (visible) {
-      cargarDetalle();
-    }
+    if (visible) cargarDetalle();
   }, [visible]);
 
   const formatearFecha = (value: string) => {
     return new Date(value).toLocaleString("es-CO", {
-      year: "numeric",
-      month: "2-digit",
       day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
     });
   };
 
-  const abrirAnulacion = (id: number) => {
-    setConteoId(id);
-    setMotivoAnulacion("");
-    setAnularVisible(true);
-  };
-
   const ejecutarAnulacion = async () => {
-    if (!conteoId || !motivoAnulacion.trim()) {
-      toast.current?.show({
-        severity: "warn",
-        summary: "Motivo requerido",
-        detail: "Debe ingresar un motivo de anulación",
-        life: 3000,
-      });
-      return;
-    }
-    // Validar que tengamos el ID del grupo (prop que viene del padre)
-    if (!conteo_grupo_id) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error de contexto",
-        detail: "No se identificó el grupo de conteo activo",
-      });
-      return;
-    }
-
+    if (!conteoId || !motivoAnulacion.trim()) return;
     try {
       await api.put(
         `/api/admin/conteos/${conteoId}/anular?conteo_grupo_id=${conteo_grupo_id}`,
@@ -109,36 +87,52 @@ export default function DetalleConteosDialog({
           motivo: motivoAnulacion,
         },
       );
-
       toast.current?.show({
         severity: "success",
-        summary: "Conteo anulado",
-        detail: "El conteo fue anulado correctamente",
-        life: 3000,
+        summary: "Anulado",
+        detail: "Registro actualizado",
       });
-
       cargarDetalle();
       onConteoAnulado();
-      setMotivoAnulacion("");
       setAnularVisible(false);
-      setConteoId(null);
     } catch (error) {
-      console.error("Error anulando conteo:", error);
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "No se pudo anular el conteo",
+        detail: "No se pudo anular. " + error,
       });
     }
   };
 
+  const statusTemplate = (row: ConteoDetalle) => {
+    const isAnulado = row.estado === "ANULADO";
+    return (
+      <span
+        className={`badge-status ${isAnulado ? "badge-anulado" : "badge-vigente"}`}
+      >
+        {row.estado}
+      </span>
+    );
+  };
+
   return (
     <Dialog
-      header={`Detalle de conteos - ${nombre}`}
+      header={
+        <div className="flex align-items-center gap-3">
+          <i className="pi pi-list text-blue-400 text-xl"></i>
+          <div className="flex flex-column">
+            <span className="text-xl font-bold">Detalle de Conteos</span>
+            <small className="text-gray-400 font-normal">
+              Producto: {nombre}
+            </small>
+          </div>
+        </div>
+      }
       visible={visible}
-      style={{ width: "70vw" }}
+      style={{ width: "85vw", maxWidth: "1000px" }}
       onHide={onHide}
       modal
+      className="details-dialog"
     >
       <Toast ref={toast} />
 
@@ -146,115 +140,168 @@ export default function DetalleConteosDialog({
         value={data}
         loading={loading}
         paginator
-        rows={10}
-        stripedRows
-        emptyMessage="No hay conteos para este producto"
+        rows={8}
+        className="details-table shadow-2 border-round-lg overflow-hidden"
+        emptyMessage="No hay registros de conteo."
         rowClassName={(row: ConteoDetalle) =>
           row.estado === "ANULADO" ? "row-anulado" : ""
         }
       >
-        <Column field="usuario" header="Usuario" />
+        <Column
+          field="usuario"
+          header="Operario"
+          body={(row) => (
+            <div className="flex align-items-center gap-2">
+              <i className="pi pi-user text-xs opacity-50"></i>
+              <span className="font-semibold">{row.usuario}</span>
+            </div>
+          )}
+        />
         <Column field="bodega" header="Bodega" />
-        <Column field="ubicacion" header="Ubicación" />
+        <Column
+          field="ubicacion"
+          header="Ubicación"
+          body={(row) => (
+            <Tag
+              severity="info"
+              value={row.ubicacion}
+              style={{
+                background: "transparent",
+                border: "1px solid #334155",
+                color: "#94a3b8",
+              }}
+            />
+          )}
+        />
         <Column
           field="cantidad"
           header="Cantidad"
-          body={(row) => Number(row.cantidad).toFixed(2)}
-          style={{ textAlign: "right" }}
+          body={(row) => (
+            <span className="font-mono text-lg font-bold text-blue-400">
+              {Number(row.cantidad).toFixed(2)}
+            </span>
+          )}
         />
         <Column
-          field="timestamp"
-          header="Fecha"
-          body={(row) => formatearFecha(row.timestamp)}
+          header="Fecha/Hora"
+          body={(row) => (
+            <span className="text-sm opacity-80">
+              {formatearFecha(row.timestamp)}
+            </span>
+          )}
         />
-
-        <Column
-          field="estado"
-          header="Estado"
-          body={(row: ConteoDetalle) =>
-            row.estado === "ANULADO" ? (
-              <span className="estado-anulado">ANULADO</span>
-            ) : (
-              "VIGENTE"
-            )
-          }
-        />
-
+        <Column header="Estado" body={statusTemplate} />
         <Column
           header="Acción"
-          body={(row: ConteoDetalle) =>
-            row.estado === "VIGENTE" ? (
-              <Button
-                icon="pi pi-times"
-                className="p-button-text p-button-danger p-button-sm"
-                onClick={() => abrirAnulacion(row.id)}
-              />
-            ) : (
-              <Button
-                icon="pi pi-info-circle"
-                className="p-button-text p-button-secondary p-button-sm"
-                onClick={() => {
-                  setConteoInfo(row);
-                  setInfoVisible(true);
-                }}
-              />
-            )
-          }
+          body={(row: ConteoDetalle) => (
+            <div className="flex gap-2">
+              {row.estado === "VIGENTE" ? (
+                <Button
+                  icon="pi pi-times-circle"
+                  tooltip="Anular"
+                  rounded
+                  outlined
+                  text
+                  severity="danger"
+                  size="large"
+                  onClick={() => {
+                    setConteoId(row.id);
+                    setMotivoAnulacion("");
+                    setAnularVisible(true);
+                  }}
+                />
+              ) : (
+                <Button
+                  icon="pi pi-eye"
+                  tooltip="Ver detalle de anulación"
+                  rounded
+                  outlined
+                  text
+                  severity="info"
+                  size="large"
+                  // className="p-button-rounded p-button-secondary p-button-text"
+                  onClick={() => {
+                    setConteoInfo(row);
+                    setInfoVisible(true);
+                  }}
+                />
+              )}
+            </div>
+          )}
         />
       </DataTable>
+
+      {/* DIÁLOGO ANULACIÓN */}
       <Dialog
-        header="Anular conteo"
+        header="Confirmar Anulación"
         visible={anularVisible}
-        style={{ width: "30vw" }}
+        style={{ width: "90vw", maxWidth: "400px" }}
         modal
+        className="inner-dialog"
         onHide={() => setAnularVisible(false)}
-      >
-        <div className="flex flex-column gap-3">
-          <span>Ingrese el motivo de anulación:</span>
-
-          <InputTextarea
-            rows={4}
-            autoResize
-            value={motivoAnulacion}
-            onChange={(e) => setMotivoAnulacion(e.target.value)}
-            placeholder="Motivo obligatorio"
-          />
-
+        footer={
           <div className="flex justify-content-end gap-2">
             <Button
               label="Cancelar"
-              className="p-button-text"
+              icon="pi pi-times"
+              className="p-button-text text-gray-400"
               onClick={() => setAnularVisible(false)}
             />
             <Button
-              label="Anular"
+              label="Confirmar Anulación"
+              icon="pi pi-check"
               className="p-button-danger"
               onClick={ejecutarAnulacion}
             />
           </div>
+        }
+      >
+        <div className="flex flex-column gap-3 py-2">
+          <label className="font-bold text-sm">Motivo de la anulación:</label>
+          <InputTextarea
+            rows={3}
+            value={motivoAnulacion}
+            onChange={(e) => setMotivoAnulacion(e.target.value)}
+            placeholder="Ej: Error de digitación, ubicación incorrecta..."
+            className="bg-gray-900 border-gray-700 text-white"
+          />
         </div>
       </Dialog>
+
+      {/* DIÁLOGO INFO ANULACIÓN */}
       <Dialog
-        header="Información de anulación"
+        header="Información de Anulación"
         visible={infoVisible}
-        style={{ width: "25vw" }}
+        style={{ width: "90vw", maxWidth: "450px" }}
         modal
+        className="inner-dialog"
         onHide={() => setInfoVisible(false)}
       >
         {conteoInfo && (
-          <div className="flex flex-column gap-2">
-            <strong>Usuario que anuló:</strong>
-            <span>{conteoInfo.usuario_anula || "N/A"}</span>
-
-            <strong>Fecha:</strong>
-            <span>
-              {conteoInfo.fecha_anulacion
-                ? formatearFecha(conteoInfo.fecha_anulacion)
-                : "N/A"}
-            </span>
-
-            <strong>Motivo:</strong>
-            <span>{conteoInfo.motivo_anulacion || "N/A"}</span>
+          <div
+            className="surface-ground p-3 border-round-lg flex flex-column gap-3"
+            style={{ background: "#0f172a" }}
+          >
+            <div className="flex justify-content-between border-bottom-1 border-gray-800 pb-2">
+              <span className="text-gray-400">Anulado por:</span>
+              <span className="font-bold text-red-400">
+                {conteoInfo.usuario_anula}
+              </span>
+            </div>
+            <div className="flex justify-content-between border-bottom-1 border-gray-800 pb-2">
+              <span className="text-gray-400">Fecha:</span>
+              <span>
+                {conteoInfo.fecha_anulacion
+                  ? formatearFecha(conteoInfo.fecha_anulacion)
+                  : "N/A"}
+              </span>
+            </div>
+            <div className="flex flex-column gap-2">
+              <span className="text-gray-400">Motivo:</span>
+              <div className="p-3 bg-gray-800 border-round italic text-sm">
+                "{conteoInfo.motivo_anulacion || "Sin motivo registrado"}"
+              </div>
+            </div>
           </div>
         )}
       </Dialog>

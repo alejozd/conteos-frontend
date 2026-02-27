@@ -1,0 +1,42 @@
+/* src/styles/StatCard.css */
+.stat-card-base {
+  /* Quitamos el !important del transform para que no choque con animaciones de entrada */
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease, background-color 0.3s ease;
+  background-color: #151f33 !important;
+  border-left-width: 6px !important;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  /* Asegura que el navegador optimice el movimiento */
+  will-change: transform;
+}
+
+.stat-card-base:hover {
+  /* El efecto de subida */
+  transform: translateY(-8px) !important;
+  background-color: #1c2841 !important;
+  z-index: 50; /* Que se superponga claramente */
+}
+
+/* Colores y sombras (Glow effect) */
+.stat-card-blue { border-left-color: #3b82f6 !important; }
+.stat-card-blue:hover {
+  box-shadow: 0 12px 20px -10px rgba(59, 130, 246, 0.5) !important;
+}
+
+.stat-card-red { border-left-color: #ef4444 !important; }
+.stat-card-red:hover {
+  box-shadow: 0 12px 20px -10px rgba(239, 68, 68, 0.5) !important;
+}
+
+.stat-card-green { border-left-color: #10b981 !important; }
+.stat-card-green:hover {
+  box-shadow: 0 12px 20px -10px rgba(16, 185, 129, 0.5) !important;
+}
+
+.stat-card-orange { border-left-color: #f59e0b !important; }
+.stat-card-orange:hover {
+  box-shadow: 0 12px 20px -10px rgba(245, 158, 11, 0.5) !important;
+}

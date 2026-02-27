@@ -11,8 +11,10 @@ import DetalleConteosDialog from "./DetalleConteosDialog";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import api from "../services/api";
-import "../styles/DashboardSaldos.css";
 import { useNavigate } from "react-router-dom";
+import { PageHeader } from "../components/common/PageHeader";
+import { StatCard } from "../components/common/StatCard";
+import "../styles/Dashboard.css";
 
 interface SaldoRow {
   id: number;
@@ -53,15 +55,10 @@ export default function DashboardSaldos() {
         const data = res.data || [];
         setGrupos(data);
 
-        // LÓGICA DE SELECCIÓN INTELIGENTE
         if (data.length > 0) {
-          // Buscamos el que tenga activo === 1
           const grupoActivo = data.find((g: ConteoGrupo) => g.activo === 1);
-
-          // Si hay uno activo lo seleccionamos, si no, tomamos el primero por defecto
           setGrupoSeleccionado(grupoActivo || data[0]);
         } else {
-          // IMPORTANTE: Si no hay grupos, apagamos el loading aquí
           setLoading(false);
         }
       } catch (error) {
@@ -100,7 +97,7 @@ export default function DashboardSaldos() {
         }),
         api.get("/api/admin/conteos-stats", {
           params: { conteo_grupo_id: grupoSeleccionado.id },
-        }), // Tu nuevo endpoint
+        }),
       ]);
 
       setData(resSaldos.data || []);
@@ -121,16 +118,12 @@ export default function DashboardSaldos() {
 
   const aplicarFiltroSincrono = (accion: () => void) => {
     setLoading(true);
-
-    // Usamos un pequeño setTimeout para permitir que React renderice el estado 'loading: true'
-    // antes de ejecutar la pesada tarea de filtrado
     setTimeout(() => {
       accion();
       setLoading(false);
     }, 100);
   };
 
-  // Handlers para los botones
   const toggleDiferencias = () => {
     aplicarFiltroSincrono(() => setSoloConDiferencia(!soloConDiferencia));
   };
@@ -149,18 +142,15 @@ export default function DashboardSaldos() {
     });
   }, [data, soloConDiferencia, soloConConteo]);
 
-  // Cálculos para indicadores
   const totalDiferencias = data.filter(
     (r) => Number(r.diferencia) !== 0,
   ).length;
 
   const diferenciaTemplate = (row: SaldoRow) => {
     const valor = Number(row.diferencia);
-
     let className = "diff-neutral";
     if (valor > 0) className = "diff-positive";
     if (valor < 0) className = "diff-negative";
-
     return <span className={className}>{valor.toFixed(2)}</span>;
   };
 
@@ -172,20 +162,16 @@ export default function DashboardSaldos() {
       Conteo: Number(r.conteo_total),
       Diferencia: Number(r.diferencia),
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Saldos");
-
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
-
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-
     saveAs(
       blob,
       `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`,
@@ -200,7 +186,7 @@ export default function DashboardSaldos() {
       >
         <span
           style={{
-            color: option.activo === 0 ? "#94a3b8" : "#f8fafc", // Forzamos color claro si es activo
+            color: option.activo === 0 ? "#94a3b8" : "#f8fafc",
             fontWeight: option.activo === 1 ? "500" : "normal",
           }}
         >
@@ -211,15 +197,10 @@ export default function DashboardSaldos() {
             </small>
           )}
         </span>
-
         {option.activo === 1 && (
           <i
             className="pi pi-circle-fill"
-            style={{
-              fontSize: "0.5rem",
-              color: "#22c55e", // Verde esmeralda directo (text-green-500)
-              marginLeft: "10px",
-            }}
+            style={{ fontSize: "0.5rem", color: "#22c55e", marginLeft: "10px" }}
           ></i>
         )}
       </div>
@@ -228,12 +209,11 @@ export default function DashboardSaldos() {
 
   const grupoValueTemplate = (option: ConteoGrupo, props: DropdownProps) => {
     if (!option) return <span>{props.placeholder}</span>;
-
     return (
       <div className="flex align-items-center gap-2">
         <span
           style={{
-            color: "#f8fafc", // Forzamos blanco para el valor seleccionado
+            color: "#f8fafc",
             fontWeight: option.activo === 1 ? "600" : "400",
           }}
         >
@@ -250,132 +230,116 @@ export default function DashboardSaldos() {
   };
 
   const header = (
-    <div className="flex flex-column gap-3">
-      {/* FILA 1: Título y Selector de Grupo */}
-      <div className="flex flex-column md:flex-row justify-content-between align-items-center gap-3">
-        <h3 className="m-0 dashboard-title">Saldos vs Conteos</h3>
-        <Dropdown
-          value={grupoSeleccionado}
-          options={grupos}
-          optionLabel="descripcion"
-          placeholder="Seleccionar conteo"
-          itemTemplate={grupoOptionTemplate}
-          valueTemplate={grupoValueTemplate}
-          className="p-inputtext-sm w-full md:w-20rem"
-          onChange={(e) => setGrupoSeleccionado(e.value)}
-        />
-      </div>
+    <div className="flex flex-column gap-2 mb-2">
+      <PageHeader
+        title="Saldos vs Conteos"
+        icon="pi pi-chart-line"
+        actions={
+          <Dropdown
+            value={grupoSeleccionado}
+            options={grupos}
+            optionLabel="descripcion"
+            placeholder="Seleccionar conteo"
+            itemTemplate={grupoOptionTemplate}
+            valueTemplate={grupoValueTemplate}
+            className="p-inputtext-sm w-full md:w-20rem"
+            onChange={(e) => setGrupoSeleccionado(e.value)}
+          />
+        }
+      />
 
-      {/* FILA 2: Indicadores Rápidos (KPIs) Compactos */}
-      <div className="grid mt-1">
-        {/* AVANCE */}
-        <div className="col-12 sm:col-6 md:col-3">
-          <div className="kpi-card shadow-1 border-avance">
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-chart-bar color-avance text-xs"></i>
-              <span className="kpi-label color-avance">Avance General</span>
-            </div>
-            <div className="flex justify-content-between align-items-end">
-              <span className="kpi-value color-avance">
-                {porcentajeAvance}%
-              </span>
-              <span className="kpi-subtext mb-1">
-                {productosContados} / {data.length}
-              </span>
-            </div>
+      <div className="grid mt-1 mb-2 px-1 pt-4">
+        <div className="col-12 sm:col-6 md:col-3 p-1">
+          <StatCard
+            label="Avance General"
+            value={`${porcentajeAvance}%`}
+            subtext={`${productosContados} / ${data.length}`}
+            icon="pi pi-chart-bar"
+            colorClass="color-blue"
+            borderColorClass="stat-card-blue"
+            sideSubtext
+            compact
+          >
             <div
-              className="w-full bg-gray-800 border-round mt-2"
-              style={{ height: "4px" }}
+              className="w-full bg-gray-800 border-round overflow-hidden mt-1"
+              style={{ height: "6px" }}
             >
               <div
-                className="bg-blue-500 border-round"
+                className="bg-blue transition-all transition-duration-500"
                 style={{ width: `${porcentajeAvance}%`, height: "100%" }}
-              ></div>
+              />
             </div>
-          </div>
+          </StatCard>
         </div>
 
-        {/* DIFERENCIAS */}
-        <div className="col-12 sm:col-6 md:col-3">
-          <div
-            className="kpi-card shadow-1 border-diferencias cursor-pointer"
+        <div className="col-12 sm:col-6 md:col-3 p-1">
+          <StatCard
+            label="Con Diferencia"
+            value={totalDiferencias}
+            subtext="Pendientes de revisión"
+            icon="pi pi-exclamation-triangle"
+            colorClass="color-red"
+            borderColorClass="stat-card-red"
             onClick={toggleDiferencias}
-          >
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-exclamation-triangle color-diferencias text-xs"></i>
-              <span className="kpi-label color-diferencias">
-                Con Diferencia
-              </span>
-            </div>
-            <div className="flex flex-column">
-              <span className="kpi-value color-diferencias">
-                {totalDiferencias}
-              </span>
-              <span className="kpi-subtext">Pendientes de revisión</span>
-            </div>
-          </div>
+            compact
+          />
         </div>
 
-        {/* REGISTROS */}
-        <div className="col-12 sm:col-6 md:col-3">
-          <div
-            className="kpi-card shadow-1 border-registros cursor-pointer"
+        <div className="col-12 sm:col-6 md:col-3 p-1">
+          <StatCard
+            label="Registros"
+            value={totalRegistros}
+            subtext="Operaciones guardadas"
+            icon="pi pi-clone"
+            colorClass="color-green"
+            borderColorClass="stat-card-green"
             onClick={toggleSoloConteos}
-          >
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-clone color-registros text-xs"></i>
-              <span className="kpi-label color-registros">Registros</span>
-            </div>
-            <div className="flex flex-column">
-              <span className="kpi-value color-registros">
-                {totalRegistros}
-              </span>
-              <span className="kpi-subtext">Operaciones guardadas</span>
-            </div>
-          </div>
+            compact
+          />
         </div>
 
-        {/* ANULADOS */}
-        <div className="col-12 sm:col-6 md:col-3">
-          <div
-            className="kpi-card shadow-1 border-anulados cursor-pointer"
+        <div className="col-12 sm:col-6 md:col-3 p-1">
+          <StatCard
+            label="Anulados"
+            value={totalAnulados}
+            subtext="Correcciones realizadas"
+            icon="pi pi-trash"
+            colorClass="color-orange"
+            borderColorClass="stat-card-orange"
             onClick={() =>
               navigate("/admin/conteos-anulados", {
                 state: { grupoId: grupoSeleccionado?.id },
               })
             }
-          >
-            <div className="flex align-items-center gap-2 mb-1">
-              <i className="pi pi-trash color-anulados text-xs"></i>
-              <span className="kpi-label color-anulados">Anulados</span>
-            </div>
-            <div className="flex flex-column">
-              <span className="kpi-value color-anulados">{totalAnulados}</span>
-              <span className="kpi-subtext">Correcciones realizadas</span>
-            </div>
-          </div>
+            compact
+          />
         </div>
       </div>
 
-      {/* FILA 3: Botones de Acción y Buscador */}
-      <div className="flex flex-wrap lg:justify-content-between align-items-center gap-2">
+      <div className="flex flex-wrap justify-content-between align-items-center gap-2 px-1">
         <div className="flex flex-wrap gap-2">
           <Button
             label="Diferencias"
             icon="pi pi-filter"
-            className={`p-button-sm ${
-              soloConDiferencia ? "p-button-danger" : "p-button-outlined"
-            }`}
-            onClick={toggleDiferencias} // Nueva función con loading
-            disabled={loading} // Evita clics dobles mientras procesa
+            className={`p-button-sm ${soloConDiferencia ? "" : "p-button-outlined"}`}
+            style={{
+              borderColor: "#3b82f6",
+              backgroundColor: soloConDiferencia ? "#3b82f6" : "transparent",
+              color: soloConDiferencia ? "white" : "#3b82f6",
+            }}
+            onClick={toggleDiferencias}
+            disabled={loading}
           />
           <Button
             label="Con Conteos"
             icon="pi pi-box"
-            className={`p-button-sm ${
-              soloConConteo ? "p-button-success" : "p-button-outlined"
-            }`}
-            onClick={toggleSoloConteos} // Nueva función con loading
+            className={`p-button-sm ${soloConConteo ? "" : "p-button-outlined"}`}
+            style={{
+              borderColor: "#3b82f6",
+              backgroundColor: soloConConteo ? "#3b82f6" : "transparent",
+              color: soloConConteo ? "white" : "#3b82f6",
+            }}
+            onClick={toggleSoloConteos}
             disabled={loading}
           />
           <Button
@@ -386,13 +350,13 @@ export default function DashboardSaldos() {
           />
         </div>
 
-        <IconField iconPosition="left">
+        <IconField iconPosition="left" className="ml-auto">
           <InputIcon className="pi pi-search" />
           <InputText
             placeholder="Buscar producto..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="p-inputtext-sm w-full md:w-15rem"
+            className="p-inputtext-sm w-full md:w-20rem bg-gray-900 border-gray-700"
           />
         </IconField>
       </div>
@@ -402,10 +366,9 @@ export default function DashboardSaldos() {
   return (
     <div className="card">
       {grupos.length === 0 && !loading && (
-        <div className="p-3 mb-3 border-round bg-orange-100 text-orange-700 border-1 border-orange-200">
+        <div className="p-3 mb-2 border-round bg-orange-100 text-orange-700 border-1 border-orange-200">
           <i className="pi pi-exclamation-circle mr-2"></i>
-          No has creado ningún <strong>Grupo de Conteo</strong> todavía. Ve a la
-          sección de configuración para crear uno y empezar a ver saldos.
+          No has creado ningún <strong>Grupo de Conteo</strong> todavía.
         </div>
       )}
       <DataTable
@@ -419,6 +382,7 @@ export default function DashboardSaldos() {
         emptyMessage="No hay datos para mostrar"
         stripedRows
         showGridlines
+        className="p-datatable-sm"
       >
         <Column field="nombre" header="Producto" sortable />
         <Column field="referencia" header="Referencia" sortable />
@@ -446,21 +410,13 @@ export default function DashboardSaldos() {
           header="Detalle"
           body={(row: SaldoRow) => {
             const tieneDetalle = Number(row.conteo_total) > 0;
-
             return (
               <Button
                 icon="pi pi-eye"
                 className="p-button-text p-button-sm"
                 disabled={!tieneDetalle}
-                tooltip={
-                  tieneDetalle
-                    ? "Ver detalle de conteos"
-                    : "Este producto no tiene conteos registrados"
-                }
-                tooltipOptions={{ position: "top" }}
                 onClick={() => {
                   if (!tieneDetalle) return;
-
                   setProductoSeleccionado(row);
                   setDetalleVisible(true);
                 }}

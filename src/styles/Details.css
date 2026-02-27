@@ -1,0 +1,64 @@
+/* Contenedor del Diálogo */
+.details-dialog .p-dialog-content {
+    background-color: #1e293b !important;
+    padding-top: 1rem !important;
+}
+
+.details-dialog .p-dialog-header {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-bottom: 1px solid #334155 !important;
+}
+
+/* Estilos de la Tabla */
+.details-table .p-datatable-thead > tr > th {
+    background: #0f172a !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #334155 !important;
+}
+
+.details-table .p-datatable-tbody > tr {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #334155 !important;
+}
+
+/* Fila Anulada */
+.row-anulado {
+    background-color: rgba(239, 68, 68, 0.05) !important;
+    color: #94a3b8 !important;
+}
+
+/* Badges de Estado */
+.badge-status {
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.badge-vigente {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-anulado {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Estilo para los diálogos internos (Anulación/Info) */
+.inner-dialog .p-dialog-content {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+}
+
+.inner-dialog .p-dialog-header {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+}

@@ -1,0 +1,81 @@
+
+.capture-container {
+    background-color: #0f172a;
+    min-height: 100vh;
+}
+
+.capture-content {
+    width: 100%;
+    max-width: 500px;
+}
+
+.capture-card {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+}
+
+.capture-dropdown {
+    height: 3rem;
+}
+
+.capture-input-number-input {
+    height: 4rem;
+}
+
+.capture-loading-overlay {
+    background-color: rgba(0,0,0,0.6); 
+    -webkit-backdrop-filter: blur(4px);   
+    backdrop-filter: blur(4px);    
+}
+
+.capture-product-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Estilos para el Diálogo de Confirmación Moderno */
+.confirm-capture-dialog {
+    background: #1e293b !important; /* Azul grisáceo muy oscuro sólido */
+    border: 1px solid #334155 !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+.confirm-capture-dialog .p-dialog-header,
+.confirm-capture-dialog .p-dialog-content,
+.confirm-capture-dialog .p-dialog-footer {
+    background: #1e293b !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Tarjetas internas de información */
+.info-box {
+    background: #0f172a !important; /* Fondo más oscuro para contraste */
+    border: 1px solid #334155;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.quantity-box {
+    background: #2563eb !important; /* Azul vibrante */
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.text-highlight {
+    color: #60a5fa;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}

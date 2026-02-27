@@ -1,4 +1,6 @@
 /* src/index.css */
+@import "./styles/common.css";
+
 * {
   box-sizing: border-box;
 }
@@ -11,18 +13,68 @@ html, body, #root {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #161616;
+  background-color: #0f172a; /* Dark blue-ish background from production */
+  color: #ffffff;
   min-height: 100vh;
 }
 
+/* Custom Table Styling */
 .p-datatable-header {
-  padding: 1.25rem !important;
+  padding: 0.75rem 1rem !important;
   background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-bottom: none !important;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
 
-.p-column-title {
+.p-datatable .p-datatable-thead > tr > th {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #94a3b8;
+  padding: 0.75rem 1rem !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: #1e293b !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #151f33 !important;
+}
+
+/* Custom Menubar Styling */
+.p-menubar {
+  border: none !important;
+  border-bottom: 1px solid #1e293b !important;
+  background: #0f172a !important;
+  padding: 0.5rem 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-radius: 0 !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

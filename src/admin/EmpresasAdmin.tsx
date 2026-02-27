@@ -125,11 +125,10 @@ export default function EmpresasAdmin() {
 
   const header = (
     <div className="flex flex-column gap-3">
-      {/* FILA SUPERIOR: Título y Botón Nueva */}
-      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3">
+      <div className="flex flex-column sm:flex-row justify-content-between align-items-start sm:align-items-center gap-3">
         <div className="flex align-items-center gap-3">
-          <i className="pi pi-building text-primary text-3xl" />
-          <h2 className="m-0 text-3xl font-bold text-900 tracking-tight text-white">
+          <i className="pi pi-building text-primary text-2xl md:text-3xl" />
+          <h2 className="m-0 text-xl md:text-3xl font-bold text-white tracking-tight">
             Gestión de Empresas
           </h2>
         </div>
@@ -138,36 +137,29 @@ export default function EmpresasAdmin() {
           label="Nueva Empresa"
           icon="pi pi-plus"
           severity="success"
-          className="p-button-sm shadow-2"
+          className="p-button-sm shadow-2 w-full sm:w-auto" // Botón ancho completo en móvil
           onClick={openNew}
         />
       </div>
 
-      {/* FILA INFERIOR: Buscador con IconField corregido */}
-      <div className="flex align-items-center bg-gray-900 p-3 border-round border-1 border-gray-800">
-        <div className="flex flex-column md:flex-row md:align-items-center gap-3 w-full">
-          <div className="flex-1">
-            <IconField iconPosition="left">
-              <InputIcon className="pi pi-search text-gray-400" />
-              <InputText
-                value={globalFilter}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setGlobalFilter(e.target.value)
-                }
-                placeholder="Buscar por nombre, NIT o descripción..."
-                className="w-full p-inputtext-sm bg-gray-800 border-gray-700 text-gray-100"
-              />
-            </IconField>
-          </div>
+      <div className="flex flex-column md:flex-row align-items-center bg-gray-900 p-2 md:p-3 border-round border-1 border-gray-800 gap-3">
+        <IconField iconPosition="left" className="w-full">
+          <InputIcon className="pi pi-search text-gray-400" />
+          <InputText
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Buscar empresa..."
+            className="w-full p-inputtext-sm bg-gray-800 border-gray-700 text-gray-100"
+          />
+        </IconField>
 
-          <div className="hidden md:flex align-items-center gap-2 bg-gray-800 px-3 py-2 border-round-xl border-1 border-gray-700">
-            <span className="text-sm text-gray-400 font-medium">
-              Registradas:
-            </span>
-            <span className="text-lg font-bold text-blue-400">
-              {empresas.length}
-            </span>
-          </div>
+        <div className="flex align-items-center gap-2 bg-gray-800 px-3 py-2 border-round border-1 border-gray-700 w-full md:w-auto justify-content-center">
+          <span className="text-xs text-gray-400 font-medium uppercase">
+            Registradas:
+          </span>
+          <span className="text-lg font-bold text-blue-400">
+            {empresas.length}
+          </span>
         </div>
       </div>
     </div>
@@ -192,38 +184,41 @@ export default function EmpresasAdmin() {
         emptyMessage="No se encontraron empresas registradas."
         stripedRows
         showGridlines
-        responsiveLayout="stack"
-        breakpoint="960px"
+        // CAMBIOS AQUÍ:
+        responsiveLayout="scroll"
+        scrollable
+        scrollHeight="flex"
       >
+        {/* Ajustamos los anchos para que no se colapsen en pantallas medianas */}
         <Column
           field="nit"
           header="NIT"
           sortable
-          style={{ width: "15%" }}
+          style={{ minWidth: "120px" }}
           className="font-mono"
         />
         <Column
           field="nombre"
           header="Nombre"
           sortable
-          style={{ width: "30%" }}
+          style={{ minWidth: "200px" }}
         />
         <Column
           field="descripcion"
           header="Descripción"
-          style={{ width: "35%" }}
+          style={{ minWidth: "250px" }}
         />
         <Column
           field="activo"
           header="Estado"
           body={statusBodyTemplate}
           sortable
-          style={{ width: "10%" }}
+          style={{ minWidth: "100px" }}
         />
         <Column
           body={actionBodyTemplate}
           header="Acciones"
-          style={{ width: "10%" }}
+          style={{ minWidth: "80px" }}
         />
       </DataTable>
 

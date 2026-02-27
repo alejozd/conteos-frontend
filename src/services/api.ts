@@ -21,8 +21,22 @@ api.interceptors.request.use((config) => {
   if (empresaIdSeleccionada) {
     config.headers["x-empresa-id"] = empresaIdSeleccionada;
   }
-  
+
   return config;
 });
+
+// Interceptor para manejar errores globales (ej: 401)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expirado o inválido
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default api;
