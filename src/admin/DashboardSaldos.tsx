@@ -59,6 +59,21 @@ const formatFecha = (iso: string | null): string => {
   });
 };
 
+interface ConteoExport {
+  id_conteo: number;
+  referencia: string;
+  producto: string;
+  cantidad: string;
+  bodega: string | null;
+  ubicacion: string | null;
+  usuario: string;
+  fecha_conteo: string | null;
+  estado: "VIGENTE" | "ANULADO";
+  motivo_anulacion: string | null;
+  usuario_anula: string | null;
+  fecha_anulacion: string | null;
+}
+
 export default function DashboardSaldos() {
   const [data, setData] = useState<SaldoRow[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -212,11 +227,11 @@ export default function DashboardSaldos() {
   const exportarTodo = async () => {
     if (!grupoSeleccionado) return;
     try {
-      const res = await api.get("/api/admin/conteos-exportar", {
+      const res = await api.get<ConteoExport[]>("/api/admin/conteos-exportar", {
         params: { conteo_grupo_id: grupoSeleccionado.id },
       });
 
-      const rows = res.data.map((r: any) => ({
+      const rows = res.data.map((r: ConteoExport) => ({
         "ID Conteo": r.id_conteo,
         Referencia: r.referencia,
         Producto: r.producto,
