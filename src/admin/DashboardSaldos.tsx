@@ -14,6 +14,7 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
+import { MultiSelect } from "primereact/multiselect";
 import "../styles/Dashboard.css";
 
 interface SaldoRow {
@@ -23,6 +24,7 @@ interface SaldoRow {
   saldo_sistema: string;
   conteo_total: string;
   diferencia: string;
+  ultimo_conteo: string | null;
 }
 
 interface ConteoGrupo {
@@ -31,6 +33,31 @@ interface ConteoGrupo {
   descripcion: string;
   activo: number;
 }
+
+const COLUMNAS_DISPONIBLES = [
+  { field: "nombre", header: "Producto" },
+  { field: "referencia", header: "Referencia" },
+  { field: "saldo_sistema", header: "Saldo sistema" },
+  { field: "conteo_total", header: "Conteo" },
+  { field: "diferencia", header: "Diferencia" },
+  { field: "ultimo_conteo", header: "Último conteo" },
+];
+
+const COLUMNAS_DEFAULT = COLUMNAS_DISPONIBLES.filter(
+  (c) => c.field !== "ultimo_conteo",
+);
+
+const formatFecha = (iso: string | null): string => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleString("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 export default function DashboardSaldos() {
   const [data, setData] = useState<SaldoRow[]>([]);
@@ -47,6 +74,9 @@ export default function DashboardSaldos() {
     useState<ConteoGrupo | null>(null);
   const [totalRegistros, setTotalRegistros] = useState(0);
   const navigate = useNavigate();
+  const [columnasVisibles, setColumnasVisibles] = useState(COLUMNAS_DEFAULT);
+  const esVisible = (field: string) =>
+    columnasVisibles.some((c) => c.field === field);
 
   useEffect(() => {
     const cargarGrupos = async () => {
@@ -156,6 +186,7 @@ export default function DashboardSaldos() {
 
   const exportarExcel = () => {
     const rows = dataFiltrada.map((r) => ({
+      "Último conteo": formatFecha(r.ultimo_conteo),
       Producto: r.nombre,
       Referencia: r.referencia,
       "Saldo sistema": Number(r.saldo_sistema),
@@ -176,6 +207,47 @@ export default function DashboardSaldos() {
       blob,
       `saldos_conteos_${new Date().toISOString().slice(0, 10)}.xlsx`,
     );
+  };
+
+  const exportarTodo = async () => {
+    if (!grupoSeleccionado) return;
+    try {
+      const res = await api.get("/api/admin/conteos-exportar", {
+        params: { conteo_grupo_id: grupoSeleccionado.id },
+      });
+
+      const rows = res.data.map((r: any) => ({
+        "ID Conteo": r.id_conteo,
+        Referencia: r.referencia,
+        Producto: r.producto,
+        Cantidad: Number(r.cantidad),
+        Bodega: r.bodega ?? "—",
+        Ubicación: r.ubicacion ?? "—",
+        Usuario: r.usuario,
+        "Fecha conteo": r.fecha_conteo
+          ? new Date(r.fecha_conteo).toLocaleString("es-CO")
+          : "—",
+        Estado: r.estado,
+        "Motivo anulación": r.motivo_anulacion ?? "—",
+        "Anulado por": r.usuario_anula ?? "—",
+        "Fecha anulación": r.fecha_anulacion
+          ? new Date(r.fecha_anulacion).toLocaleString("es-CO")
+          : "—",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Conteos");
+      const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      saveAs(
+        new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }),
+        `conteos_${grupoSeleccionado.descripcion}_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      );
+    } catch (error) {
+      console.error("Error exportando conteos:", error);
+    }
   };
 
   const grupoOptionTemplate = (option: ConteoGrupo) => {
@@ -348,6 +420,26 @@ export default function DashboardSaldos() {
             className="p-button-sm p-button-success p-button-outlined"
             onClick={exportarExcel}
           />
+          <Button
+            label="Exp. todo"
+            icon="pi pi-download"
+            className="p-button-sm p-button-outlined"
+            style={{ borderColor: "#8b5cf6", color: "#8b5cf6" }}
+            onClick={exportarTodo}
+            disabled={loading || !grupoSeleccionado}
+          />
+          <MultiSelect
+            value={columnasVisibles}
+            options={COLUMNAS_DISPONIBLES}
+            optionLabel="header"
+            onChange={(e) => setColumnasVisibles(e.value)}
+            placeholder="Columnas"
+            className="p-inputtext-sm"
+            display="chip"
+            style={{ maxWidth: "16rem" }}
+            tooltip="Mostrar / ocultar columnas"
+            tooltipOptions={{ position: "top" }}
+          />
         </div>
 
         <IconField iconPosition="left" className="ml-auto">
@@ -356,7 +448,7 @@ export default function DashboardSaldos() {
             placeholder="Buscar producto..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="p-inputtext-sm w-full md:w-20rem bg-gray-900 border-gray-700"
+            className="p-inputtext-sm w-full md:w-18rem bg-gray-900 border-gray-700"
           />
         </IconField>
       </div>
@@ -384,28 +476,56 @@ export default function DashboardSaldos() {
         showGridlines
         className="p-datatable-sm"
       >
-        <Column field="nombre" header="Producto" sortable />
-        <Column field="referencia" header="Referencia" sortable />
-        <Column
-          field="saldo_sistema"
-          header="Saldo sistema"
-          sortable
-          body={(row) => Number(row.saldo_sistema).toFixed(2)}
-          style={{ textAlign: "right" }}
-        />
-        <Column
-          field="conteo_total"
-          header="Conteo"
-          sortable
-          body={(row) => Number(row.conteo_total).toFixed(2)}
-          style={{ textAlign: "right" }}
-        />
-        <Column
-          header="Diferencia"
-          body={diferenciaTemplate}
-          sortable
-          style={{ textAlign: "right" }}
-        />
+        {esVisible("ultimo_conteo") && (
+          <Column
+            field="ultimo_conteo"
+            header="Último conteo"
+            sortable
+            body={(row: SaldoRow) => (
+              <span
+                style={{
+                  color: row.ultimo_conteo ? "#f8fafc" : "#64748b",
+                  fontSize: "0.85rem",
+                }}
+              >
+                {formatFecha(row.ultimo_conteo)}
+              </span>
+            )}
+            style={{ whiteSpace: "nowrap" }}
+          />
+        )}
+        {esVisible("nombre") && (
+          <Column field="nombre" header="Producto" sortable />
+        )}
+        {esVisible("referencia") && (
+          <Column field="referencia" header="Referencia" sortable />
+        )}
+        {esVisible("saldo_sistema") && (
+          <Column
+            field="saldo_sistema"
+            header="Saldo sistema"
+            sortable
+            body={(row) => Number(row.saldo_sistema).toFixed(2)}
+            style={{ textAlign: "right" }}
+          />
+        )}
+        {esVisible("conteo_total") && (
+          <Column
+            field="conteo_total"
+            header="Conteo"
+            sortable
+            body={(row) => Number(row.conteo_total).toFixed(2)}
+            style={{ textAlign: "right" }}
+          />
+        )}
+        {esVisible("diferencia") && (
+          <Column
+            header="Diferencia"
+            body={diferenciaTemplate}
+            sortable
+            style={{ textAlign: "right" }}
+          />
+        )}
         <Column
           header="Detalle"
           body={(row: SaldoRow) => {
